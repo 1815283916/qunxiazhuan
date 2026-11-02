@@ -1,2 +1,2 @@
-# quanxiazhuan
+# qunxiazhuan
 game
