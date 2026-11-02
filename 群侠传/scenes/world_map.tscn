@@ -1,0 +1,290 @@
+[gd_scene format=3 uid="uid://rlk7wqvkrhy0"]
+
+[ext_resource type="Script" uid="uid://cssgmaw45axbs" path="res://scripts/world_map.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://txi3047elcug" path="res://assets/UI/dikuang2.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://vkqakdkmc7qy" path="res://assets/UI/dingbu.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://hr7n368n6kh8" path="res://assets/Heads/zhengtingyu.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://dmjyfv56lqt2" path="res://assets/UI/touxiangkuang.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://leqedqv6li52" path="res://assets/UI/chilun.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://luue33fkaual" path="res://assets/UI/rizhi.png" id="7"]
+[ext_resource type="Texture2D" uid="uid://c4mbpmlcf152a" path="res://assets/UI/zhuangtai.png" id="8"]
+[ext_resource type="Texture2D" uid="uid://cqxt7wakfbvbn" path="res://assets/UI/xitong.png" id="9"]
+[ext_resource type="Texture2D" uid="uid://cq22njwcdwa34" path="res://assets/UI/money2.png" id="10"]
+[ext_resource type="Texture2D" uid="uid://qg2nw6xohov4" path="res://assets/UI/daoju.png" id="11"]
+
+[sub_resource type="StyleBoxFlat" id="marker_normal"]
+bg_color = Color(0.12, 0.095, 0.07, 0.78)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.43, 0.3, 0.16, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="StyleBoxFlat" id="marker_hover"]
+bg_color = Color(0.43, 0.27, 0.12, 0.92)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.9, 0.75, 0.31, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="WorldMap" type="Control" unique_id=1493106642]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="MapPaper" type="TextureRect" parent="." unique_id=1110692575]
+modulate = Color(0.72, 0.69, 0.57, 1)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="TopBar" type="TextureRect" parent="." unique_id=1837935084]
+layout_mode = 0
+offset_right = 1600.0
+offset_bottom = 76.0
+texture = ExtResource("3")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Region" type="Label" parent="TopBar" unique_id=1863443820]
+layout_mode = 0
+offset_left = 300.0
+offset_top = 14.0
+offset_right = 600.0
+offset_bottom = 58.0
+theme_override_colors/font_color = Color(0.86, 0.86, 0.1, 1)
+theme_override_font_sizes/font_size = 25
+text = "大地图：中原地区"
+
+[node name="Date" type="Label" parent="TopBar" unique_id=913996749]
+layout_mode = 0
+offset_left = 650.0
+offset_top = 14.0
+offset_right = 990.0
+offset_bottom = 58.0
+theme_override_colors/font_color = Color(0.86, 0.86, 0.1, 1)
+theme_override_font_sizes/font_size = 24
+text = "江湖三年十一月七日"
+horizontal_alignment = 1
+
+[node name="SilverIcon" type="TextureRect" parent="TopBar" unique_id=831825505]
+layout_mode = 0
+offset_left = 1070.0
+offset_top = 8.0
+offset_right = 1125.0
+offset_bottom = 63.0
+texture = ExtResource("10")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Money" type="Label" parent="TopBar" unique_id=14327457]
+layout_mode = 0
+offset_left = 1135.0
+offset_top = 14.0
+offset_right = 1260.0
+offset_bottom = 58.0
+theme_override_colors/font_color = Color(0.86, 0.86, 0.1, 1)
+theme_override_font_sizes/font_size = 24
+text = "1280"
+
+[node name="Reputation" type="Label" parent="TopBar" unique_id=1815294957]
+layout_mode = 0
+offset_left = 1400.0
+offset_top = 14.0
+offset_right = 1540.0
+offset_bottom = 58.0
+theme_override_colors/font_color = Color(0.86, 0.86, 0.1, 1)
+theme_override_font_sizes/font_size = 24
+text = "120"
+
+[node name="Portrait" type="TextureRect" parent="." unique_id=864905141]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 30.0
+offset_right = 265.0
+offset_bottom = 273.0
+texture = ExtResource("4")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Frame" type="TextureRect" parent="Portrait" unique_id=849876586]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("5")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Locations" type="Control" parent="." unique_id=1117305454]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Tianshan" type="Button" parent="Locations" unique_id=483382583]
+layout_mode = 0
+offset_left = 395.0
+offset_top = 175.0
+offset_right = 530.0
+offset_bottom = 235.0
+theme_override_colors/font_color = Color(0.92, 0.87, 0.74, 1)
+theme_override_font_sizes/font_size = 18
+theme_override_styles/normal = SubResource("marker_normal")
+theme_override_styles/hover = SubResource("marker_hover")
+text = "天山"
+
+[node name="ChangAn" type="Button" parent="Locations" unique_id=456914751]
+layout_mode = 0
+offset_left = 815.0
+offset_top = 320.0
+offset_right = 965.0
+offset_bottom = 385.0
+theme_override_colors/font_color = Color(0.92, 0.87, 0.74, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("marker_normal")
+theme_override_styles/hover = SubResource("marker_hover")
+text = "长安西市"
+
+[node name="Huashan" type="Button" parent="Locations" unique_id=1263918037]
+layout_mode = 0
+offset_left = 650.0
+offset_top = 210.0
+offset_right = 810.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.95, 0.42, 0.3, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("marker_normal")
+theme_override_styles/hover = SubResource("marker_hover")
+text = "华山论剑"
+
+[node name="Shaolin" type="Button" parent="Locations" unique_id=438458605]
+layout_mode = 0
+offset_left = 1080.0
+offset_top = 260.0
+offset_right = 1230.0
+offset_bottom = 325.0
+theme_override_colors/font_color = Color(0.92, 0.87, 0.74, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("marker_normal")
+theme_override_styles/hover = SubResource("marker_hover")
+text = "少林寺"
+
+[node name="Chengdu" type="Button" parent="Locations" unique_id=82311288]
+layout_mode = 0
+offset_left = 560.0
+offset_top = 515.0
+offset_right = 710.0
+offset_bottom = 580.0
+theme_override_colors/font_color = Color(0.92, 0.87, 0.74, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("marker_normal")
+theme_override_styles/hover = SubResource("marker_hover")
+text = "成都"
+
+[node name="Taohua" type="Button" parent="Locations" unique_id=245429395]
+layout_mode = 0
+offset_left = 1165.0
+offset_top = 575.0
+offset_right = 1325.0
+offset_bottom = 640.0
+theme_override_colors/font_color = Color(0.92, 0.87, 0.74, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("marker_normal")
+theme_override_styles/hover = SubResource("marker_hover")
+text = "桃花岛"
+
+[node name="Yunnan" type="Button" parent="Locations" unique_id=774437280]
+layout_mode = 0
+offset_left = 350.0
+offset_top = 690.0
+offset_right = 510.0
+offset_bottom = 755.0
+theme_override_colors/font_color = Color(0.92, 0.87, 0.74, 1)
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("marker_normal")
+theme_override_styles/hover = SubResource("marker_hover")
+text = "云滇地区"
+
+[node name="RightWheel" type="TextureRect" parent="." unique_id=1990608099]
+layout_mode = 0
+offset_left = 1395.0
+offset_top = 690.0
+offset_right = 1595.0
+offset_bottom = 890.0
+texture = ExtResource("6")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Character" type="TextureButton" parent="." unique_id=77029066]
+layout_mode = 0
+offset_left = 1483.0
+offset_top = 591.0
+offset_right = 1583.0
+offset_bottom = 691.0
+tooltip_text = "人物状态"
+texture_normal = ExtResource("8")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Log" type="TextureButton" parent="." unique_id=1179556928]
+layout_mode = 0
+offset_left = 1374.0
+offset_top = 621.0
+offset_right = 1474.0
+offset_bottom = 721.0
+tooltip_text = "江湖日志"
+texture_normal = ExtResource("7")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Inventory" type="TextureButton" parent="." unique_id=1613147797]
+layout_mode = 0
+offset_left = 1304.0
+offset_top = 716.0
+offset_right = 1404.0
+offset_bottom = 816.0
+tooltip_text = "背包"
+texture_normal = ExtResource("11")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Menu" type="TextureButton" parent="." unique_id=9281330]
+layout_mode = 0
+offset_left = 1457.0
+offset_top = 745.0
+offset_right = 1557.0
+offset_bottom = 845.0
+tooltip_text = "系统菜单"
+texture_normal = ExtResource("9")
+ignore_texture_size = true
+stretch_mode = 5
+
+[connection signal="pressed" from="Character" to="." method="_on_character_pressed"]
+[connection signal="pressed" from="Log" to="." method="_on_log_pressed"]
+[connection signal="pressed" from="Inventory" to="." method="_on_inventory_pressed"]
+[connection signal="pressed" from="Menu" to="." method="_on_menu_pressed"]

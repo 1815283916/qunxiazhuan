@@ -1,0 +1,489 @@
+[gd_scene load_steps=23 format=3]
+
+[ext_resource type="Script" path="res://scripts/character.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/UI/renwuzhuangtai_dise.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/Heads/zhengtingyu.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/UI/renwuzhuangtai_shuxing.png" id="4"]
+[ext_resource type="Texture2D" path="res://assets/UI/renwuzhuangtai_zhuangbei.png" id="5"]
+[ext_resource type="Texture2D" path="res://assets/UI/renwuzhuangtai_jineng.png" id="6"]
+[ext_resource type="Texture2D" path="res://assets/UI/renwuzhuangtai_tianfu.png" id="7"]
+[ext_resource type="Texture2D" path="res://assets/UI/renwuzhuangtai_liezhuang.png" id="8"]
+[ext_resource type="Texture2D" path="res://assets/Heads/huoqingtong.png" id="9"]
+[ext_resource type="Texture2D" path="res://assets/Heads/xishi.png" id="10"]
+[ext_resource type="Texture2D" path="res://assets/UI/buttonbg.png" id="11"]
+[ext_resource type="Texture2D" path="res://assets/Items/moshenjian.jpg" id="12"]
+[ext_resource type="Texture2D" path="res://assets/Items/Dcubudaopao.jpg" id="13"]
+[ext_resource type="Texture2D" path="res://assets/Items/jiezhi3.jpg" id="14"]
+[ext_resource type="Texture2D" path="res://assets/Icons/icon_waigong_114.jpg" id="15"]
+[ext_resource type="Texture2D" path="res://assets/Icons/icon_waigong_107.jpg" id="16"]
+[ext_resource type="Texture2D" path="res://assets/Icons/icon_neigong_020.jpg" id="17"]
+[ext_resource type="Texture2D" path="res://assets/UI/btn_cross.png" id="18"]
+[ext_resource type="Texture2D" path="res://assets/Heads/wangyuyan.png" id="19"]
+[ext_resource type="Texture2D" path="res://assets/Heads/chengying.png" id="20"]
+[ext_resource type="Texture2D" path="res://assets/Heads/shiqingxuan.png" id="21"]
+
+[sub_resource type="StyleBoxFlat" id="portrait_frame"]
+bg_color = Color(1, 1, 1, 0.48)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.25, 0.21, 0.16, 1)
+
+[node name="Character" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.09, 0.08, 0.06, 0.85)
+
+[node name="Paper" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 45.0
+offset_top = 70.0
+offset_right = 1465.0
+offset_bottom = 870.0
+texture = ExtResource("2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="PortraitFrame" type="Panel" parent="Paper"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 20.0
+offset_right = 420.0
+offset_bottom = 425.0
+theme_override_styles/panel = SubResource("portrait_frame")
+
+[node name="Portrait" type="TextureRect" parent="Paper/PortraitFrame"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Paper"]
+layout_mode = 0
+offset_left = 45.0
+offset_top = 350.0
+offset_right = 400.0
+offset_bottom = 425.0
+theme_override_colors/font_color = Color(0.13, 0.1, 0.075, 1)
+theme_override_colors/font_outline_color = Color(0.95, 0.89, 0.72, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 43
+text = "宇文逸"
+
+[node name="Overview" type="Label" parent="Paper"]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 440.0
+offset_right = 420.0
+offset_bottom = 690.0
+theme_override_colors/font_color = Color(0.18, 0.16, 0.13, 1)
+theme_override_font_sizes/font_size = 22
+text = "等级  3\n生命  100 / 100\n内力  60 / 60\n经验  240 / 500\n攻击  67\n韧性  42\n免伤  6%"
+
+[node name="Tabs" type="HBoxContainer" parent="Paper"]
+layout_mode = 0
+offset_left = 460.0
+offset_top = 25.0
+offset_right = 1250.0
+offset_bottom = 155.0
+theme_override_constants/separation = 15
+
+[node name="Attributes" type="TextureButton" parent="Paper/Tabs"]
+custom_minimum_size = Vector2(130, 130)
+layout_mode = 2
+texture_normal = ExtResource("4")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "属性"
+
+[node name="Equipment" type="TextureButton" parent="Paper/Tabs"]
+custom_minimum_size = Vector2(130, 130)
+layout_mode = 2
+texture_normal = ExtResource("5")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "装备"
+
+[node name="Skills" type="TextureButton" parent="Paper/Tabs"]
+custom_minimum_size = Vector2(130, 130)
+layout_mode = 2
+texture_normal = ExtResource("6")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "技能"
+
+[node name="Talents" type="TextureButton" parent="Paper/Tabs"]
+custom_minimum_size = Vector2(130, 130)
+layout_mode = 2
+texture_normal = ExtResource("7")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "天赋"
+
+[node name="Biography" type="TextureButton" parent="Paper/Tabs"]
+custom_minimum_size = Vector2(130, 130)
+layout_mode = 2
+texture_normal = ExtResource("8")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "列传"
+
+[node name="TabHint" type="Label" parent="Paper"]
+layout_mode = 0
+offset_left = 510.0
+offset_top = 165.0
+offset_right = 900.0
+offset_bottom = 205.0
+theme_override_colors/font_color = Color(0.27, 0.2, 0.13, 1)
+theme_override_font_sizes/font_size = 23
+text = "当前页：属性"
+
+[node name="WeaponTitle" type="Label" parent="Paper"]
+layout_mode = 0
+offset_left = 450.0
+offset_top = 235.0
+offset_right = 750.0
+offset_bottom = 280.0
+theme_override_colors/font_color = Color(0.2, 0.16, 0.12, 1)
+theme_override_font_sizes/font_size = 25
+text = "兵刃系数"
+
+[node name="WeaponStats" type="Label" parent="Paper"]
+layout_mode = 0
+offset_left = 455.0
+offset_top = 295.0
+offset_right = 750.0
+offset_bottom = 535.0
+theme_override_colors/font_color = Color(0.22, 0.2, 0.17, 1)
+theme_override_font_sizes/font_size = 23
+text = "拳掌    68 (+10)\n\n剑法    92 (+25)\n\n刀法    46 (+5)\n\n奇门    52 (+8)"
+
+[node name="BaseTitle" type="Label" parent="Paper"]
+layout_mode = 0
+offset_left = 780.0
+offset_top = 235.0
+offset_right = 1080.0
+offset_bottom = 280.0
+theme_override_colors/font_color = Color(0.2, 0.16, 0.12, 1)
+theme_override_font_sizes/font_size = 25
+text = "基础属性"
+
+[node name="BaseStats" type="Label" parent="Paper"]
+layout_mode = 0
+offset_left = 785.0
+offset_top = 295.0
+offset_right = 1240.0
+offset_bottom = 535.0
+theme_override_colors/font_color = Color(0.22, 0.2, 0.17, 1)
+theme_override_font_sizes/font_size = 23
+text = "臂力    18       福缘    14\n\n身法    16       根骨    17\n\n悟性    21       定力    15"
+
+[node name="EquipmentPanel" type="HBoxContainer" parent="Paper"]
+visible = false
+layout_mode = 0
+offset_left = 460.0
+offset_top = 285.0
+offset_right = 1260.0
+offset_bottom = 525.0
+theme_override_constants/separation = 35
+[node name="Weapon" type="TextureButton" parent="Paper/EquipmentPanel"]
+custom_minimum_size = Vector2(220, 220)
+layout_mode = 2
+texture_normal = ExtResource("12")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "玄铁剑"
+[node name="Name" type="Label" parent="Paper/EquipmentPanel/Weapon"]
+layout_mode = 0
+offset_top = 174.0
+offset_right = 220.0
+offset_bottom = 220.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.96, 0.9, 0.78, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.04, 0.03, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 20
+text = "玄铁剑"
+horizontal_alignment = 1
+vertical_alignment = 1
+[node name="Armor" type="TextureButton" parent="Paper/EquipmentPanel"]
+custom_minimum_size = Vector2(220, 220)
+layout_mode = 2
+texture_normal = ExtResource("13")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "粗布道袍"
+[node name="Name" type="Label" parent="Paper/EquipmentPanel/Armor"]
+layout_mode = 0
+offset_top = 174.0
+offset_right = 220.0
+offset_bottom = 220.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.96, 0.9, 0.78, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.04, 0.03, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 20
+text = "粗布道袍"
+horizontal_alignment = 1
+vertical_alignment = 1
+[node name="Accessory" type="TextureButton" parent="Paper/EquipmentPanel"]
+custom_minimum_size = Vector2(220, 220)
+layout_mode = 2
+texture_normal = ExtResource("14")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "毒戒指"
+[node name="Name" type="Label" parent="Paper/EquipmentPanel/Accessory"]
+layout_mode = 0
+offset_top = 174.0
+offset_right = 220.0
+offset_bottom = 220.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.96, 0.9, 0.78, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.04, 0.03, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 20
+text = "毒戒指"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SkillsPanel" type="Control" parent="Paper"]
+visible = false
+layout_mode = 0
+offset_left = 450.0
+offset_top = 230.0
+offset_right = 1290.0
+offset_bottom = 620.0
+[node name="Hint" type="Label" parent="Paper/SkillsPanel"]
+layout_mode = 0
+offset_right = 820.0
+offset_bottom = 50.0
+theme_override_colors/font_color = Color(0.25, 0.2, 0.15, 1)
+theme_override_font_sizes/font_size = 21
+text = "选择武学查看详情；最多装备四个武学和一个心法。"
+[node name="Grid" type="GridContainer" parent="Paper/SkillsPanel"]
+layout_mode = 0
+offset_top = 75.0
+offset_right = 820.0
+offset_bottom = 390.0
+theme_override_constants/h_separation = 26
+theme_override_constants/v_separation = 14
+columns = 3
+[node name="Sword" type="TextureButton" parent="Paper/SkillsPanel/Grid"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+texture_normal = ExtResource("15")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "独孤九剑"
+[node name="Name" type="Label" parent="Paper/SkillsPanel/Grid/Sword"]
+layout_mode = 0
+offset_top = 108.0
+offset_right = 150.0
+offset_bottom = 150.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.96, 0.9, 0.78, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.04, 0.03, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "独孤九剑\nLv.3"
+horizontal_alignment = 1
+[node name="Palm" type="TextureButton" parent="Paper/SkillsPanel/Grid"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+texture_normal = ExtResource("16")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "落英神剑掌"
+[node name="Name" type="Label" parent="Paper/SkillsPanel/Grid/Palm"]
+layout_mode = 0
+offset_top = 108.0
+offset_right = 150.0
+offset_bottom = 150.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.96, 0.9, 0.78, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.04, 0.03, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "落英神剑掌\nLv.2"
+horizontal_alignment = 1
+[node name="Internal" type="TextureButton" parent="Paper/SkillsPanel/Grid"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+texture_normal = ExtResource("17")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "九阳神功"
+[node name="Name" type="Label" parent="Paper/SkillsPanel/Grid/Internal"]
+layout_mode = 0
+offset_top = 108.0
+offset_right = 150.0
+offset_bottom = 150.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.96, 0.9, 0.78, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.04, 0.03, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "漫天花雨\nLv.2"
+horizontal_alignment = 1
+
+[node name="Fourth" type="TextureButton" parent="Paper/SkillsPanel/Grid"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+texture_normal = ExtResource("15")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "太极剑法"
+[node name="Name" type="Label" parent="Paper/SkillsPanel/Grid/Fourth"]
+layout_mode = 0
+offset_top = 108.0
+offset_right = 150.0
+offset_bottom = 150.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.96, 0.9, 0.78, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.04, 0.03, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "太极剑法\nLv.1"
+horizontal_alignment = 1
+
+[node name="Heart" type="TextureButton" parent="Paper/SkillsPanel/Grid"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+texture_normal = ExtResource("17")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "九阳神功"
+[node name="Name" type="Label" parent="Paper/SkillsPanel/Grid/Heart"]
+layout_mode = 0
+offset_top = 108.0
+offset_right = 150.0
+offset_bottom = 150.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.96, 0.9, 0.78, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.04, 0.03, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "九阳神功\nLv.3"
+horizontal_alignment = 1
+
+[node name="TalentsPanel" type="Label" parent="Paper"]
+visible = false
+layout_mode = 0
+offset_left = 455.0
+offset_top = 250.0
+offset_right = 1270.0
+offset_bottom = 620.0
+theme_override_colors/font_color = Color(0.22, 0.17, 0.13, 1)
+theme_override_font_sizes/font_size = 23
+text = "武学常识  120 / 460        天赋总数  4\n\n异世人 【消耗武学常识：0】\n来自另一个世界的神秘人，具有深不见底的潜力。\n\n洞察 【消耗武学常识：20】\n攻击时更容易发现敌人的破绽。\n\n不老长春 【消耗武学常识：60】\n气血低于一半时提升防御。"
+autowrap_mode = 2
+
+[node name="BiographyPanel" type="Label" parent="Paper"]
+visible = false
+layout_mode = 0
+offset_left = 455.0
+offset_top = 250.0
+offset_right = 1270.0
+offset_bottom = 620.0
+theme_override_colors/font_color = Color(0.22, 0.17, 0.13, 1)
+theme_override_font_sizes/font_size = 24
+text = "宇文逸，武当门下年轻侠客。\n\n自幼随师修习剑术，性情沉静而重信义。初入江湖便卷入华山论剑的纷争，立誓以手中之剑扶危济困。\n\n称号：初入江湖\n关系：武当派 · 冲虚道长"
+autowrap_mode = 2
+
+[node name="Back" type="TextureButton" parent="Paper"]
+layout_mode = 0
+offset_left = 1260.0
+offset_top = -35.0
+offset_right = 1400.0
+offset_bottom = 105.0
+texture_normal = ExtResource("18")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "返回人物总览"
+
+[node name="Label" type="Label" parent="Paper/Back"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.94, 0.88, 0.76, 1)
+theme_override_font_sizes/font_size = 22
+text = "返 回"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Party" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 1480.0
+offset_top = 50.0
+offset_right = 1590.0
+offset_bottom = 870.0
+theme_override_constants/separation = 18
+
+[node name="Hero1" type="TextureButton" parent="Party"]
+custom_minimum_size = Vector2(105, 105)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Hero2" type="TextureButton" parent="Party"]
+custom_minimum_size = Vector2(105, 105)
+layout_mode = 2
+texture_normal = ExtResource("9")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Hero3" type="TextureButton" parent="Party"]
+custom_minimum_size = Vector2(105, 105)
+layout_mode = 2
+texture_normal = ExtResource("10")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Hero4" type="TextureButton" parent="Party"]
+custom_minimum_size = Vector2(105, 105)
+layout_mode = 2
+texture_normal = ExtResource("19")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Hero5" type="TextureButton" parent="Party"]
+custom_minimum_size = Vector2(105, 105)
+layout_mode = 2
+texture_normal = ExtResource("20")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Hero6" type="TextureButton" parent="Party"]
+custom_minimum_size = Vector2(105, 105)
+layout_mode = 2
+texture_normal = ExtResource("21")
+ignore_texture_size = true
+stretch_mode = 5
+
+[connection signal="pressed" from="Paper/Back" to="." method="_on_back_pressed"]

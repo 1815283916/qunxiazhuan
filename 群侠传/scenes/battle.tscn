@@ -1,0 +1,948 @@
+[gd_scene format=3 uid="uid://by82qr6hkf73a"]
+
+[ext_resource type="Script" uid="uid://ds2q8unf674sx" path="res://scripts/battle.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://b6hibkyxtqm8j" path="res://assets/BattleBg/biwu.jpg" id="2"]
+[ext_resource type="Texture2D" uid="uid://bs6qcm2hvp1fy" path="res://assets/UI/block.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://hr7n368n6kh8" path="res://assets/Heads/zhengtingyu.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://cmfn7fjg7mg8q" path="res://assets/Heads/fangyi.png" id="5"]
+[ext_resource type="Texture2D" uid="uid://c0miavmofyk3r" path="res://assets/UI/skill_bg.png" id="6"]
+[ext_resource type="Texture2D" uid="uid://qqrjdkmf31dx" path="res://assets/Icons/icon_waigong_114.jpg" id="7"]
+[ext_resource type="Texture2D" uid="uid://ccox4dw3wku5y" path="res://assets/Icons/icon_waigong_107.jpg" id="8"]
+[ext_resource type="Texture2D" uid="uid://clw5w258wjx7s" path="res://assets/Icons/icon_neigong_020.jpg" id="9"]
+[ext_resource type="Texture2D" uid="uid://h08aifoddug2" path="res://assets/UI/buttonbg.png" id="11"]
+[ext_resource type="PackedScene" path="res://scenes/battle_unit.tscn" id="12"]
+[ext_resource type="Texture2D" uid="uid://qg2nw6xohov4" path="res://assets/UI/daoju.png" id="13"]
+[ext_resource type="Texture2D" uid="uid://c4mbpmlcf152a" path="res://assets/UI/zhuangtai.png" id="14"]
+
+[sub_resource type="StyleBoxFlat" id="hp_bg"]
+bg_color = Color(0.08, 0.06, 0.05, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.08, 0.04, 0.03, 1)
+
+[sub_resource type="StyleBoxFlat" id="hp_fill"]
+bg_color = Color(0.73, 0.08, 0.06, 1)
+
+[sub_resource type="StyleBoxFlat" id="skill_selected"]
+bg_color = Color(0.12, 0.07, 0.015, 0.22)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(1, 0.76, 0.18, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="command_normal"]
+bg_color = Color(0.045, 0.035, 0.025, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.63, 0.48, 0.22, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="command_hover"]
+bg_color = Color(0.15, 0.09, 0.025, 0.96)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.98, 0.76, 0.25, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="command_disabled"]
+bg_color = Color(0.025, 0.022, 0.02, 0.7)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.28, 0.24, 0.18, 0.8)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="hover_panel"]
+bg_color = Color(0.025, 0.021, 0.017, 0.94)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.72, 0.55, 0.25, 0.96)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="result_panel"]
+bg_color = Color(0.035, 0.03, 0.025, 0.96)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.76, 0.59, 0.28, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
+
+[node name="Battle" type="Control" unique_id=1981700713]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="TextureRect" parent="." unique_id=541598921]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Top" type="Control" parent="." unique_id=1826501832]
+anchors_preset = 0
+offset_right = 1600.0
+offset_bottom = 80.0
+
+[node name="Ink" type="ColorRect" parent="Top" unique_id=835912337]
+layout_mode = 0
+offset_left = 15.0
+offset_top = 8.0
+offset_right = 570.0
+offset_bottom = 72.0
+color = Color(0.02, 0.018, 0.015, 0.82)
+
+[node name="Time" type="Label" parent="Top" unique_id=582903032]
+layout_mode = 0
+offset_left = 30.0
+offset_top = 12.0
+offset_right = 245.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 1)
+theme_override_font_sizes/font_size = 25
+text = "时间限制  56/4200"
+
+[node name="Timeline" type="Label" parent="Top" unique_id=712872914]
+layout_mode = 0
+offset_left = 250.0
+offset_top = 7.0
+offset_right = 555.0
+offset_bottom = 68.0
+theme_override_colors/font_color = Color(0.94, 0.8, 0.42, 1)
+theme_override_font_sizes/font_size = 16
+text = "后续时序"
+vertical_alignment = 1
+
+[node name="Hint" type="Label" parent="Top" unique_id=63670249]
+layout_mode = 0
+offset_left = 560.0
+offset_top = 10.0
+offset_right = 1570.0
+offset_bottom = 60.0
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 1)
+theme_override_font_sizes/font_size = 24
+text = "选择角色行动……点击查看角色详情"
+horizontal_alignment = 1
+
+[node name="Board" type="Control" parent="." unique_id=315734005]
+anchors_preset = 0
+offset_left = 40.0
+offset_top = 78.0
+offset_right = 1560.0
+offset_bottom = 708.0
+
+[node name="Tiles" type="GridContainer" parent="Board" unique_id=1536584054]
+layout_mode = 0
+offset_left = 80.0
+offset_top = 40.0
+offset_right = 920.0
+offset_bottom = 520.0
+theme_override_constants/h_separation = 3
+theme_override_constants/v_separation = 3
+columns = 16
+
+[node name="Tile0" type="TextureButton" parent="Board/Tiles" unique_id=768217810]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile1" type="TextureButton" parent="Board/Tiles" unique_id=1965500009]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile2" type="TextureButton" parent="Board/Tiles" unique_id=1246764187]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile3" type="TextureButton" parent="Board/Tiles" unique_id=841805904]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile4" type="TextureButton" parent="Board/Tiles" unique_id=1987412338]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile5" type="TextureButton" parent="Board/Tiles" unique_id=410905612]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile6" type="TextureButton" parent="Board/Tiles" unique_id=1772336540]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile7" type="TextureButton" parent="Board/Tiles" unique_id=325275784]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile8" type="TextureButton" parent="Board/Tiles" unique_id=548552996]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile9" type="TextureButton" parent="Board/Tiles" unique_id=1652286482]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile10" type="TextureButton" parent="Board/Tiles" unique_id=886186967]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile11" type="TextureButton" parent="Board/Tiles" unique_id=232928574]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile12" type="TextureButton" parent="Board/Tiles" unique_id=1483289158]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile13" type="TextureButton" parent="Board/Tiles" unique_id=891166809]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile14" type="TextureButton" parent="Board/Tiles" unique_id=1235305995]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile15" type="TextureButton" parent="Board/Tiles" unique_id=1359414043]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile16" type="TextureButton" parent="Board/Tiles" unique_id=1926808420]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile17" type="TextureButton" parent="Board/Tiles" unique_id=1019516137]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile18" type="TextureButton" parent="Board/Tiles" unique_id=152940836]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile19" type="TextureButton" parent="Board/Tiles" unique_id=383239655]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile20" type="TextureButton" parent="Board/Tiles" unique_id=71138313]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile21" type="TextureButton" parent="Board/Tiles" unique_id=2084673981]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile22" type="TextureButton" parent="Board/Tiles" unique_id=1013494174]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Tile23" type="TextureButton" parent="Board/Tiles" unique_id=906424473]
+custom_minimum_size = Vector2(120, 100)
+layout_mode = 2
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Allies" type="Control" parent="Board" unique_id=1847276208]
+anchors_preset = 0
+offset_right = 1520.0
+offset_bottom = 630.0
+mouse_filter = 2
+
+[node name="Ally1" parent="Board/Allies" unique_id=492544555 instance=ExtResource("12")]
+layout_mode = 0
+
+[node name="Ally2" parent="Board/Allies" unique_id=262720800 instance=ExtResource("12")]
+layout_mode = 0
+
+[node name="Ally3" parent="Board/Allies" unique_id=462359910 instance=ExtResource("12")]
+layout_mode = 0
+
+[node name="Enemies" type="Control" parent="Board" unique_id=11489417]
+anchors_preset = 0
+offset_right = 1520.0
+offset_bottom = 630.0
+mouse_filter = 2
+
+[node name="Enemy1" parent="Board/Enemies" unique_id=321848501 instance=ExtResource("12")]
+layout_mode = 0
+
+[node name="Enemy2" parent="Board/Enemies" unique_id=439679502 instance=ExtResource("12")]
+layout_mode = 0
+
+[node name="Enemy3" parent="Board/Enemies" unique_id=79524635 instance=ExtResource("12")]
+layout_mode = 0
+
+[node name="Player" type="Control" parent="Board" unique_id=1491523211]
+visible = false
+anchors_preset = 0
+offset_left = 120.0
+offset_top = 275.0
+offset_right = 270.0
+offset_bottom = 465.0
+
+[node name="Portrait" type="TextureRect" parent="Board/Player" unique_id=1032416465]
+layout_mode = 0
+offset_right = 150.0
+offset_bottom = 150.0
+texture = ExtResource("4")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Board/Player" unique_id=419634332]
+layout_mode = 0
+offset_top = -32.0
+offset_right = 150.0
+theme_override_colors/font_color = Color(0.95, 0.85, 0.2, 1)
+theme_override_font_sizes/font_size = 20
+text = "宇文逸"
+horizontal_alignment = 1
+
+[node name="HP" type="ProgressBar" parent="Board/Player" unique_id=205859986]
+layout_mode = 0
+offset_top = 152.0
+offset_right = 150.0
+offset_bottom = 166.0
+theme_override_styles/background = SubResource("hp_bg")
+theme_override_styles/fill = SubResource("hp_fill")
+value = 100.0
+show_percentage = false
+
+[node name="Enemy" type="Control" parent="Board" unique_id=1139394403]
+visible = false
+anchors_preset = 0
+offset_left = 725.0
+offset_top = 120.0
+offset_right = 875.0
+offset_bottom = 310.0
+
+[node name="Portrait" type="TextureRect" parent="Board/Enemy" unique_id=1188283621]
+layout_mode = 0
+offset_right = 150.0
+offset_bottom = 150.0
+texture = ExtResource("5")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Board/Enemy" unique_id=217524200]
+layout_mode = 0
+offset_top = -32.0
+offset_right = 150.0
+theme_override_colors/font_color = Color(0.95, 0.15, 0.12, 1)
+theme_override_font_sizes/font_size = 20
+text = "华山弟子"
+horizontal_alignment = 1
+
+[node name="HP" type="ProgressBar" parent="Board/Enemy" unique_id=1664534023]
+layout_mode = 0
+offset_top = 152.0
+offset_right = 150.0
+offset_bottom = 166.0
+theme_override_styles/background = SubResource("hp_bg")
+theme_override_styles/fill = SubResource("hp_fill")
+max_value = 120.0
+value = 120.0
+show_percentage = false
+
+[node name="Bottom" type="Control" parent="." unique_id=1309395629]
+anchors_preset = 0
+offset_top = 708.0
+offset_right = 1600.0
+offset_bottom = 900.0
+
+[node name="Shade" type="ColorRect" parent="Bottom" unique_id=775748612]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.015, 0.012, 0.01, 0.76)
+
+[node name="SelectedSkill" type="Control" parent="Bottom" unique_id=1399059703]
+anchors_preset = 0
+offset_left = 24.0
+offset_top = 8.0
+offset_right = 194.0
+offset_bottom = 190.0
+
+[node name="Icon" type="TextureRect" parent="Bottom/SelectedSkill" unique_id=1947458600]
+layout_mode = 0
+offset_left = 17.0
+offset_top = 10.0
+offset_right = 153.0
+offset_bottom = 146.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Frame" type="TextureRect" parent="Bottom/SelectedSkill" unique_id=250561065]
+layout_mode = 0
+offset_right = 170.0
+offset_bottom = 160.0
+mouse_filter = 2
+texture = ExtResource("6")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Bottom/SelectedSkill" unique_id=1461284015]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 104.0
+offset_right = 161.0
+offset_bottom = 136.0
+theme_override_colors/font_color = Color(1, 0.83, 0.34, 1)
+theme_override_colors/font_shadow_color = Color(0.03, 0.02, 0.01, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 22
+text = "选择武学"
+horizontal_alignment = 1
+
+[node name="Details" type="Label" parent="Bottom/SelectedSkill" unique_id=1750779749]
+layout_mode = 0
+offset_top = 139.0
+offset_right = 170.0
+offset_bottom = 160.0
+theme_override_colors/font_color = Color(0.91, 0.86, 0.75, 1)
+theme_override_font_sizes/font_size = 14
+text = ""
+horizontal_alignment = 1
+
+[node name="State" type="Label" parent="Bottom/SelectedSkill" unique_id=424570009]
+layout_mode = 0
+offset_top = 161.0
+offset_right = 170.0
+offset_bottom = 182.0
+theme_override_colors/font_color = Color(0.38, 0.7, 0.95, 1)
+theme_override_font_sizes/font_size = 14
+text = ""
+horizontal_alignment = 1
+
+[node name="Portrait" type="Control" parent="Bottom" unique_id=1922095594]
+anchors_preset = 0
+offset_left = 1385.0
+offset_top = 8.0
+offset_right = 1575.0
+offset_bottom = 210.0
+
+[node name="Image" type="TextureRect" parent="Bottom/Portrait" unique_id=426222470]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 24.0
+offset_right = 162.0
+offset_bottom = 168.0
+texture = ExtResource("4")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Frame" type="TextureRect" parent="Bottom/Portrait" unique_id=1779405229]
+layout_mode = 0
+offset_right = 180.0
+offset_bottom = 180.0
+mouse_filter = 2
+texture = ExtResource("6")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Bottom/Portrait" unique_id=1881379224]
+layout_mode = 0
+offset_right = 180.0
+offset_bottom = 30.0
+theme_override_colors/font_color = Color(1, 0.83, 0.34, 1)
+theme_override_font_sizes/font_size = 20
+text = "宇文逸"
+horizontal_alignment = 1
+
+[node name="HP" type="Label" parent="Bottom/Portrait" unique_id=1664227108]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 161.0
+offset_right = 90.0
+offset_bottom = 188.0
+theme_override_colors/font_color = Color(0.9, 0.2, 0.16, 1)
+theme_override_font_sizes/font_size = 18
+text = "100/100"
+
+[node name="MP" type="Label" parent="Bottom/Portrait" unique_id=111719056]
+layout_mode = 0
+offset_left = 92.0
+offset_top = 161.0
+offset_right = 180.0
+offset_bottom = 188.0
+theme_override_colors/font_color = Color(0.2, 0.48, 0.9, 1)
+theme_override_font_sizes/font_size = 18
+text = "60/60"
+
+[node name="Skills" type="HBoxContainer" parent="Bottom" unique_id=479337418]
+layout_mode = 0
+offset_left = 218.0
+offset_top = 23.0
+offset_right = 806.0
+offset_bottom = 178.0
+theme_override_constants/separation = 24
+
+[node name="Sword" type="TextureButton" parent="Bottom/Skills" unique_id=935048001]
+custom_minimum_size = Vector2(120, 148)
+layout_mode = 2
+tooltip_text = "独孤九剑 · 内力18"
+texture_normal = ExtResource("7")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Selection" type="Panel" parent="Bottom/Skills/Sword" unique_id=86043259]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("skill_selected")
+
+[node name="Name" type="Label" parent="Bottom/Skills/Sword" unique_id=729896247]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.97, 0.86, 0.56, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.03, 0.01, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 17
+text = "独孤九剑"
+horizontal_alignment = 1
+
+[node name="Palm" type="TextureButton" parent="Bottom/Skills" unique_id=1916395436]
+custom_minimum_size = Vector2(120, 148)
+layout_mode = 2
+tooltip_text = "落英神剑掌 · 内力12"
+texture_normal = ExtResource("8")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Selection" type="Panel" parent="Bottom/Skills/Palm" unique_id=1062666620]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("skill_selected")
+
+[node name="Name" type="Label" parent="Bottom/Skills/Palm" unique_id=1976967862]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.97, 0.86, 0.56, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.03, 0.01, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 17
+text = "落英神剑掌"
+horizontal_alignment = 1
+
+[node name="Hidden" type="TextureButton" parent="Bottom/Skills" unique_id=1230131493]
+custom_minimum_size = Vector2(120, 148)
+layout_mode = 2
+tooltip_text = "漫天花雨 · 内力20"
+texture_normal = ExtResource("9")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Selection" type="Panel" parent="Bottom/Skills/Hidden" unique_id=1692697855]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("skill_selected")
+
+[node name="Name" type="Label" parent="Bottom/Skills/Hidden" unique_id=1345623975]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.97, 0.86, 0.56, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.03, 0.01, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 17
+text = "漫天花雨"
+horizontal_alignment = 1
+
+[node name="Fourth" type="TextureButton" parent="Bottom/Skills" unique_id=1619155291]
+custom_minimum_size = Vector2(120, 148)
+layout_mode = 2
+tooltip_text = "太极剑法 · 内力16"
+texture_normal = ExtResource("7")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Selection" type="Panel" parent="Bottom/Skills/Fourth" unique_id=2116207832]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("skill_selected")
+
+[node name="Name" type="Label" parent="Bottom/Skills/Fourth" unique_id=233713614]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -28.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.97, 0.86, 0.56, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.03, 0.01, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 17
+text = "太极剑法"
+horizontal_alignment = 1
+
+[node name="UndoMove" type="Button" parent="." unique_id=1345442827]
+layout_mode = 0
+offset_left = 1150.0
+offset_top = 724.0
+offset_right = 1360.0
+offset_bottom = 782.0
+tooltip_text = "返回本次移动前的位置"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.95, 0.89, 0.76, 1)
+theme_override_colors/font_hover_color = Color(1, 0.86, 0.38, 1)
+theme_override_font_sizes/font_size = 21
+theme_override_styles/normal = SubResource("command_normal")
+theme_override_styles/pressed = SubResource("command_hover")
+theme_override_styles/hover = SubResource("command_hover")
+theme_override_styles/disabled = SubResource("command_disabled")
+disabled = true
+text = "↶  撤回移动"
+
+[node name="Rest" type="TextureButton" parent="." unique_id=825437668]
+layout_mode = 0
+offset_left = 1258.0
+offset_top = 792.0
+offset_right = 1360.0
+offset_bottom = 890.0
+tooltip_text = "调息"
+texture_normal = ExtResource("14")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="Rest" unique_id=1823076387]
+layout_mode = 0
+offset_top = 69.0
+offset_right = 102.0
+offset_bottom = 98.0
+theme_override_colors/font_color = Color(1, 0.91, 0.65, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.025, 0.01, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 19
+text = "调息"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HoverInfo" type="Panel" parent="." unique_id=2134851430]
+visible = false
+z_index = 20
+layout_mode = 0
+offset_left = 1165.0
+offset_top = 88.0
+offset_right = 1570.0
+offset_bottom = 318.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("hover_panel")
+
+[node name="Kind" type="Label" parent="HoverInfo" unique_id=1344344064]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 14.0
+offset_right = 120.0
+offset_bottom = 40.0
+theme_override_colors/font_color = Color(0.95, 0.78, 0.35, 1)
+theme_override_font_sizes/font_size = 16
+text = "敌方状态"
+
+[node name="Title" type="Label" parent="HoverInfo" unique_id=1057383432]
+layout_mode = 0
+offset_left = 124.0
+offset_top = 12.0
+offset_right = 385.0
+offset_bottom = 43.0
+theme_override_colors/font_color = Color(0.97, 0.92, 0.82, 1)
+theme_override_font_sizes/font_size = 23
+text = "华山弟子"
+
+[node name="Rule" type="ColorRect" parent="HoverInfo" unique_id=1266155478]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 48.0
+offset_right = 387.0
+offset_bottom = 50.0
+mouse_filter = 2
+color = Color(0.72, 0.55, 0.25, 0.72)
+
+[node name="Icon" type="TextureRect" parent="HoverInfo" unique_id=566076711]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 65.0
+offset_right = 145.0
+offset_bottom = 190.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Details" type="Label" parent="HoverInfo" unique_id=1383381147]
+layout_mode = 0
+offset_left = 164.0
+offset_top = 62.0
+offset_right = 387.0
+offset_bottom = 215.0
+theme_override_colors/font_color = Color(0.92, 0.88, 0.79, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/line_spacing = 3
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 17
+text = "气血 120 / 120
+攻击 32    防御 18
+身法 52    移动 2格
+下次行动 68
+状态正常"
+
+[node name="Items" type="TextureButton" parent="." unique_id=988794516]
+layout_mode = 0
+offset_left = 1150.0
+offset_top = 792.0
+offset_right = 1250.0
+offset_bottom = 890.0
+tooltip_text = "使用物品"
+texture_normal = ExtResource("13")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="ItemPanel" type="Panel" parent="." unique_id=358355572]
+visible = false
+layout_mode = 0
+offset_left = 1125.0
+offset_top = 260.0
+offset_right = 1415.0
+offset_bottom = 470.0
+theme_override_styles/panel = SubResource("result_panel")
+
+[node name="Title" type="Label" parent="ItemPanel" unique_id=477492247]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 12.0
+offset_right = 270.0
+offset_bottom = 45.0
+theme_override_colors/font_color = Color(0.94, 0.8, 0.42, 1)
+theme_override_font_sizes/font_size = 22
+text = "战斗物品"
+horizontal_alignment = 1
+
+[node name="Healing" type="Button" parent="ItemPanel" unique_id=1790815691]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 55.0
+offset_right = 270.0
+offset_bottom = 115.0
+theme_override_font_sizes/font_size = 18
+text = "疗伤药 × 0
+恢复35气血"
+
+[node name="Great" type="Button" parent="ItemPanel" unique_id=662807975]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 130.0
+offset_right = 270.0
+offset_bottom = 190.0
+theme_override_font_sizes/font_size = 18
+text = "大还丹 × 0
+恢复60气血、30内力"
+
+[node name="Result" type="Panel" parent="." unique_id=1220931040]
+visible = false
+layout_mode = 0
+offset_left = 470.0
+offset_top = 220.0
+offset_right = 1130.0
+offset_bottom = 675.0
+theme_override_styles/panel = SubResource("result_panel")
+
+[node name="Title" type="Label" parent="Result" unique_id=959758062]
+layout_mode = 0
+offset_left = 40.0
+offset_top = 45.0
+offset_right = 620.0
+offset_bottom = 120.0
+theme_override_colors/font_color = Color(0.9, 0.72, 0.3, 1)
+theme_override_font_sizes/font_size = 45
+text = "战斗胜利"
+horizontal_alignment = 1
+
+[node name="Rewards" type="Label" parent="Result" unique_id=13672337]
+layout_mode = 0
+offset_left = 85.0
+offset_top = 155.0
+offset_right = 575.0
+offset_bottom = 300.0
+theme_override_colors/font_color = Color(0.92, 0.87, 0.78, 1)
+theme_override_font_sizes/font_size = 24
+text = "获得银两  +200
+人物经验  +120
+掉落：疗伤药 × 1"
+
+[node name="Continue" type="TextureButton" parent="Result" unique_id=58725181]
+layout_mode = 0
+offset_left = 220.0
+offset_top = 345.0
+offset_right = 440.0
+offset_bottom = 410.0
+texture_normal = ExtResource("11")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Label" type="Label" parent="Result/Continue" unique_id=245645040]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.95, 0.89, 0.76, 1)
+theme_override_font_sizes/font_size = 22
+text = "返回江湖"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[connection signal="pressed" from="UndoMove" to="." method="_on_undo_move_pressed"]
+[connection signal="pressed" from="Rest" to="." method="_on_rest_pressed"]
+[connection signal="pressed" from="Items" to="." method="_on_items_pressed"]
+[connection signal="pressed" from="Result/Continue" to="." method="_on_result_continue_pressed"]

@@ -1,0 +1,75 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/UI/touxiangdise.png" id="1"]
+[ext_resource type="Texture2D" path="res://assets/UI/touxiangkuang.png" id="2"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_card"]
+
+[node name="HeroCard" type="Button"]
+custom_minimum_size = Vector2(335, 350)
+layout_mode = 2
+mouse_default_cursor_shape = 2
+theme_override_styles/normal = SubResource("StyleBoxEmpty_card")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_card")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_card")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_card")
+
+[node name="Backdrop" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 42.0
+offset_top = 48.0
+offset_right = 298.0
+offset_bottom = 310.0
+mouse_filter = 2
+texture = ExtResource("1")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Portrait" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 51.0
+offset_top = 56.0
+offset_right = 289.0
+offset_bottom = 301.0
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Frame" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 35.0
+offset_top = 41.0
+offset_right = 305.0
+offset_bottom = 317.0
+mouse_filter = 2
+texture = ExtResource("2")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Stats" type="Label" parent="."]
+layout_mode = 0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 137.0
+offset_bottom = 126.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.12, 0.1, 0.075, 1)
+theme_override_colors/font_outline_color = Color(0.92, 0.87, 0.72, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 21
+text = "等级 3\n攻 67\n韧 63\n防 42"
+
+[node name="Name" type="Label" parent="."]
+layout_mode = 0
+offset_left = 285.0
+offset_top = 152.0
+offset_right = 335.0
+offset_bottom = 342.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.08, 0.075, 0.065, 1)
+theme_override_colors/font_outline_color = Color(0.77, 0.82, 0.8, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 29
+text = "宇\n文\n逸"
+horizontal_alignment = 1
+
