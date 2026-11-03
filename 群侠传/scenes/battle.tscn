@@ -408,6 +408,14 @@ layout_mode = 0
 [node name="Enemy3" parent="Board/Enemies" unique_id=79524635 instance=ExtResource("12")]
 layout_mode = 0
 
+[node name="Effects" type="Control" parent="Board"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
 [node name="Player" type="Control" parent="Board" unique_id=1491523211]
 visible = false
 anchors_preset = 0

@@ -8,6 +8,7 @@ func _initialize() -> void:
 func _run() -> void:
 	var game_state := root.get_node("GameState")
 	game_state.reset_new_game()
+	_test_configuration_sync(game_state)
 	_test_reusable_books(game_state)
 	_test_equipment_flow(game_state)
 	await _test_inventory_ui(game_state)
@@ -23,6 +24,27 @@ func _run() -> void:
 	else:
 		push_error("TESTS FAILED: %d assertion(s)" % failures)
 	quit(failures)
+
+func _test_configuration_sync(game_state: Node) -> void:
+	_expect(game_state.skill_library.has("打狗棒法") and game_state.skill_library.has("降龙十八掌"), "配置表新增和改名的武学应同步到游戏")
+	var effect_paths := {
+		"狂风刀法":"res://assets/Animations/e-feilong",
+		"打狗棒法":"res://assets/Animations/e-liumai",
+		"降龙十八掌":"res://assets/Animations/e-rulai",
+		"独孤九剑":"res://assets/Animations/e-tianjian"
+	}
+	for skill_name in effect_paths:
+		var effect_path: String = effect_paths[skill_name]
+		var has_frames := ResourceLoader.exists(effect_path.path_join("1.png")) or ResourceLoader.exists(effect_path.path_join("01.png"))
+		_expect(game_state.skill_library[skill_name].get("effect", "") == effect_path and has_frames, "%s特效资源应按配置表正确映射" % skill_name)
+	_expect(not game_state.skill_library.has("太极剑法"), "配置表删除的武学应从游戏配置中移除")
+	_expect(game_state.equipment_library.has("魔神拳套") and not game_state.equipment_library.has("玄铁剑"), "配置表改名的装备应使用新名称")
+	game_state.inventory = ["玄铁剑"]
+	game_state.hero_skills[0] = {"martial":["落英神剑掌", "太极剑法"], "internal":"九阳神功", "levels":{"落英神剑掌":2, "太极剑法":4, "九阳神功":3}, "exp":{}}
+	game_state._synchronize_loaded_configuration()
+	_expect(game_state.inventory == ["魔神拳套"], "旧存档中的装备名称应迁移到新名称")
+	_expect(game_state.hero_skills[0].martial == ["降龙十八掌"], "旧存档中已删除的武学引用应移除，改名武学应迁移")
+	game_state.reset_new_game()
 
 func _test_reusable_books(game_state: Node) -> void:
 	var book_count: int = game_state.inventory.count("独孤九剑秘籍")
@@ -85,6 +107,19 @@ func _test_character_equipment_menu(game_state: Node) -> void:
 	_expect(not str(game_state.hero_equipment[0].get("weapon", "")).is_empty(), "Choosing an item from an empty slot equips it immediately")
 	var skills_tab: String = character.get_node("Paper/Tabs/Skills").tooltip_text
 	character._show_tab(skills_tab)
+	var martial_text: String = character.get_node("Paper/SkillsPanel/Grid/Sword/Name").text
+	var internal_button: Control = character.get_node("Paper/SkillsPanel/Grid").get_child(game_state.hero_skills[0].martial.size())
+	var internal_text: String = internal_button.get_node("Name").text
+	_expect(not martial_text.contains("经验") and martial_text.contains("Lv."), "武学页只显示武学等级，不显示经验")
+	_expect(not internal_text.contains("经验") and internal_text.contains("攻+") and internal_text.contains("防+"), "武学页显示心法攻防加成但不显示经验")
+	game_state.selected_skill_name = str(game_state.hero_skills[0].internal)
+	var skill_detail: Node = load("res://scenes/skill_detail.tscn").instantiate()
+	root.add_child(skill_detail)
+	await process_frame
+	var skill_details: String = skill_detail.get_node("Paper/Description").text
+	_expect(skill_details.contains("经验") and skill_details.contains("攻击 +6") and skill_details.contains("防御 +18"), "心法详情应显示经验和实际攻防加成")
+	skill_detail.queue_free()
+	await process_frame
 	character.queue_free()
 	await process_frame
 	var reopened: Node = load("res://scenes/character.tscn").instantiate()
@@ -101,7 +136,7 @@ func _test_shop_sell_icons(game_state: Node) -> void:
 	root.add_child(shop)
 	await process_frame
 	shop._set_mode("sell")
-	_expect(shop._icon_for("魔神剑", "res://assets/Items/caoyao.jpg").ends_with("moshenquantao.jpg"), "Shop sell list uses the correct weapon icon")
+	_expect(shop._icon_for("魔神剑", "res://assets/Items/caoyao.jpg").ends_with("moshenjian.jpg"), "Shop sell list uses the correct weapon icon")
 	_expect(shop._icon_for("独孤九剑秘籍", "res://assets/Items/caoyao.jpg").ends_with("Bdugujiujianjianpu.jpg"), "Shop sell list uses the correct book icon")
 	_expect(shop.goods_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "Shop goods list has a vertical scrollbar when it overflows")
 	shop.queue_free()
@@ -146,6 +181,12 @@ func _test_battle_range(game_state: Node) -> void:
 			_expect(frames.get_frame_count("idle") == 6 and frames.get_frame_count("attack") == 8, "Cheng Ying stand3-8 and attack9-16 frames are bound by their source animation names")
 			_expect(frames.get_frame_count("hurt") == 2 and frames.get_frame_count("walk") == 8 and not frames.has_animation("skill"), "Cheng Ying beattack1-2 and move17-24 frames are bound by their source animation names")
 		_expect(frames.has_animation("idle") and frames.get_frame_count("idle") > 0, "六名角色的模型都应至少加载待机帧")
+		model_unit.show_floating_text("气血 +12", Color("#70e06d"))
+		var popup: Label = model_unit.get_child(model_unit.get_child_count() - 1) as Label
+		_expect(popup != null and popup.text == "气血 +12" and popup.get_theme_color("font_color") == Color("#70e06d") and popup.get_theme_font_size("font_size") >= 22, "战斗单位应以指定颜色和较大字号显示浮动提示")
+		model_unit.show_floating_text("暴击 -99", Color("#ffe04b"), 30)
+		var critical_popup: Label = model_unit.get_child(model_unit.get_child_count() - 1) as Label
+		_expect(critical_popup != null and critical_popup.get_theme_color("font_color") == Color("#ffe04b") and critical_popup.get_theme_font_size("font_size") == 30, "暴击提示应使用黄色并额外放大字号")
 		model_unit.queue_free()
 		await process_frame
 	game_state.selected_party.clear()
@@ -158,6 +199,14 @@ func _test_battle_range(game_state: Node) -> void:
 	var battle: Node = load("res://scenes/battle.tscn").instantiate()
 	root.add_child(battle)
 	await process_frame
+	var effect_offsets := {"狂风刀法":-38.0, "打狗棒法":-82.0, "降龙十八掌":-38.0, "独孤九剑":-88.0}
+	for skill_name in effect_offsets:
+		var effect: AnimatedSprite2D = battle._play_skill_effect(game_state.skill_library[skill_name], Vector2i(5, 3))
+		var expected_y: float = battle._coord_to_board(Vector2i(5, 3)).y + battle.UNIT_FOOT_ANCHOR.y + float(effect_offsets[skill_name])
+		_expect(effect != null and effect.is_playing() and effect.sprite_frames.get_frame_count("effect") > 1 and is_equal_approx(effect.position.y, expected_y) and effect.scale.x > 0.72, "%s应按素材构图上移并放大播放" % skill_name)
+	var area_cells: Array[Vector2i] = [Vector2i(5, 3), Vector2i(6, 3), Vector2i(7, 3), Vector2i(8, 3)]
+	var area_effects: Array[AnimatedSprite2D] = battle._play_skill_effects(game_state.skill_library["独孤九剑"], area_cells)
+	_expect(area_effects.size() == area_cells.size(), "武学波及范围内的每个格子都应生成特效")
 	_expect(battle.get_node("Board/Tiles").get_child_count() == 112, "战场应包含16×7共112个地块")
 	_expect(battle.get_node("Board/Allies").mouse_filter == Control.MOUSE_FILTER_IGNORE, "我方单位层空白区域必须允许点击下层地块")
 	_expect(battle.get_node("Board/Enemies").mouse_filter == Control.MOUSE_FILTER_IGNORE, "敌方单位层空白区域必须允许点击下层地块")
@@ -199,6 +248,9 @@ func _test_battle_range(game_state: Node) -> void:
 	battle._on_skill_hovered(0)
 	_expect(battle.get_node("HoverInfo").visible and battle.get_node("HoverInfo/Kind").text == "武学详情", "悬停武学时应显示武学详情浮层")
 	_expect(battle.get_node("HoverInfo/Details").text.contains("预计伤害") and battle.get_node("HoverInfo/Details").text.contains("剑意纵横"), "武学详情应包含战斗数值和招式说明")
+	_expect(battle.get_node("HoverInfo/Details").text.contains("经验"), "战斗武学悬浮详情应显示经验进度")
+	var skill_button_rect: Rect2 = battle.get_node("Bottom/Skills").get_child(0).get_global_rect()
+	_expect(battle.get_node("HoverInfo").position.y < skill_button_rect.position.y, "武学悬浮详情应显示在对应武学图标上方")
 	_expect(battle.get_node("Top/Hint").text == action_hint, "武学详细数值不应在顶部重复显示")
 	battle._on_hover_info_exited()
 	var reachable: Array[Vector2i] = battle._reachable_tiles(actor)
@@ -267,9 +319,15 @@ func _test_battle_range(game_state: Node) -> void:
 	_expect(release_style.bg_color.g > release_style.bg_color.r, "本次释放中心属于命中范围，应同样使用绿色显示")
 	_expect(affected_style.bg_color.g > affected_style.bg_color.r and affected_style.border_color.g > 0.95, "剑招应高亮所选方向直线上的四格")
 	battle._on_tile_exited()
-	await create_timer(0.2).timeout
+	await process_frame
 	var restored_release_style: StyleBoxFlat = release_tile.get_node("RangeOverlay").get_theme_stylebox("panel")
 	_expect(restored_release_style.bg_color.r > restored_release_style.bg_color.g, "移开鼠标后应恢复橙红色合法释放区域")
+	battle._on_tile_hovered(3 * 16 + 3)
+	battle._on_tile_exited()
+	battle._on_tile_hovered(3 * 16 + 1)
+	var rapid_hover_tile: TextureButton = battle.get_node("Board/Tiles").get_child(1 * 16 + 1)
+	var rapid_hover_style: StyleBoxFlat = rapid_hover_tile.get_node("RangeOverlay").get_theme_stylebox("panel")
+	_expect(rapid_hover_style.bg_color.g > rapid_hover_style.bg_color.r, "快速切换悬停格时不应被旧格离开事件清除攻击范围")
 	battle._select_skill(0)
 	battle._select_skill(2)
 	var potential_tile: TextureButton = battle.get_node("Board/Tiles").get_child(1 * 16 + 5)
@@ -344,7 +402,7 @@ func _test_party_turns(game_state: Node) -> void:
 	battle._on_rest_pressed()
 	await create_timer(2.0).timeout
 	_expect(battle.selected_actor == 0 and game_state.turn == first_actor.next_action, "敌方时序自动结算后应回到下一名最早行动的侠客")
-	_expect(battle.selected_skill == 0, "角色再次行动时应自动选中上次释放的武学")
+	_expect(battle.selected_skill == -1, "角色再次行动时不应自动选中上次释放的武学")
 	_expect(game_state.turn > second_actor.action_delay, "时序应持续递增而非按固定轮次重置")
 	battle.queue_free()
 	await process_frame

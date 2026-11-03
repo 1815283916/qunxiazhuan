@@ -7,7 +7,7 @@ var goods_scroll: ScrollContainer
 var goods := [
 	{"name":"大还丹", "price":180, "icon":"res://assets/Items/dahuandan.jpg"},
 	{"name":"疗伤药", "price":60, "icon":"res://assets/Items/caoyao.jpg"},
-	{"name":"君子剑", "price":520, "icon":"res://assets/Items/liquanqiang.jpg"},
+	{"name":"朴刀", "price":520, "icon":"res://assets/Items/dao3.jpg"},
 	{"name":"毒戒指", "price":350, "icon":"res://assets/Items/jiezhi3.jpg"},
 	{"name":"独孤九剑秘籍", "price":900, "icon":"res://assets/Items/Bdugujiujianjianpu.jpg"},
 	{"name":"粗布道袍", "price":220, "icon":"res://assets/Items/Dcubudaopao.jpg"}
@@ -23,6 +23,8 @@ var item_icons := {
 }
 
 func _ready() -> void:
+	for item_name in game_state.equipment_library:
+		item_icons[item_name] = game_state.get_equipment_icon(item_name)
 	goods_grid = $ShopPanel/Goods
 	_make_goods_scrollable()
 	$Mode/Buy.pressed.connect(_set_mode.bind("buy"))
@@ -71,6 +73,7 @@ func _find_good(item_name: String) -> Dictionary:
 	return {}
 
 func _icon_for(item_name: String, fallback: String) -> String:
+	if game_state.equipment_library.has(item_name): return game_state.get_equipment_icon(item_name)
 	return str(item_icons.get(item_name, fallback if not fallback.is_empty() else "res://assets/Items/dabaoxiang.jpg"))
 
 func _on_good_pressed(index: int) -> void:

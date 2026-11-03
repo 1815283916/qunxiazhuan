@@ -23,7 +23,12 @@ var slots := {
 var books := {"独孤九剑秘籍":"独孤九剑", "易筋经":"易筋经"}
 
 func _ready() -> void:
-	var info: Dictionary = data.get(game_state.selected_item, data["玄铁剑"])
+	for item_name in game_state.equipment_library:
+		slots[item_name] = str(game_state.equipment_library[item_name].slot)
+	var info: Dictionary = data.get(game_state.selected_item, {})
+	if game_state.equipment_library.has(game_state.selected_item):
+		info = {"type":"装备", "icon":game_state.get_equipment_icon(game_state.selected_item), "text":"装备属性"}
+	if info.is_empty(): info = {"type":"物品", "icon":"res://assets/Items/baoyu.jpg", "text":"暂无说明"}
 	$Paper/ItemIcon.texture = load(info.icon)
 	$Paper/ItemName.text = game_state.selected_item
 	$Paper/ItemType.text = info.type

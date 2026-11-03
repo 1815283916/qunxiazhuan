@@ -16,14 +16,12 @@ var current_location := "中原地区"
 var current_scene := "长安西市"
 var selected_hero := 0
 var heroes := [
-	{"name":"宇文逸", "head":"res://assets/Heads/zhengtingyu.png", "model":"res://assets/Animations/r-nan-zhoucang", "level":3, "exp":240, "attack":67, "speed":63, "defense":42},
-	{"name":"王重阳", "head":"res://assets/Heads/nanxian.png", "model":"res://assets/Animations/r-nan-zhoucang", "level":5, "exp":180, "attack":74, "speed":55, "defense":58},
-	{"name":"黄蓉", "head":"res://assets/Heads/huoqingtong.png", "model":"res://assets/Animations/r-nv-guanyinping", "level":4, "exp":310, "attack":52, "speed":72, "defense":39},
-	{"name":"小龙女", "head":"res://assets/Heads/xishi.png", "model":"res://assets/Animations/r-nv-guanyinping", "level":4, "exp":290, "attack":65, "speed":76, "defense":44},
-	{"name":"王语嫣", "head":"res://assets/Heads/wangyuyan.png", "model":"res://assets/Animations/r-nv-guanyinping", "level":3, "exp":110, "attack":38, "speed":60, "defense":35},
-	{"name":"程英", "head":"res://assets/Heads/chengying.png", "model":"res://assets/Animations/r-nv-guanyinping", "level":3, "exp":150, "attack":49, "speed":68, "defense":38},
-	{"name":"石青璇", "head":"res://assets/Heads/shiqingxuan.png", "model":"res://assets/Animations/r-nv-guanyinping", "level":4, "exp":260, "attack":58, "speed":70, "defense":41},
-	{"name":"霍青桐", "head":"res://assets/Heads/jiangxue.png", "model":"res://assets/Animations/r-nv-guanyinping", "level":4, "exp":225, "attack":61, "speed":66, "defense":46}
+	{"id":"hero_beichou", "name":"北丑", "head":"res://assets/Heads/zhengtingyu.png", "model":"res://assets/Animations/r-nan-jiangwei", "level":1, "exp":0, "attack":67, "speed":63, "defense":42},
+	{"id":"hero_nanxian", "name":"南贤", "head":"res://assets/Heads/nanxian.png", "model":"res://assets/Animations/r-nv-duguyanran", "level":5, "exp":0, "attack":74, "speed":55, "defense":58},
+	{"id":"hero_huangrong", "name":"黄蓉", "head":"res://assets/Heads/huoqingtong.png", "model":"res://assets/Animations/r-nv-guanyinping", "level":5, "exp":0, "attack":52, "speed":72, "defense":39},
+	{"id":"hero_xiaolongnv", "name":"小龙女", "head":"res://assets/Heads/xishi.png", "model":"res://assets/Animations/r-nv-huangyishuangjian", "level":5, "exp":0, "attack":65, "speed":76, "defense":44},
+	{"id":"hero_wangyuyan", "name":"王语嫣", "head":"res://assets/Heads/wangyuyan.png", "model":"res://assets/Animations/chenxi1", "level":5, "exp":0, "attack":38, "speed":60, "defense":35},
+	{"id":"hero_chengying", "name":"程英", "head":"res://assets/Heads/chengying.png", "model":"res://assets/Animations/chenxi2", "level":5, "exp":0, "attack":49, "speed":68, "defense":38}
 ]
 var hero_stats := [
 	{"strength":18, "agility":16, "insight":21, "luck":14, "constitution":17, "willpower":15, "fist":68, "sword":92, "blade":46, "unorthodox":52},
@@ -31,51 +29,37 @@ var hero_stats := [
 	{"strength":13, "agility":22, "insight":22, "luck":20, "constitution":14, "willpower":17, "fist":90, "sword":62, "blade":35, "unorthodox":81},
 	{"strength":17, "agility":23, "insight":18, "luck":16, "constitution":16, "willpower":19, "fist":56, "sword":94, "blade":38, "unorthodox":48},
 	{"strength":10, "agility":17, "insight":25, "luck":19, "constitution":12, "willpower":23, "fist":35, "sword":70, "blade":28, "unorthodox":65},
-	{"strength":14, "agility":20, "insight":20, "luck":17, "constitution":15, "willpower":18, "fist":48, "sword":84, "blade":33, "unorthodox":58},
-	{"strength":16, "agility":21, "insight":22, "luck":18, "constitution":15, "willpower":20, "fist":44, "sword":76, "blade":31, "unorthodox":89},
-	{"strength":18, "agility":19, "insight":17, "luck":18, "constitution":18, "willpower":16, "fist":64, "sword":78, "blade":55, "unorthodox":72}
+	{"strength":14, "agility":20, "insight":20, "luck":17, "constitution":15, "willpower":18, "fist":48, "sword":84, "blade":33, "unorthodox":58}
 ]
 var selected_party: Array[int] = [0]
-var hero_equipment := [
-	{"weapon":"玄铁剑", "armor":"粗布道袍", "accessory":"毒戒指"},
-	{"weapon":"君子剑", "armor":"粗布道袍", "accessory":"宝玉"},
-	{"weapon":"淑女剑", "armor":"乌蚕衣", "accessory":"宝玉"},
-	{"weapon":"君子剑", "armor":"粗布道袍", "accessory":"毒戒指"},
-	{"weapon":"玄铁剑", "armor":"乌蚕衣", "accessory":"宝玉"},
-	{"weapon":"淑女剑", "armor":"粗布道袍", "accessory":"宝玉"},
-	{"weapon":"魔神剑", "armor":"乌蚕衣", "accessory":"毒戒指"},
-	{"weapon":"君子剑", "armor":"粗布道袍", "accessory":"宝玉"}
-]
+var hero_equipment := [{}, {}, {}, {}, {}, {}]
 var equipment_library := {
-	"玄铁剑":{"slot":"weapon", "attack":28, "sword":12, "crit_damage":15},
-	"君子剑":{"slot":"weapon", "attack":16, "sword":8},
-	"淑女剑":{"slot":"weapon", "attack":14, "agility":6, "sword":10},
-	"魔神剑":{"slot":"weapon", "attack":45, "crit":10},
-	"粗布道袍":{"slot":"armor", "defense":12, "hp":80},
-	"乌蚕衣":{"slot":"armor", "defense":24, "speed":8},
-	"毒戒指":{"slot":"accessory", "poison":15},
-	"宝玉":{"slot":"accessory", "luck":8, "willpower":5}
+	"魔神拳套":{"id":"weapon_moshenquantao", "slot":"weapon", "attack":28, "sword":12, "crit_damage":15, "icon":"res://assets/Items/moshenquantao.jpg"},
+	"朴刀":{"id":"weapon_pudao", "slot":"weapon", "attack":16, "sword":8, "icon":"res://assets/Items/dao3.jpg"},
+	"凝神枪":{"id":"weapon_ningshenqiang", "slot":"weapon", "attack":14, "agility":6, "sword":10, "icon":"res://assets/Items/liquanqiang.jpg"},
+	"魔神剑":{"id":"weapon_moshenjian", "slot":"weapon", "attack":45, "crit":10, "icon":"res://assets/Items/moshenjian.jpg"},
+	"粗布道袍":{"id":"armor_cubudaopao", "slot":"armor", "defense":12, "hp":80, "icon":"res://assets/Items/Dcubudaopao.jpg"},
+	"乌蚕衣":{"id":"armor_wucanyi", "slot":"armor", "defense":24, "speed":8, "icon":"res://assets/Items/daopao.jpg"},
+	"毒戒指":{"id":"accessory_dujiezhi", "slot":"accessory", "poison":15, "icon":"res://assets/Items/jiezhi3.jpg"},
+	"宝玉":{"id":"accessory_baoyu", "slot":"accessory", "luck":8, "willpower":5, "icon":"res://assets/Items/baoyu.jpg"}
 }
 var skill_library := {
-	"独孤九剑":{"kind":"武学", "school":"剑系", "cost":18, "damage":36, "range":4, "shape":"line", "pattern":"前方直线四格", "icon":"res://assets/Icons/icon_waigong_114.jpg", "description":"剑意纵横的上乘剑法。选择周围四格之一确定方向，攻击直线上的四格。"},
-	"落英神剑掌":{"kind":"武学", "school":"拳掌", "cost":12, "damage":27, "range":3, "shape":"single", "pattern":"三格内单体", "icon":"res://assets/Icons/icon_waigong_107.jpg", "description":"掌影飘忽，可攻击三格范围内的一名敌人。"},
-	"狂风刀法":{"kind":"武学", "school":"刀法", "cost":16, "damage":30, "range":1, "shape":"fan", "pattern":"前方2×3六格", "icon":"res://assets/Icons/icon_waigong_107.jpg", "description":"刀势横扫，朝选定方向攻击前方2×3范围内的敌人。"},
-	"漫天花雨":{"kind":"武学", "school":"奇门", "cost":20, "damage":31, "range":2, "shape":"cross", "pattern":"两格内十字九格", "icon":"res://assets/Icons/icon_neigong_020.jpg", "description":"暗器如雨，可在两格内落点施放，攻击十字九格范围。"},
-	"太极剑法":{"kind":"武学", "school":"剑系", "cost":16, "damage":32, "range":4, "shape":"line", "pattern":"前方直线四格", "icon":"res://assets/Icons/icon_waigong_114.jpg", "description":"圆转如意、后发制人的武当剑法。选择周围四格之一确定方向，攻击直线上的四格。"},
-	"九阳神功":{"kind":"心法", "school":"内功", "icon":"res://assets/Icons/icon_neigong_020.jpg", "description":"至阳至刚的上乘心法，提升气血与内力恢复。"},
-	"易筋经":{"kind":"心法", "school":"内功", "icon":"res://assets/Icons/icon_neigong_020.jpg", "description":"少林镇派心法，调和内息并提升攻防根基。"}
+	"狂风刀法":{"id":"martial_blade_storm", "kind":"武学", "school":"刀法", "cost":16, "damage":32, "damage_growth":1, "range":1, "shape":"fan", "pattern":"方形六格", "icon":"res://assets/Icons/icon_waigong_114.jpg", "effect":"res://assets/Animations/e-feilong", "description":"刀势横扫。"},
+	"打狗棒法":{"id":"martial_dog_beating_staff", "kind":"武学", "school":"奇门", "cost":20, "damage":30, "damage_growth":1, "range":2, "shape":"cross", "pattern":"十字九格", "icon":"res://assets/Icons/zzc073.png", "effect":"res://assets/Animations/e-liumai", "description":"势大力沉。"},
+	"降龙十八掌":{"id":"martial_dragon_palm", "kind":"武学", "school":"拳掌", "cost":12, "damage":35, "damage_growth":2, "range":3, "shape":"single", "pattern":"单体", "icon":"res://assets/Icons/icon_waigong_107.jpg", "effect":"res://assets/Animations/e-rulai", "description":"掌影飘忽。"},
+	"独孤九剑":{"id":"martial_sword_unique", "kind":"武学", "school":"剑系", "cost":18, "damage":36, "damage_growth":1, "range":4, "shape":"line", "pattern":"直线四格", "icon":"res://assets/Icons/zzd28.png", "effect":"res://assets/Animations/e-tianjian", "description":"剑意纵横的上乘剑法。"},
+	"九阳神功":{"id":"internal_jiuyang", "kind":"心法", "school":"内功", "attack_bonus":2, "defense_bonus":6, "icon":"res://assets/Icons/icon_neigong_020.jpg", "description":"至阳至刚的上乘心法，善于防守。"},
+	"易筋经":{"id":"internal_yijin", "kind":"心法", "school":"内功", "attack_bonus":4, "defense_bonus":4, "icon":"res://assets/Icons/icon_neigong_020.jpg", "description":"少林镇派心法，攻守兼备。"}
 }
 var hero_skills := [
-	{"martial":["独孤九剑", "落英神剑掌", "漫天花雨"], "internal":"九阳神功", "levels":{"独孤九剑":3, "落英神剑掌":2, "漫天花雨":2, "九阳神功":3}, "exp":{}},
-	{"martial":["太极剑法", "狂风刀法", "落英神剑掌"], "internal":"九阳神功", "levels":{"太极剑法":4, "狂风刀法":2, "落英神剑掌":2, "九阳神功":4}, "exp":{}},
-	{"martial":["落英神剑掌", "漫天花雨"], "internal":"易筋经", "levels":{"落英神剑掌":3, "漫天花雨":2, "易筋经":3}, "exp":{}},
-	{"martial":["独孤九剑", "太极剑法", "狂风刀法"], "internal":"九阳神功", "levels":{"独孤九剑":3, "太极剑法":3, "狂风刀法":2, "九阳神功":3}, "exp":{}},
-	{"martial":["落英神剑掌"], "internal":"易筋经", "levels":{"落英神剑掌":2, "易筋经":4}, "exp":{}},
-	{"martial":["太极剑法"], "internal":"易筋经", "levels":{"太极剑法":2, "易筋经":2}, "exp":{}},
-	{"martial":["漫天花雨", "独孤九剑"], "internal":"九阳神功", "levels":{"漫天花雨":4, "独孤九剑":2, "九阳神功":3}, "exp":{}},
-	{"martial":["太极剑法", "落英神剑掌"], "internal":"易筋经", "levels":{"太极剑法":3, "落英神剑掌":2, "易筋经":3}, "exp":{}}
+	{"martial":["独孤九剑", "降龙十八掌", "打狗棒法"], "internal":"九阳神功", "levels":{"独孤九剑":3, "降龙十八掌":2, "打狗棒法":2, "九阳神功":3}, "exp":{}},
+	{"martial":["狂风刀法", "降龙十八掌"], "internal":"九阳神功", "levels":{"狂风刀法":2, "降龙十八掌":2, "九阳神功":4}, "exp":{}},
+	{"martial":["降龙十八掌", "打狗棒法"], "internal":"易筋经", "levels":{"降龙十八掌":3, "打狗棒法":2, "易筋经":3}, "exp":{}},
+	{"martial":["独孤九剑", "狂风刀法"], "internal":"九阳神功", "levels":{"独孤九剑":3, "狂风刀法":2, "九阳神功":3}, "exp":{}},
+	{"martial":["降龙十八掌"], "internal":"易筋经", "levels":{"降龙十八掌":2, "易筋经":4}, "exp":{}},
+	{"martial":[], "internal":"易筋经", "levels":{"易筋经":2}, "exp":{}}
 ]
-var inventory := ["玄铁剑", "君子剑", "淑女剑", "魔神剑", "粗布道袍", "乌蚕衣", "毒戒指", "宝玉", "大还丹", "疗伤药", "独孤九剑秘籍", "易筋经"]
+var inventory := ["魔神拳套", "朴刀", "凝神枪", "魔神剑", "粗布道袍", "乌蚕衣", "毒戒指", "宝玉", "大还丹", "疗伤药", "独孤九剑秘籍", "易筋经"]
 var journal := [
 	"江湖三年十一月七日，宇文逸初入长安。",
 	"江湖三年十一月八日，听闻华山论剑将启。",
@@ -83,7 +67,7 @@ var journal := [
 ]
 var reward_money := 200
 var reward_exp := 120
-var selected_item := "玄铁剑"
+var selected_item := "魔神拳套"
 var detail_return_scene := "res://scenes/inventory.tscn"
 var character_tab := ""
 var selected_skill_name := "独孤九剑"
@@ -93,6 +77,7 @@ var settings := {
 	"show_buffs": true,
 	"auto_save": false,
 	"auto_battle": false,
+	"battle_speed": 1.0,
 	"music": true,
 	"sound": true,
 	"fullscreen": false
@@ -106,6 +91,12 @@ var battle_enemies: Array[Dictionary] = []
 var battle_log: Array[String] = []
 var battle_outcome := "胜利"
 const SAVE_VERSION := 1
+const HERO_LEVEL_CAP := 30
+const HERO_LEVEL_EXP_MULTIPLIER := 200
+const SKILL_LEVEL_CAP := 10
+const SKILL_LEVEL_EXP_MULTIPLIER := 40
+const LEGACY_SKILL_NAMES := {"落英神剑掌":"降龙十八掌", "漫天花雨":"打狗棒法"}
+const LEGACY_ITEM_NAMES := {"玄铁剑":"魔神拳套", "君子剑":"朴刀", "淑女剑":"凝神枪"}
 var _new_game_defaults: Dictionary = {}
 
 func _trim_roster_to_six() -> void:
@@ -183,7 +174,7 @@ func new_battle() -> void:
 			"hp":max_hp, "max_hp":max_hp, "mp":max_mp, "max_mp":max_mp,
 			"attack":combat.attack, "defense":combat.defense, "crit":combat.crit,
 			"crit_damage":combat.crit_damage, "poison":combat.poison,
-			"fist":combat.fist, "sword":combat.sword, "blade":combat.blade, "unorthodox":combat.unorthodox,
+			"fist":combat.fist, "sword":combat.sword, "blade":combat.blade, "unorthodox":combat.unorthodox, "insight":combat.insight,
 			"coord":Vector2i(2, i + 3), "alive":true, "moved":false,
 			"move_range":clampi(2 + int(combat.speed / 90.0), 2, 3),
 			"speed":combat.speed, "action_delay":clampi(120 - int(combat.speed), 35, 90),
@@ -217,13 +208,13 @@ func grant_battle_experience() -> void:
 		if hero_index < 0 or hero_index >= heroes.size(): continue
 		gain_hero_experience(hero_index, reward_exp)
 
-func gain_hero_experience(hero_index: int, amount: int) -> void:
-	if hero_index < 0 or hero_index >= heroes.size() or amount <= 0: return
+func gain_hero_experience(hero_index: int, amount: int) -> int:
+	if hero_index < 0 or hero_index >= heroes.size() or amount <= 0: return 0
 	var hero: Dictionary = heroes[hero_index]
 	hero.exp = int(hero.get("exp", 0)) + amount
 	var previous_level: int = hero.level
-	while hero.level < 30 and hero.exp >= hero.level * 200:
-		hero.exp -= hero.level * 200
+	while hero.level < HERO_LEVEL_CAP and hero.exp >= get_hero_experience_needed(hero.level):
+		hero.exp -= get_hero_experience_needed(hero.level)
 		hero.level += 1
 		hero.attack += 3
 		hero.speed += 2
@@ -235,6 +226,7 @@ func gain_hero_experience(hero_index: int, amount: int) -> void:
 			stats[technique] += 2
 	var level_text := "，升至%d级" % hero.level if hero.level > previous_level else ""
 	battle_log.append("%s获得%d经验%s" % [hero.name, amount, level_text])
+	return hero.level - previous_level
 
 func get_hero_combat_stats(hero_index: int) -> Dictionary:
 	hero_index = clampi(hero_index, 0, heroes.size() - 1)
@@ -248,11 +240,10 @@ func get_hero_combat_stats(hero_index: int) -> Dictionary:
 		for key in bonus:
 			bonus[key] += int(item.get(key, 0))
 	var loadout: Dictionary = hero_skills[hero_index]
-	var internal_level: int = int(loadout.levels.get(loadout.internal, 1))
-	var internal_bonus := internal_level * 2
+	var internal_bonus: Dictionary = get_internal_skill_bonus(hero_index)
 	return {
-		"attack":hero.attack + bonus.attack + base.strength + internal_bonus,
-		"defense":hero.defense + bonus.defense + base.constitution + internal_bonus,
+		"attack":hero.attack + bonus.attack + base.strength + internal_bonus.attack,
+		"defense":hero.defense + bonus.defense + base.constitution + internal_bonus.defense,
 		"speed":hero.speed + bonus.speed + base.agility + bonus.agility,
 		"max_hp":100 + (hero.level - 1) * 10 + base.constitution * 3 + bonus.hp,
 		"max_mp":60 + (hero.level - 1) * 5 + (base.willpower + bonus.willpower) * 2,
@@ -265,6 +256,67 @@ func get_hero_combat_stats(hero_index: int) -> Dictionary:
 		"fist":base.fist + bonus.fist, "sword":base.sword + bonus.sword,
 		"blade":base.blade + bonus.blade, "unorthodox":base.unorthodox + bonus.unorthodox
 	}
+
+func get_internal_skill_bonus(hero_index: int) -> Dictionary:
+	if hero_index < 0 or hero_index >= hero_skills.size(): return {"attack":0, "defense":0}
+	var loadout: Dictionary = hero_skills[hero_index]
+	var internal_name := str(loadout.get("internal", ""))
+	if internal_name.is_empty(): return {"attack":0, "defense":0}
+	var internal_level := int(loadout.get("levels", {}).get(internal_name, 1))
+	var internal: Dictionary = skill_library.get(internal_name, {})
+	return {
+		"attack":internal_level * int(internal.get("attack_bonus", 0)),
+		"defense":internal_level * int(internal.get("defense_bonus", 0))
+	}
+
+func get_hero_experience_needed(level: int) -> int:
+	return maxi(0, level) * HERO_LEVEL_EXP_MULTIPLIER
+
+func get_skill_experience_needed(level: int) -> int:
+	return maxi(0, level) * SKILL_LEVEL_EXP_MULTIPLIER
+
+func get_equipment_icon(item_name: String) -> String:
+	return str(equipment_library.get(item_name, {}).get("icon", "res://assets/Items/baoyu.jpg"))
+
+func _rename_legacy_item(item_name: String) -> String:
+	return str(LEGACY_ITEM_NAMES.get(item_name, item_name))
+
+func _rename_legacy_skill(skill_name: String) -> String:
+	return str(LEGACY_SKILL_NAMES.get(skill_name, skill_name))
+
+func _synchronize_loaded_configuration() -> void:
+	var synchronized_inventory: Array[String] = []
+	for item in inventory:
+		var item_name := _rename_legacy_item(str(item))
+		synchronized_inventory.append(item_name)
+	inventory = synchronized_inventory
+	for hero_index in hero_equipment.size():
+		var equipment: Dictionary = hero_equipment[hero_index]
+		for slot in ["weapon", "armor", "accessory"]:
+			var item_name := _rename_legacy_item(str(equipment.get(slot, "")))
+			if item_name.is_empty() or not equipment_library.has(item_name) or equipment_library[item_name].slot != slot:
+				equipment.erase(slot)
+			else:
+				equipment[slot] = item_name
+	for loadout in hero_skills:
+		var valid_martial: Array[String] = []
+		var valid_levels := {}
+		var valid_experience := {}
+		for skill_entry in loadout.get("martial", []):
+			var skill_name := _rename_legacy_skill(str(skill_entry))
+			if not skill_library.has(skill_name) or skill_library[skill_name].kind != "武学" or valid_martial.has(skill_name): continue
+			valid_martial.append(skill_name)
+			valid_levels[skill_name] = int(loadout.get("levels", {}).get(skill_entry, loadout.get("levels", {}).get(skill_name, 1)))
+			valid_experience[skill_name] = int(loadout.get("exp", {}).get(skill_entry, loadout.get("exp", {}).get(skill_name, 0)))
+		var internal_name := _rename_legacy_skill(str(loadout.get("internal", "")))
+		if not skill_library.has(internal_name) or skill_library[internal_name].kind != "心法":
+			internal_name = "易筋经"
+		valid_levels[internal_name] = int(loadout.get("levels", {}).get(loadout.get("internal", ""), loadout.get("levels", {}).get(internal_name, 1)))
+		valid_experience[internal_name] = int(loadout.get("exp", {}).get(loadout.get("internal", ""), loadout.get("exp", {}).get(internal_name, 0)))
+		loadout.martial = valid_martial
+		loadout.internal = internal_name
+		loadout.levels = valid_levels
+		loadout.exp = valid_experience
 
 func equip_item(hero_index: int, item_name: String) -> String:
 	if hero_index < 0 or hero_index >= hero_equipment.size(): return "无法选择该侠客"
@@ -307,17 +359,22 @@ func learn_from_book(hero_index: int, book_name: String) -> String:
 	if not loadout.exp.has(learned_name): loadout.exp[learned_name] = 0
 	return "%s学会了%s" % [heroes[hero_index].name, learned_name]
 
-func gain_skill_experience(hero_index: int, skill_name: String, amount: int = 12) -> void:
-	if hero_index < 0 or hero_index >= hero_skills.size(): return
+func gain_skill_experience(hero_index: int, skill_name: String, amount: int = 12) -> int:
+	if hero_index < 0 or hero_index >= hero_skills.size() or not skill_library.has(skill_name): return 0
 	var loadout: Dictionary = hero_skills[hero_index]
 	var level: int = int(loadout.levels.get(skill_name, 1))
-	if level >= 10: return
+	if level >= SKILL_LEVEL_CAP: return 0
 	loadout.exp[skill_name] = int(loadout.exp.get(skill_name, 0)) + amount
-	var needed := level * 40
-	if loadout.exp[skill_name] >= needed:
+	var needed := get_skill_experience_needed(level)
+	var levels_gained := 0
+	while level < SKILL_LEVEL_CAP and loadout.exp[skill_name] >= needed:
 		loadout.exp[skill_name] -= needed
-		loadout.levels[skill_name] = mini(10, level + 1)
+		level += 1
+		levels_gained += 1
+		loadout.levels[skill_name] = level
 		battle_log.append("%s提升至%d级" % [skill_name, loadout.levels[skill_name]])
+		needed = get_skill_experience_needed(level)
+	return levels_gained
 
 func goto(path: String) -> void:
 	if bool(settings.get("auto_save", false)) and not path.ends_with("main_menu.tscn") and not path.ends_with("save_load.tscn"):
@@ -378,7 +435,7 @@ func load_slot(slot: int, path_override: String = "") -> Error:
 		for equipment in saved_equipment.slice(0, heroes.size()):
 			if equipment is Dictionary: hero_equipment.append(equipment)
 	while hero_equipment.size() < heroes.size():
-		hero_equipment.append({"weapon":"玄铁剑", "armor":"粗布道袍", "accessory":"毒戒指"})
+		hero_equipment.append({})
 	var saved_heroes: Variant = cfg.get_value("player", "heroes", heroes)
 	if saved_heroes is Array:
 		for i in mini(saved_heroes.size(), heroes.size()):
@@ -405,4 +462,5 @@ func load_slot(slot: int, path_override: String = "") -> Error:
 	var saved_settings: Variant = cfg.get_value("settings", "values", settings)
 	if saved_settings is Dictionary:
 		for key in settings: settings[key] = saved_settings.get(key, settings[key])
+	_synchronize_loaded_configuration()
 	return OK

@@ -24,6 +24,8 @@ var item_icons := {
 }
 
 func _ready() -> void:
+	for item_name in game_state.equipment_library:
+		item_icons[item_name] = game_state.get_equipment_icon(item_name)
 	item_grid = $Items
 	item_template = item_grid.get_node("ItemTemplate")
 	_make_item_grid_scrollable()

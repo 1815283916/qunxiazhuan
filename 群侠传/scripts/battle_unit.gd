@@ -9,6 +9,7 @@ const HURT_SCALE := Vector2(0.85, 0.85)
 var model_path := ""
 var model_scale_factor := 1.0
 var facing_direction := Vector2i.RIGHT
+var floating_text_count := 0
 
 func _ready() -> void:
 	model.animation_finished.connect(_on_animation_finished)
@@ -80,6 +81,35 @@ func start_walk_animation() -> void:
 
 func stop_walk_animation() -> void:
 	if model.animation == "walk": play_action("idle")
+
+func show_floating_text(message: String, color: Color, font_size: int = 22) -> void:
+	if message.is_empty(): return
+	var popup := Label.new()
+	popup.text = message
+	var popup_width := maxf(190.0, float(message.length()) * float(font_size) * 1.12 + 24.0)
+	var popup_height := float(font_size + 12)
+	popup.size = Vector2(popup_width, popup_height)
+	popup.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	popup.z_as_relative = false
+	popup.z_index = 100 + floating_text_count
+	popup.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	popup.add_theme_color_override("font_color", color)
+	popup.add_theme_color_override("font_outline_color", Color(0.03, 0.025, 0.02, 0.95))
+	popup.add_theme_constant_override("outline_size", 4)
+	popup.add_theme_font_size_override("font_size", font_size)
+	var popup_parent := get_parent().get_parent() as Control
+	if popup_parent == null: popup_parent = self
+	popup_parent.add_child(popup)
+	popup.global_position = global_position + Vector2(-popup_width * 0.5, -148 - mini(floating_text_count, 3) * (popup_height - 4.0))
+	floating_text_count += 1
+	var start_y := popup.global_position.y
+	var tween := create_tween().set_parallel(true)
+	tween.tween_property(popup, "global_position:y", start_y - 40.0, 0.72).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	tween.tween_property(popup, "modulate:a", 0.0, 0.38).set_delay(0.34)
+	tween.finished.connect(func() -> void:
+		floating_text_count = maxi(0, floating_text_count - 1)
+		popup.queue_free()
+	)
 
 
 func _add_animation(frames: SpriteFrames, animation: String, prefix: String, speed: float, looped: bool) -> void:

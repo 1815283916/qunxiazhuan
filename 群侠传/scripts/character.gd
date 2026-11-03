@@ -2,12 +2,6 @@ extends Control
 
 @onready var game_state := get_node("/root/GameState")
 var current_tab := "属性"
-var item_icons := {
-	"玄铁剑":"res://assets/Items/moshenjian.jpg", "君子剑":"res://assets/Items/liquanqiang.jpg",
-	"淑女剑":"res://assets/Items/dao3.jpg", "魔神剑":"res://assets/Items/moshenquantao.jpg",
-	"粗布道袍":"res://assets/Items/Dcubudaopao.jpg", "乌蚕衣":"res://assets/Items/daopao.jpg",
-	"毒戒指":"res://assets/Items/jiezhi3.jpg", "宝玉":"res://assets/Items/baoyu.jpg"
-}
 var empty_slot_icons := {
 	"weapon":"res://assets/UI/zbk_wuqi.png",
 	"armor":"res://assets/UI/zbk_fangju.png",
@@ -41,7 +35,7 @@ func _refresh_hero() -> void:
 	var combat: Dictionary = game_state.get_hero_combat_stats(game_state.selected_hero)
 	$Paper/PortraitFrame/Portrait.texture = load(hero.head)
 	$Paper/Name.text = hero.name
-	$Paper/Overview.text = "等级  %d\n生命  %d / %d\n内力  %d / %d\n经验  %d / %d\n攻击  %d\n韧性  %d\n防御  %d\n暴击  %.1f%%" % [hero.level, combat.max_hp, combat.max_hp, combat.max_mp, combat.max_mp, hero.get("exp", 0), hero.level * 200, combat.attack, combat.speed, combat.defense, combat.crit]
+	$Paper/Overview.text = "等级  %d\n生命  %d / %d\n内力  %d / %d\n经验  %d / %d\n攻击  %d\n韧性  %d\n防御  %d\n暴击  %.1f%%" % [hero.level, combat.max_hp, combat.max_hp, combat.max_mp, combat.max_mp, hero.get("exp", 0), game_state.get_hero_experience_needed(hero.level), combat.attack, combat.speed, combat.defense, combat.crit]
 	$Paper/WeaponStats.text = "拳掌    %d\n\n剑法    %d\n\n刀法    %d\n\n奇门    %d" % [combat.fist, combat.sword, combat.blade, combat.unorthodox]
 	$Paper/BaseStats.text = "臂力    %d       福缘    %d\n\n身法    %d       根骨    %d\n\n悟性    %d       定力    %d" % [combat.strength, combat.luck, combat.agility, combat.constitution, combat.insight, combat.willpower]
 	_refresh_equipment()
@@ -119,11 +113,11 @@ func _refresh_equipment() -> void:
 		var item_name: String = equipment.get(slot, "")
 		buttons[slot].tooltip_text = item_name if not item_name.is_empty() else "未装备"
 		buttons[slot].get_node("Name").text = item_name if not item_name.is_empty() else "未装备"
-		buttons[slot].texture_normal = load(item_icons[item_name]) if item_icons.has(item_name) else load(empty_slot_icons[slot])
+		buttons[slot].texture_normal = load(game_state.get_equipment_icon(item_name)) if not item_name.is_empty() else load(empty_slot_icons[slot])
 
 func _open_skill(skill_name: String) -> void:
 	game_state.selected_skill_name = skill_name
-	game_state.selected_skill_kind = "心法" if skill_name == "九阳神功" else "武学"
+	game_state.selected_skill_kind = game_state.skill_library[skill_name].kind
 	game_state.detail_return_scene = "res://scenes/character.tscn"
 	game_state.goto("res://scenes/skill_detail.tscn")
 
@@ -145,9 +139,14 @@ func _refresh_skills() -> void:
 		if not button.visible: continue
 		var skill_name: String = equipped[i]
 		var skill: Dictionary = game_state.skill_library[skill_name]
+		var level := int(loadout.levels.get(skill_name, 1))
 		button.texture_normal = load(skill.icon)
 		button.tooltip_text = skill_name
-		button.get_node("Name").text = "%s\nLv.%d" % [skill_name, loadout.levels.get(skill_name, 1)]
+		var detail := "%s\nLv.%d" % [skill_name, level]
+		if skill.kind == "心法":
+			var bonus: Dictionary = game_state.get_internal_skill_bonus(game_state.selected_hero)
+			detail += "\n攻+%d 防+%d" % [bonus.attack, bonus.defense]
+		button.get_node("Name").text = detail
 
 func _restore_character_tab() -> void:
 	if not initial_character_tab.is_empty(): _show_tab(initial_character_tab)

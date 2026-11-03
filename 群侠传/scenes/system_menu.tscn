@@ -60,13 +60,13 @@ theme_override_styles/panel = SubResource("OptionsPanel")
 [node name="Options" type="VBoxContainer" parent="."]
 layout_mode = 0
 offset_left = 190.0
-offset_top = 250.0
+offset_top = 235.0
 offset_right = 650.0
-offset_bottom = 780.0
-theme_override_constants/separation = 18
+offset_bottom = 785.0
+theme_override_constants/separation = 11
 
 [node name="ShowHP" type="CheckButton" parent="Options"]
-custom_minimum_size = Vector2(450, 54)
+custom_minimum_size = Vector2(450, 46)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_colors/font_hover_color = Color(0.96, 0.91, 0.78, 1)
@@ -74,7 +74,7 @@ theme_override_colors/font_pressed_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_font_sizes/font_size = 28
 text = "战斗血条显示"
 [node name="ShowBuffs" type="CheckButton" parent="Options"]
-custom_minimum_size = Vector2(450, 54)
+custom_minimum_size = Vector2(450, 46)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_colors/font_hover_color = Color(0.96, 0.91, 0.78, 1)
@@ -82,7 +82,7 @@ theme_override_colors/font_pressed_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_font_sizes/font_size = 28
 text = "战斗状态显示"
 [node name="AutoSave" type="CheckButton" parent="Options"]
-custom_minimum_size = Vector2(450, 54)
+custom_minimum_size = Vector2(450, 46)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_colors/font_hover_color = Color(0.96, 0.91, 0.78, 1)
@@ -90,15 +90,29 @@ theme_override_colors/font_pressed_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_font_sizes/font_size = 28
 text = "自动存档"
 [node name="AutoBattle" type="CheckButton" parent="Options"]
-custom_minimum_size = Vector2(450, 54)
+custom_minimum_size = Vector2(450, 46)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_colors/font_hover_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_colors/font_pressed_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_font_sizes/font_size = 28
 text = "自动战斗"
+[node name="BattleSpeed" type="OptionButton" parent="Options"]
+custom_minimum_size = Vector2(450, 46)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.91, 0.78, 1)
+theme_override_colors/font_hover_color = Color(0.96, 0.91, 0.78, 1)
+theme_override_colors/font_pressed_color = Color(0.96, 0.91, 0.78, 1)
+theme_override_font_sizes/font_size = 28
+item_count = 2
+selected = 0
+popup/item_0/text = "战斗速度：1倍"
+popup/item_0/id = 0
+popup/item_1/text = "战斗速度：2倍"
+popup/item_1/id = 1
+
 [node name="Music" type="CheckButton" parent="Options"]
-custom_minimum_size = Vector2(450, 54)
+custom_minimum_size = Vector2(450, 46)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_colors/font_hover_color = Color(0.96, 0.91, 0.78, 1)
@@ -106,7 +120,7 @@ theme_override_colors/font_pressed_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_font_sizes/font_size = 28
 text = "音乐"
 [node name="Sound" type="CheckButton" parent="Options"]
-custom_minimum_size = Vector2(450, 54)
+custom_minimum_size = Vector2(450, 46)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_colors/font_hover_color = Color(0.96, 0.91, 0.78, 1)
@@ -114,7 +128,7 @@ theme_override_colors/font_pressed_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_font_sizes/font_size = 28
 text = "音效"
 [node name="Fullscreen" type="CheckButton" parent="Options"]
-custom_minimum_size = Vector2(450, 54)
+custom_minimum_size = Vector2(450, 46)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_colors/font_hover_color = Color(0.96, 0.91, 0.78, 1)
