@@ -140,27 +140,58 @@ theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 1)
 theme_override_font_sizes/font_size = 25
 text = "时间限制  56/4200"
 
-[node name="Timeline" type="Label" parent="Top" unique_id=712872914]
+[node name="ActionOrder" type="Label" parent="Top"]
 layout_mode = 0
-offset_left = 250.0
-offset_top = 7.0
-offset_right = 555.0
-offset_bottom = 68.0
+offset_left = 30.0
+offset_top = 47.0
+offset_right = 245.0
+offset_bottom = 72.0
 theme_override_colors/font_color = Color(0.94, 0.8, 0.42, 1)
-theme_override_font_sizes/font_size = 16
-text = "后续时序"
+theme_override_font_sizes/font_size = 13
+text = ">"
 vertical_alignment = 1
 
 [node name="Hint" type="Label" parent="Top" unique_id=63670249]
 layout_mode = 0
 offset_left = 560.0
 offset_top = 10.0
-offset_right = 1570.0
+offset_right = 1300.0
 offset_bottom = 60.0
 theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 1)
 theme_override_font_sizes/font_size = 24
 text = "选择角色行动……点击查看角色详情"
 horizontal_alignment = 1
+
+[node name="AutoBattle" type="Button" parent="Top"]
+layout_mode = 0
+offset_left = 1305.0
+offset_top = 8.0
+offset_right = 1435.0
+offset_bottom = 38.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+toggle_mode = true
+theme_override_colors/font_color = Color(0.95, 0.89, 0.76, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("command_normal")
+theme_override_styles/pressed = SubResource("command_hover")
+theme_override_styles/hover = SubResource("command_hover")
+text = "自动：关"
+
+[node name="BattleSpeed" type="Button" parent="Top"]
+layout_mode = 0
+offset_left = 1440.0
+offset_top = 8.0
+offset_right = 1570.0
+offset_bottom = 38.0
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.95, 0.89, 0.76, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("command_normal")
+theme_override_styles/pressed = SubResource("command_hover")
+theme_override_styles/hover = SubResource("command_hover")
+text = "战斗 1倍"
 
 [node name="Board" type="Control" parent="." unique_id=315734005]
 anchors_preset = 0
@@ -463,65 +494,6 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.015, 0.012, 0.01, 0.76)
 
-[node name="SelectedSkill" type="Control" parent="Bottom" unique_id=1399059703]
-anchors_preset = 0
-offset_left = 24.0
-offset_top = 8.0
-offset_right = 194.0
-offset_bottom = 190.0
-
-[node name="Icon" type="TextureRect" parent="Bottom/SelectedSkill" unique_id=1947458600]
-layout_mode = 0
-offset_left = 17.0
-offset_top = 10.0
-offset_right = 153.0
-offset_bottom = 146.0
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Frame" type="TextureRect" parent="Bottom/SelectedSkill" unique_id=250561065]
-layout_mode = 0
-offset_right = 170.0
-offset_bottom = 160.0
-mouse_filter = 2
-texture = ExtResource("6")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Name" type="Label" parent="Bottom/SelectedSkill" unique_id=1461284015]
-layout_mode = 0
-offset_left = 9.0
-offset_top = 104.0
-offset_right = 161.0
-offset_bottom = 136.0
-theme_override_colors/font_color = Color(1, 0.83, 0.34, 1)
-theme_override_colors/font_shadow_color = Color(0.03, 0.02, 0.01, 1)
-theme_override_constants/shadow_offset_x = 2
-theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 22
-text = "选择武学"
-horizontal_alignment = 1
-
-[node name="Details" type="Label" parent="Bottom/SelectedSkill" unique_id=1750779749]
-layout_mode = 0
-offset_top = 139.0
-offset_right = 170.0
-offset_bottom = 160.0
-theme_override_colors/font_color = Color(0.91, 0.86, 0.75, 1)
-theme_override_font_sizes/font_size = 14
-text = ""
-horizontal_alignment = 1
-
-[node name="State" type="Label" parent="Bottom/SelectedSkill" unique_id=424570009]
-layout_mode = 0
-offset_top = 161.0
-offset_right = 170.0
-offset_bottom = 182.0
-theme_override_colors/font_color = Color(0.38, 0.7, 0.95, 1)
-theme_override_font_sizes/font_size = 14
-text = ""
-horizontal_alignment = 1
-
 [node name="Portrait" type="Control" parent="Bottom" unique_id=1922095594]
 anchors_preset = 0
 offset_left = 1385.0
@@ -579,7 +551,7 @@ text = "60/60"
 
 [node name="Skills" type="HBoxContainer" parent="Bottom" unique_id=479337418]
 layout_mode = 0
-offset_left = 218.0
+offset_left = 24.0
 offset_top = 23.0
 offset_right = 806.0
 offset_bottom = 178.0
@@ -743,6 +715,40 @@ theme_override_styles/hover = SubResource("command_hover")
 theme_override_styles/disabled = SubResource("command_disabled")
 disabled = true
 text = "↶  撤回移动"
+
+[node name="Surrender" type="Button" parent="Top"]
+layout_mode = 0
+offset_left = 1305.0
+offset_top = 44.0
+offset_right = 1435.0
+offset_bottom = 74.0
+tooltip_text = "结束本场战斗并投降"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.95, 0.89, 0.76, 1)
+theme_override_colors/font_hover_color = Color(1, 0.86, 0.38, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("command_normal")
+theme_override_styles/pressed = SubResource("command_hover")
+theme_override_styles/hover = SubResource("command_hover")
+text = "投降"
+
+[node name="RestartBattle" type="Button" parent="Top"]
+layout_mode = 0
+offset_left = 1440.0
+offset_top = 44.0
+offset_right = 1570.0
+offset_bottom = 74.0
+tooltip_text = "放弃当前战斗并重新开始"
+focus_mode = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0.95, 0.89, 0.76, 1)
+theme_override_colors/font_hover_color = Color(1, 0.86, 0.38, 1)
+theme_override_font_sizes/font_size = 17
+theme_override_styles/normal = SubResource("command_normal")
+theme_override_styles/pressed = SubResource("command_hover")
+theme_override_styles/hover = SubResource("command_hover")
+text = "重开"
 
 [node name="Rest" type="TextureButton" parent="." unique_id=825437668]
 layout_mode = 0

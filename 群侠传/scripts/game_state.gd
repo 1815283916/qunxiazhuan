@@ -57,18 +57,19 @@ var equipment_library := {
 	"宝玉":{"slot":"accessory", "luck":8, "willpower":5}
 }
 var skill_library := {
-	"独孤九剑":{"kind":"武学", "school":"剑系", "cost":18, "damage":36, "range":3, "shape":"line", "icon":"res://assets/Icons/icon_waigong_114.jpg", "description":"剑意纵横的上乘剑法。沿直线攻击多个敌人。"},
-	"落英神剑掌":{"kind":"武学", "school":"拳掌", "cost":12, "damage":27, "range":4, "shape":"single", "icon":"res://assets/Icons/icon_waigong_107.jpg", "description":"掌影飘忽，适合中距离攻击单个敌人。"},
-	"漫天花雨":{"kind":"武学", "school":"奇门", "cost":20, "damage":31, "range":2, "shape":"cross", "icon":"res://assets/Icons/icon_neigong_020.jpg", "description":"暗器如雨，以目标为中心攻击十字范围。"},
-	"太极剑法":{"kind":"武学", "school":"剑系", "cost":16, "damage":32, "range":3, "shape":"line", "icon":"res://assets/Icons/icon_waigong_114.jpg", "description":"圆转如意、后发制人的武当剑法。"},
+	"独孤九剑":{"kind":"武学", "school":"剑系", "cost":18, "damage":36, "range":4, "shape":"line", "pattern":"前方直线四格", "icon":"res://assets/Icons/icon_waigong_114.jpg", "description":"剑意纵横的上乘剑法。选择周围四格之一确定方向，攻击直线上的四格。"},
+	"落英神剑掌":{"kind":"武学", "school":"拳掌", "cost":12, "damage":27, "range":3, "shape":"single", "pattern":"三格内单体", "icon":"res://assets/Icons/icon_waigong_107.jpg", "description":"掌影飘忽，可攻击三格范围内的一名敌人。"},
+	"狂风刀法":{"kind":"武学", "school":"刀法", "cost":16, "damage":30, "range":1, "shape":"fan", "pattern":"前方2×3六格", "icon":"res://assets/Icons/icon_waigong_107.jpg", "description":"刀势横扫，朝选定方向攻击前方2×3范围内的敌人。"},
+	"漫天花雨":{"kind":"武学", "school":"奇门", "cost":20, "damage":31, "range":2, "shape":"cross", "pattern":"两格内十字九格", "icon":"res://assets/Icons/icon_neigong_020.jpg", "description":"暗器如雨，可在两格内落点施放，攻击十字九格范围。"},
+	"太极剑法":{"kind":"武学", "school":"剑系", "cost":16, "damage":32, "range":4, "shape":"line", "pattern":"前方直线四格", "icon":"res://assets/Icons/icon_waigong_114.jpg", "description":"圆转如意、后发制人的武当剑法。选择周围四格之一确定方向，攻击直线上的四格。"},
 	"九阳神功":{"kind":"心法", "school":"内功", "icon":"res://assets/Icons/icon_neigong_020.jpg", "description":"至阳至刚的上乘心法，提升气血与内力恢复。"},
 	"易筋经":{"kind":"心法", "school":"内功", "icon":"res://assets/Icons/icon_neigong_020.jpg", "description":"少林镇派心法，调和内息并提升攻防根基。"}
 }
 var hero_skills := [
 	{"martial":["独孤九剑", "落英神剑掌", "漫天花雨"], "internal":"九阳神功", "levels":{"独孤九剑":3, "落英神剑掌":2, "漫天花雨":2, "九阳神功":3}, "exp":{}},
-	{"martial":["太极剑法", "落英神剑掌"], "internal":"九阳神功", "levels":{"太极剑法":4, "落英神剑掌":2, "九阳神功":4}, "exp":{}},
+	{"martial":["太极剑法", "狂风刀法", "落英神剑掌"], "internal":"九阳神功", "levels":{"太极剑法":4, "狂风刀法":2, "落英神剑掌":2, "九阳神功":4}, "exp":{}},
 	{"martial":["落英神剑掌", "漫天花雨"], "internal":"易筋经", "levels":{"落英神剑掌":3, "漫天花雨":2, "易筋经":3}, "exp":{}},
-	{"martial":["独孤九剑", "太极剑法"], "internal":"九阳神功", "levels":{"独孤九剑":3, "太极剑法":3, "九阳神功":3}, "exp":{}},
+	{"martial":["独孤九剑", "太极剑法", "狂风刀法"], "internal":"九阳神功", "levels":{"独孤九剑":3, "太极剑法":3, "狂风刀法":2, "九阳神功":3}, "exp":{}},
 	{"martial":["落英神剑掌"], "internal":"易筋经", "levels":{"落英神剑掌":2, "易筋经":4}, "exp":{}},
 	{"martial":["太极剑法"], "internal":"易筋经", "levels":{"太极剑法":2, "易筋经":2}, "exp":{}},
 	{"martial":["漫天花雨", "独孤九剑"], "internal":"九阳神功", "levels":{"漫天花雨":4, "独孤九剑":2, "九阳神功":3}, "exp":{}},
@@ -84,6 +85,7 @@ var reward_money := 200
 var reward_exp := 120
 var selected_item := "玄铁剑"
 var detail_return_scene := "res://scenes/inventory.tscn"
+var character_tab := ""
 var selected_skill_name := "独孤九剑"
 var selected_skill_kind := "武学"
 var settings := {
@@ -116,6 +118,7 @@ func _trim_roster_to_six() -> void:
 
 func _ready() -> void:
 	_trim_roster_to_six()
+	hero_equipment = _empty_equipment_loadout()
 	# 深拷贝一份初始进度；设置项不放入快照，便于新游戏保留玩家偏好。
 	_new_game_defaults = {
 		"money": money, "reputation": reputation,
@@ -125,8 +128,14 @@ func _ready() -> void:
 		"hero_equipment": hero_equipment.duplicate(true), "hero_skills": hero_skills.duplicate(true),
 		"inventory": inventory.duplicate(true), "journal": journal.duplicate(true),
 		"selected_item": selected_item, "detail_return_scene": detail_return_scene,
+		"character_tab": character_tab,
 		"selected_skill_name": selected_skill_name, "selected_skill_kind": selected_skill_kind
 	}
+
+func _empty_equipment_loadout() -> Array:
+	var loadout: Array = []
+	for _i in HERO_MODEL_PATHS.size(): loadout.append({})
+	return loadout
 
 func reset_new_game() -> void:
 	if _new_game_defaults.is_empty(): return
@@ -144,6 +153,7 @@ func reset_new_game() -> void:
 	journal = _new_game_defaults.journal.duplicate(true)
 	selected_item = str(_new_game_defaults.selected_item)
 	detail_return_scene = str(_new_game_defaults.detail_return_scene)
+	character_tab = str(_new_game_defaults.character_tab)
 	selected_skill_name = str(_new_game_defaults.selected_skill_name)
 	selected_skill_kind = str(_new_game_defaults.selected_skill_kind)
 	player_hp = 100
@@ -260,6 +270,7 @@ func equip_item(hero_index: int, item_name: String) -> String:
 	if hero_index < 0 or hero_index >= hero_equipment.size(): return "无法选择该侠客"
 	if not equipment_library.has(item_name): return "此物品不能装备"
 	var slot: String = equipment_library[item_name].slot
+	if slot not in ["weapon", "armor", "accessory"]: return "无效装备槽"
 	var equipment: Dictionary = hero_equipment[hero_index]
 	var previous: String = equipment.get(slot, "")
 	if previous == item_name: return "%s已经装备%s" % [heroes[hero_index].name, item_name]
@@ -268,6 +279,16 @@ func equip_item(hero_index: int, item_name: String) -> String:
 	if not previous.is_empty(): inventory.append(previous)
 	equipment[slot] = item_name
 	return "已为%s装备%s" % [heroes[hero_index].name, item_name]
+
+func unequip_item(hero_index: int, slot: String) -> String:
+	if hero_index < 0 or hero_index >= hero_equipment.size(): return "无法选择该侠客"
+	if slot not in ["weapon", "armor", "accessory"]: return "无法卸下该装备"
+	var equipment: Dictionary = hero_equipment[hero_index]
+	var item_name: String = str(equipment.get(slot, ""))
+	if item_name.is_empty(): return "该装备位已空"
+	equipment[slot] = ""
+	inventory.append(item_name)
+	return "已为%s卸下%s" % [heroes[hero_index].name, item_name]
 
 func learn_from_book(hero_index: int, book_name: String) -> String:
 	if hero_index < 0 or hero_index >= hero_skills.size(): return "无法选择该侠客"
@@ -314,6 +335,7 @@ func save_slot(slot: int, path_override: String = "") -> Error:
 	cfg.set_value("player", "inventory", inventory)
 	cfg.set_value("player", "selected_party", selected_party)
 	cfg.set_value("player", "selected_hero", selected_hero)
+	cfg.set_value("player", "character_tab", character_tab)
 	cfg.set_value("player", "hero_equipment", hero_equipment)
 	cfg.set_value("player", "heroes", heroes)
 	cfg.set_value("player", "hero_stats", hero_stats)
@@ -349,6 +371,7 @@ func load_slot(slot: int, path_override: String = "") -> Error:
 			if index >= 0 and index < heroes.size() and not selected_party.has(index): selected_party.append(index)
 	if selected_party.is_empty(): selected_party.append(0)
 	selected_hero = clampi(int(cfg.get_value("player", "selected_hero", selected_hero)), 0, heroes.size() - 1)
+	character_tab = str(cfg.get_value("player", "character_tab", character_tab))
 	var saved_equipment: Variant = cfg.get_value("player", "hero_equipment", hero_equipment)
 	if saved_equipment is Array:
 		hero_equipment.clear()

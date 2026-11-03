@@ -8,8 +8,17 @@ var item_icons := {
 	"粗布道袍":"res://assets/Items/Dcubudaopao.jpg", "乌蚕衣":"res://assets/Items/daopao.jpg",
 	"毒戒指":"res://assets/Items/jiezhi3.jpg", "宝玉":"res://assets/Items/baoyu.jpg"
 }
+var empty_slot_icons := {
+	"weapon":"res://assets/UI/zbk_wuqi.png",
+	"armor":"res://assets/UI/zbk_fangju.png",
+	"accessory":"res://assets/UI/zbk_shipin.png"
+}
+var equipment_menu: PopupMenu
+var pending_equipment_slot := ""
+var initial_character_tab := ""
 
 func _ready() -> void:
+	initial_character_tab = game_state.character_tab
 	for tab in $Paper/Tabs.get_children():
 		if tab is TextureButton: tab.pressed.connect(_on_tab_pressed.bind(tab.tooltip_text))
 	for i in $Party.get_child_count():
@@ -18,8 +27,12 @@ func _ready() -> void:
 	$Paper/EquipmentPanel/Weapon.pressed.connect(_open_equipped_item.bind("weapon"))
 	$Paper/EquipmentPanel/Armor.pressed.connect(_open_equipped_item.bind("armor"))
 	$Paper/EquipmentPanel/Accessory.pressed.connect(_open_equipped_item.bind("accessory"))
+	equipment_menu = PopupMenu.new()
+	equipment_menu.id_pressed.connect(_on_equipment_choice)
+	add_child(equipment_menu)
 	for i in $Paper/SkillsPanel/Grid.get_child_count():
 		$Paper/SkillsPanel/Grid.get_child(i).pressed.connect(_open_skill_slot.bind(i))
+	call_deferred("_restore_character_tab")
 	_refresh_hero()
 	_show_tab("属性")
 
@@ -51,7 +64,7 @@ func _on_tab_pressed(tab_name: String) -> void:
 
 func _show_tab(tab_name: String) -> void:
 	current_tab = tab_name
-	$Paper/TabHint.text = "当前页：" + tab_name
+	game_state.character_tab = tab_name
 	var attribute_nodes := [$Paper/WeaponTitle, $Paper/WeaponStats, $Paper/BaseTitle, $Paper/BaseStats]
 	for node in attribute_nodes: node.visible = tab_name == "属性"
 	$Paper/EquipmentPanel.visible = tab_name == "装备"
@@ -66,7 +79,34 @@ func _open_item(item_name: String) -> void:
 
 func _open_equipped_item(slot: String) -> void:
 	var equipment: Dictionary = game_state.hero_equipment[game_state.selected_hero]
-	_open_item(equipment.get(slot, "玄铁剑"))
+	var item_name: String = str(equipment.get(slot, ""))
+	if item_name.is_empty():
+		_show_equipment_choices(slot)
+		return
+	_open_item(item_name)
+
+func _show_equipment_choices(slot: String) -> void:
+	pending_equipment_slot = slot
+	equipment_menu.clear()
+	var added := {}
+	for item in game_state.inventory:
+		var item_name := str(item)
+		if added.has(item_name) or not game_state.equipment_library.has(item_name): continue
+		if str(game_state.equipment_library[item_name].get("slot", "")) != slot: continue
+		equipment_menu.add_item(item_name)
+		added[item_name] = true
+	if equipment_menu.item_count == 0:
+		return
+	equipment_menu.position = get_viewport().get_mouse_position()
+	equipment_menu.popup()
+
+func _on_equipment_choice(index: int) -> void:
+	if pending_equipment_slot.is_empty() or index < 0 or index >= equipment_menu.item_count: return
+	var item_name := equipment_menu.get_item_text(index)
+	game_state.equip_item(game_state.selected_hero, item_name)
+	equipment_menu.hide()
+	pending_equipment_slot = ""
+	_refresh_hero()
 
 func _refresh_equipment() -> void:
 	var equipment: Dictionary = game_state.hero_equipment[game_state.selected_hero]
@@ -77,9 +117,9 @@ func _refresh_equipment() -> void:
 	}
 	for slot in buttons:
 		var item_name: String = equipment.get(slot, "")
-		buttons[slot].tooltip_text = item_name
-		buttons[slot].get_node("Name").text = item_name
-		if item_icons.has(item_name): buttons[slot].texture_normal = load(item_icons[item_name])
+		buttons[slot].tooltip_text = item_name if not item_name.is_empty() else "未装备"
+		buttons[slot].get_node("Name").text = item_name if not item_name.is_empty() else "未装备"
+		buttons[slot].texture_normal = load(item_icons[item_name]) if item_icons.has(item_name) else load(empty_slot_icons[slot])
 
 func _open_skill(skill_name: String) -> void:
 	game_state.selected_skill_name = skill_name
@@ -108,3 +148,6 @@ func _refresh_skills() -> void:
 		button.texture_normal = load(skill.icon)
 		button.tooltip_text = skill_name
 		button.get_node("Name").text = "%s\nLv.%d" % [skill_name, loadout.levels.get(skill_name, 1)]
+
+func _restore_character_tab() -> void:
+	if not initial_character_tab.is_empty(): _show_tab(initial_character_tab)

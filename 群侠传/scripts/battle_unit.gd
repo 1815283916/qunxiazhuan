@@ -8,16 +8,18 @@ const HURT_SCALE := Vector2(0.85, 0.85)
 
 var model_path := ""
 var model_scale_factor := 1.0
+var facing_direction := Vector2i.RIGHT
 
 func _ready() -> void:
 	model.animation_finished.connect(_on_animation_finished)
 	model.frame_changed.connect(_on_model_frame_changed)
 
 func configure(path: String, face_left: bool) -> void:
-	model.flip_h = face_left
 	if path.is_empty(): return
 	if path == model_path and model.sprite_frames != null: return
 	model_path = path
+	facing_direction = Vector2i.LEFT if face_left else Vector2i.RIGHT
+	model.flip_h = face_left
 	model_scale_factor = _get_model_scale_factor(path.get_file())
 	var frames := SpriteFrames.new()
 	frames.remove_animation("default")
@@ -45,6 +47,11 @@ func configure(path: String, face_left: bool) -> void:
 	model.sprite_frames = frames
 	_update_model_offset()
 	play_action("idle")
+
+func face_toward(direction: Vector2i) -> void:
+	if direction == Vector2i.ZERO: return
+	facing_direction = Vector2i(signi(direction.x), signi(direction.y))
+	model.flip_h = direction.x < 0 if direction.x != 0 else direction.y < 0
 
 func play_action(action: String) -> void:
 	if model.sprite_frames == null: return

@@ -13,7 +13,8 @@ func _refresh() -> void:
 	$Paper/SkillIcon.texture = load(skill.icon)
 	$Paper/SkillName.text = skill_name
 	$Paper/SkillType.text = "【%s】%s" % [skill.school, skill.kind]
-	$Paper/Description.text = "%s\n等级 %d/10\n威力 %d\n范围 %d\n%s" % [skill.description, level, skill.get("damage", 0), skill.get("range", 0), "消耗内力 %d" % skill.get("cost", 0) if skill.kind == "武学" else "装备心法后生效"]
+	var martial_details := "倍率 %.1f\n范围 %s\n消耗内力 %d" % [1.0 + float(maxi(0, level - 1)) * 0.1, skill.get("pattern", "单体"), skill.get("cost", 0)]
+	$Paper/Description.text = "%s\n等级 %d/10\n威力 %d\n%s" % [skill.description, level, skill.get("damage", 0), martial_details if skill.kind == "武学" else "装备心法后生效"]
 	$Paper/Forget.visible = skill.kind == "武学"
 	$Paper/Switch/Label.text = "切换至心法" if skill.kind == "武学" else "切换至武学"
 

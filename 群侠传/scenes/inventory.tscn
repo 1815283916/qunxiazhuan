@@ -1,29 +1,22 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=7 format=3]
 
-[ext_resource type="Script" path="res://scripts/inventory.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/UI/dikuang2.png" id="2"]
-[ext_resource type="Texture2D" path="res://assets/UI/buttonbg.png" id="3"]
-[ext_resource type="Texture2D" path="res://assets/Items/moshenjian.jpg" id="4"]
-[ext_resource type="Texture2D" path="res://assets/Items/liquanqiang.jpg" id="5"]
-[ext_resource type="Texture2D" path="res://assets/Items/dao3.jpg" id="6"]
-[ext_resource type="Texture2D" path="res://assets/Items/baoyu.jpg" id="7"]
-[ext_resource type="Texture2D" path="res://assets/UI/btn_cross.png" id="8"]
+[ext_resource type="Script" path="res://scripts/inventory.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/UI/dikuang2.png" id="2_paper"]
+[ext_resource type="Texture2D" path="res://assets/UI/btn_cross.png" id="3_close"]
+[ext_resource type="Texture2D" path="res://assets/UI/zbk_bg.png" id="4_slot"]
+[ext_resource type="Texture2D" path="res://assets/Items/moshenjian.jpg" id="5_item"]
 
-[sub_resource type="StyleBoxFlat" id="item_card"]
-bg_color = Color(0.83, 0.74, 0.57, 0.72)
-border_width_left = 4
-border_width_top = 4
+[sub_resource type="StyleBoxFlat" id="StyleSide"]
+bg_color = Color(0.035, 0.032, 0.028, 0.94)
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleSideSelected"]
+bg_color = Color(0.19, 0.16, 0.09, 0.98)
 border_width_right = 4
-border_width_bottom = 4
-border_color = Color(0.13, 0.11, 0.08, 1)
-
-[sub_resource type="StyleBoxFlat" id="item_hover"]
-bg_color = Color(0.91, 0.78, 0.32, 0.55)
-border_width_left = 5
-border_width_top = 5
-border_width_right = 5
-border_width_bottom = 5
-border_color = Color(0.52, 0.36, 0.09, 1)
+border_color = Color(0.96, 0.8, 0.2, 1)
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
 
 [node name="Inventory" type="Control"]
 layout_mode = 3
@@ -32,7 +25,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1")
+script = ExtResource("1_script")
 
 [node name="Paper" type="TextureRect" parent="."]
 layout_mode = 1
@@ -41,36 +34,130 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture = ExtResource("2")
+mouse_filter = 2
+texture = ExtResource("2_paper")
 expand_mode = 1
 stretch_mode = 6
 
 [node name="Title" type="Label" parent="."]
 layout_mode = 0
-offset_left = 500.0
-offset_top = 45.0
-offset_right = 1080.0
-offset_bottom = 125.0
-theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
-theme_override_font_sizes/font_size = 48
-text = "武器列表 【4】"
+offset_left = 430.0
+offset_top = 52.0
+offset_right = 1170.0
+offset_bottom = 132.0
+theme_override_colors/font_color = Color(0.11, 0.09, 0.07, 1)
+theme_override_colors/font_outline_color = Color(0.92, 0.86, 0.7, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 46
+text = "物品列表【0】"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="CategoryLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 108.0
+offset_right = 190.0
+offset_bottom = 143.0
+theme_override_colors/font_color = Color(0.3, 0.25, 0.18, 1)
+theme_override_font_sizes/font_size = 17
+text = "物品分类"
 horizontal_alignment = 1
 
 [node name="Categories" type="VBoxContainer" parent="."]
 layout_mode = 0
-offset_top = 140.0
-offset_right = 190.0
-offset_bottom = 690.0
-theme_override_constants/separation = 12
+offset_left = 24.0
+offset_top = 155.0
+offset_right = 185.0
+offset_bottom = 700.0
+theme_override_constants/separation = 17
 
-[node name="Weapon" type="TextureButton" parent="Categories"]
-custom_minimum_size = Vector2(180, 76)
+[node name="All" type="Button" parent="Categories"]
+custom_minimum_size = Vector2(161, 67)
 layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-tooltip_text = "武器"
-[node name="Label" type="Label" parent="Categories/Weapon"]
+theme_override_colors/font_color = Color(0.98, 0.85, 0.15, 1)
+theme_override_font_sizes/font_size = 29
+theme_override_styles/normal = SubResource("StyleSide")
+theme_override_styles/hover = SubResource("StyleSideSelected")
+theme_override_styles/pressed = SubResource("StyleSideSelected")
+text = "全部"
+
+[node name="Equipment" type="Button" parent="Categories"]
+custom_minimum_size = Vector2(161, 67)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.84, 1)
+theme_override_font_sizes/font_size = 29
+theme_override_styles/normal = SubResource("StyleSide")
+theme_override_styles/hover = SubResource("StyleSideSelected")
+theme_override_styles/pressed = SubResource("StyleSideSelected")
+text = "装备"
+
+[node name="Books" type="Button" parent="Categories"]
+custom_minimum_size = Vector2(161, 67)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.84, 1)
+theme_override_font_sizes/font_size = 29
+theme_override_styles/normal = SubResource("StyleSide")
+theme_override_styles/hover = SubResource("StyleSideSelected")
+theme_override_styles/pressed = SubResource("StyleSideSelected")
+text = "秘籍"
+
+[node name="Consumables" type="Button" parent="Categories"]
+custom_minimum_size = Vector2(161, 67)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.84, 1)
+theme_override_font_sizes/font_size = 29
+theme_override_styles/normal = SubResource("StyleSide")
+theme_override_styles/hover = SubResource("StyleSideSelected")
+theme_override_styles/pressed = SubResource("StyleSideSelected")
+text = "消耗品"
+
+[node name="Special" type="Button" parent="Categories"]
+custom_minimum_size = Vector2(161, 67)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.84, 1)
+theme_override_font_sizes/font_size = 29
+theme_override_styles/normal = SubResource("StyleSide")
+theme_override_styles/hover = SubResource("StyleSideSelected")
+theme_override_styles/pressed = SubResource("StyleSideSelected")
+text = "特殊"
+
+[node name="Tasks" type="Button" parent="Categories"]
+custom_minimum_size = Vector2(161, 67)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.84, 1)
+theme_override_font_sizes/font_size = 29
+theme_override_styles/normal = SubResource("StyleSide")
+theme_override_styles/hover = SubResource("StyleSideSelected")
+theme_override_styles/pressed = SubResource("StyleSideSelected")
+text = "任务品"
+
+[node name="Divider" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 198.0
+offset_top = 145.0
+offset_right = 201.0
+offset_bottom = 780.0
+mouse_filter = 2
+color = Color(0.12, 0.1, 0.075, 0.72)
+
+[node name="Items" type="GridContainer" parent="."]
+layout_mode = 0
+offset_left = 230.0
+offset_top = 155.0
+offset_right = 1460.0
+offset_bottom = 760.0
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 22
+columns = 7
+
+[node name="ItemTemplate" type="Button" parent="Items"]
+visible = false
+custom_minimum_size = Vector2(160, 174)
+layout_mode = 2
+flat = true
+
+[node name="Frame" type="TextureRect" parent="Items/ItemTemplate"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -78,150 +165,92 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.95, 0.9, 0.75, 1)
-theme_override_font_sizes/font_size = 28
-text = "武器"
+texture = ExtResource("4_slot")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Icon" type="TextureRect" parent="Items/ItemTemplate"]
+layout_mode = 0
+offset_left = 13.0
+offset_top = 12.0
+offset_right = 147.0
+offset_bottom = 137.0
+mouse_filter = 2
+texture = ExtResource("5_item")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Name" type="Label" parent="Items/ItemTemplate"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 137.0
+offset_right = 156.0
+offset_bottom = 170.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.97, 0.95, 0.9, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.06, 0.04, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 19
 horizontal_alignment = 1
 vertical_alignment = 1
-[node name="Armor" type="Button" parent="Categories"]
-custom_minimum_size = Vector2(180, 76)
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "防具"
-[node name="Accessory" type="Button" parent="Categories"]
-custom_minimum_size = Vector2(180, 76)
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "饰品"
-[node name="Book" type="Button" parent="Categories"]
-custom_minimum_size = Vector2(180, 76)
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "经书"
-[node name="Hidden" type="Button" parent="Categories"]
-custom_minimum_size = Vector2(180, 76)
-layout_mode = 2
-theme_override_font_sizes/font_size = 28
-text = "暗器"
 
-[node name="Items" type="GridContainer" parent="."]
+[node name="Count" type="Label" parent="Items/ItemTemplate"]
 layout_mode = 0
-offset_left = 215.0
-offset_top = 150.0
-offset_right = 1410.0
-offset_bottom = 710.0
-theme_override_constants/h_separation = 26
-theme_override_constants/v_separation = 30
-columns = 4
+offset_left = 120.0
+offset_top = 5.0
+offset_right = 155.0
+offset_bottom = 40.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.18, 1)
+theme_override_colors/font_outline_color = Color(0.08, 0.06, 0.03, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 2
 
-[node name="Item0" type="Button" parent="Items"]
-custom_minimum_size = Vector2(260, 245)
-layout_mode = 2
-theme_override_styles/normal = SubResource("item_card")
-theme_override_styles/hover = SubResource("item_hover")
-[node name="Icon" type="TextureRect" parent="Items/Item0"]
+[node name="Equipped" type="Label" parent="Items/ItemTemplate"]
 layout_mode = 0
-offset_left = 30.0
-offset_top = 18.0
-offset_right = 230.0
-offset_bottom = 198.0
+offset_left = 5.0
+offset_top = 8.0
+offset_right = 72.0
+offset_bottom = 32.0
 mouse_filter = 2
-texture = ExtResource("4")
-expand_mode = 1
-stretch_mode = 5
-[node name="Name" type="Label" parent="Items/Item0"]
+theme_override_colors/font_color = Color(0.45, 1, 0.67, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.1, 0.05, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 16
+text = "已装备"
+
+[node name="Empty" type="Label" parent="."]
+visible = false
 layout_mode = 0
-offset_top = 195.0
-offset_right = 260.0
-offset_bottom = 240.0
+offset_left = 360.0
+offset_top = 390.0
+offset_right = 1360.0
+offset_bottom = 460.0
 mouse_filter = 2
-theme_override_colors/font_color = Color(0.2, 0.16, 0.12, 1)
-theme_override_font_sizes/font_size = 24
-text = "玄铁剑"
+theme_override_colors/font_color = Color(0.28, 0.24, 0.18, 1)
+theme_override_font_sizes/font_size = 28
+text = "此分类暂无物品"
 horizontal_alignment = 1
-[node name="Item1" type="Button" parent="Items"]
-custom_minimum_size = Vector2(260, 245)
-layout_mode = 2
-theme_override_styles/normal = SubResource("item_card")
-theme_override_styles/hover = SubResource("item_hover")
-[node name="Icon" type="TextureRect" parent="Items/Item1"]
+
+[node name="Status" type="Label" parent="."]
 layout_mode = 0
-offset_left = 30.0
-offset_top = 18.0
-offset_right = 230.0
-offset_bottom = 198.0
+offset_left = 230.0
+offset_top = 785.0
+offset_right = 1440.0
+offset_bottom = 830.0
 mouse_filter = 2
-texture = ExtResource("5")
-expand_mode = 1
-stretch_mode = 5
-[node name="Name" type="Label" parent="Items/Item1"]
-layout_mode = 0
-offset_top = 195.0
-offset_right = 260.0
-offset_bottom = 240.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.2, 0.16, 0.12, 1)
-theme_override_font_sizes/font_size = 24
-text = "君子剑"
-horizontal_alignment = 1
-[node name="Item2" type="Button" parent="Items"]
-custom_minimum_size = Vector2(260, 245)
-layout_mode = 2
-theme_override_styles/normal = SubResource("item_card")
-theme_override_styles/hover = SubResource("item_hover")
-[node name="Icon" type="TextureRect" parent="Items/Item2"]
-layout_mode = 0
-offset_left = 30.0
-offset_top = 18.0
-offset_right = 230.0
-offset_bottom = 198.0
-mouse_filter = 2
-texture = ExtResource("6")
-expand_mode = 1
-stretch_mode = 5
-[node name="Name" type="Label" parent="Items/Item2"]
-layout_mode = 0
-offset_top = 195.0
-offset_right = 260.0
-offset_bottom = 240.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.2, 0.16, 0.12, 1)
-theme_override_font_sizes/font_size = 24
-text = "淑女剑"
-horizontal_alignment = 1
-[node name="Item3" type="Button" parent="Items"]
-custom_minimum_size = Vector2(260, 245)
-layout_mode = 2
-theme_override_styles/normal = SubResource("item_card")
-theme_override_styles/hover = SubResource("item_hover")
-[node name="Icon" type="TextureRect" parent="Items/Item3"]
-layout_mode = 0
-offset_left = 30.0
-offset_top = 18.0
-offset_right = 230.0
-offset_bottom = 198.0
-mouse_filter = 2
-texture = ExtResource("7")
-expand_mode = 1
-stretch_mode = 5
-[node name="Name" type="Label" parent="Items/Item3"]
-layout_mode = 0
-offset_top = 195.0
-offset_right = 260.0
-offset_bottom = 240.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.2, 0.16, 0.12, 1)
-theme_override_font_sizes/font_size = 24
-text = "魔神剑"
-horizontal_alignment = 1
+theme_override_colors/font_color = Color(0.25, 0.21, 0.16, 1)
+theme_override_font_sizes/font_size = 20
+text = "点击物品查看详情"
 
 [node name="Close" type="TextureButton" parent="."]
 layout_mode = 0
-offset_left = 1445.0
-offset_top = 15.0
-offset_right = 1575.0
-offset_bottom = 130.0
-texture_normal = ExtResource("8")
+offset_left = 1440.0
+offset_top = 16.0
+offset_right = 1572.0
+offset_bottom = 136.0
+texture_normal = ExtResource("3_close")
 ignore_texture_size = true
 stretch_mode = 5
 tooltip_text = "关闭背包"

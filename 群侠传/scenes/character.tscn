@@ -147,16 +147,6 @@ ignore_texture_size = true
 stretch_mode = 5
 tooltip_text = "列传"
 
-[node name="TabHint" type="Label" parent="Paper"]
-layout_mode = 0
-offset_left = 510.0
-offset_top = 165.0
-offset_right = 900.0
-offset_bottom = 205.0
-theme_override_colors/font_color = Color(0.27, 0.2, 0.13, 1)
-theme_override_font_sizes/font_size = 23
-text = "当前页：属性"
-
 [node name="WeaponTitle" type="Label" parent="Paper"]
 layout_mode = 0
 offset_left = 450.0

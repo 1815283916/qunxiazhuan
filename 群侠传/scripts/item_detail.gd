@@ -1,6 +1,7 @@
 extends Control
 
 @onready var game_state := get_node("/root/GameState")
+var selected_equipped_slot := ""
 var data := {
 	"玄铁剑":{"type":"武器【稀有】", "icon":"res://assets/Items/moshenjian.jpg", "text":"重剑无锋，大巧不工。\n\n物品效果：\n攻击力 +28\n剑法技巧 +12\n暴击伤害 +15%"},
 	"君子剑":{"type":"武器【普通】", "icon":"res://assets/Items/liquanqiang.jpg", "text":"剑身清亮，端正古雅。\n\n物品效果：\n攻击力 +16\n剑法技巧 +8"},
@@ -27,8 +28,11 @@ func _ready() -> void:
 	$Paper/ItemName.text = game_state.selected_item
 	$Paper/ItemType.text = info.type
 	$Paper/Description.text = info.text
+	if slots.has(game_state.selected_item): $Paper/Description.text += _equipment_bonus_text(game_state.selected_item)
 	$Paper/Equip.visible = slots.has(game_state.selected_item) or books.has(game_state.selected_item)
+	_refresh_equip_button()
 	$Paper/Equip/Label.text = "研 习" if books.has(game_state.selected_item) else "装 备"
+	call_deferred("_refresh_equip_button")
 	for i in $Paper/LearnerPanel/Grid.get_child_count():
 		var card := $Paper/LearnerPanel/Grid.get_child(i)
 		card.visible = i < game_state.heroes.size()
@@ -38,6 +42,10 @@ func _ready() -> void:
 		card.pressed.connect(_select_target_hero.bind(i))
 
 func _on_equip_pressed() -> void:
+	if not selected_equipped_slot.is_empty():
+		$Paper/Notice.text = game_state.unequip_item(game_state.selected_hero, selected_equipped_slot)
+		game_state.goto(game_state.detail_return_scene)
+		return
 	if not slots.has(game_state.selected_item) and not books.has(game_state.selected_item):
 		$Paper/Notice.text = "此物品不能直接装备"
 		return
@@ -46,11 +54,47 @@ func _on_equip_pressed() -> void:
 	$Paper/Notice.text = "选择目标侠客"
 
 func _select_target_hero(hero_index: int) -> void:
+	if hero_index < 0 or hero_index >= game_state.heroes.size(): return
+	game_state.selected_hero = hero_index
 	if books.has(game_state.selected_item):
 		$Paper/Notice.text = game_state.learn_from_book(hero_index, game_state.selected_item)
 	else:
 		$Paper/Notice.text = game_state.equip_item(hero_index, game_state.selected_item)
 	$Paper/LearnerPanel.visible = false
+	if not books.has(game_state.selected_item): game_state.goto(game_state.detail_return_scene)
 
 func _on_close_pressed() -> void:
 	game_state.goto(game_state.detail_return_scene)
+
+func _refresh_equip_button() -> void:
+	selected_equipped_slot = ""
+	$Paper/Equip.disabled = false
+	if slots.has(game_state.selected_item):
+		var slot: String = slots[game_state.selected_item]
+		var equipment: Dictionary = game_state.hero_equipment[game_state.selected_hero]
+		if equipment.get(slot, "") == game_state.selected_item:
+			selected_equipped_slot = slot
+		else:
+			for hero_index in game_state.hero_equipment.size():
+				var other_equipment: Dictionary = game_state.hero_equipment[hero_index]
+				if other_equipment.get(slot, "") == game_state.selected_item:
+					$Paper/Equip.disabled = true
+					$Paper/Equip/Label.text = "已装备"
+					return
+	$Paper/Equip/Label.text = "研习" if books.has(game_state.selected_item) else "卸下" if not selected_equipped_slot.is_empty() else "装备"
+
+func _equipment_bonus_text(item_name: String) -> String:
+	var item: Dictionary = game_state.equipment_library.get(item_name, {})
+	var labels := {
+		"attack":"攻击", "defense":"防御", "hp":"生命上限", "speed":"速度",
+		"crit":"暴击率", "crit_damage":"暴击伤害", "poison":"中毒概率",
+		"agility":"身法", "luck":"福缘", "willpower":"定力", "fist":"拳掌",
+		"sword":"剑法", "blade":"刀法", "unorthodox":"奇门"
+	}
+	var lines: Array[String] = ["\n\n实际属性加成"]
+	for key in labels:
+		var amount := int(item.get(key, 0))
+		if amount == 0: continue
+		var suffix := "%" if key in ["crit", "crit_damage", "poison"] else ""
+		lines.append("%s %+d%s" % [labels[key], amount, suffix])
+	return "\n".join(lines)
