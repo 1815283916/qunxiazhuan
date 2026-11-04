@@ -1,3 +1,9 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+/tests/.progression_runtime/
+/tests/.regression_runtime/
+/tests/.capture_runtime/
+/.review_artifacts/
+/tests/.skills_runtime/
+/tests/.polish_runtime/

@@ -97,7 +97,7 @@ offset_right = 420.0
 offset_bottom = 690.0
 theme_override_colors/font_color = Color(0.18, 0.16, 0.13, 1)
 theme_override_font_sizes/font_size = 22
-text = "等级  3\n生命  100 / 100\n内力  60 / 60\n经验  240 / 500\n攻击  67\n韧性  42\n免伤  6%"
+text = "等级  3\n生命  100 / 100\n内力  60 / 60\n经验  240 / 500\n攻击  67\n防御  42\n暴击  5%"
 
 [node name="Tabs" type="HBoxContainer" parent="Paper"]
 layout_mode = 0
@@ -132,6 +132,7 @@ stretch_mode = 5
 tooltip_text = "技能"
 
 [node name="Talents" type="TextureButton" parent="Paper/Tabs"]
+visible = false
 custom_minimum_size = Vector2(130, 130)
 layout_mode = 2
 texture_normal = ExtResource("7")
@@ -376,18 +377,6 @@ theme_override_font_sizes/font_size = 13
 text = "九阳神功\nLv.3"
 horizontal_alignment = 1
 
-[node name="TalentsPanel" type="Label" parent="Paper"]
-visible = false
-layout_mode = 0
-offset_left = 455.0
-offset_top = 250.0
-offset_right = 1270.0
-offset_bottom = 620.0
-theme_override_colors/font_color = Color(0.22, 0.17, 0.13, 1)
-theme_override_font_sizes/font_size = 23
-text = "武学常识  120 / 460        天赋总数  4\n\n异世人 【消耗武学常识：0】\n来自另一个世界的神秘人，具有深不见底的潜力。\n\n洞察 【消耗武学常识：20】\n攻击时更容易发现敌人的破绽。\n\n不老长春 【消耗武学常识：60】\n气血低于一半时提升防御。"
-autowrap_mode = 2
-
 [node name="BiographyPanel" type="Label" parent="Paper"]
 visible = false
 layout_mode = 0
@@ -397,7 +386,7 @@ offset_right = 1270.0
 offset_bottom = 620.0
 theme_override_colors/font_color = Color(0.22, 0.17, 0.13, 1)
 theme_override_font_sizes/font_size = 24
-text = "宇文逸，武当门下年轻侠客。\n\n自幼随师修习剑术，性情沉静而重信义。初入江湖便卷入华山论剑的纷争，立誓以手中之剑扶危济困。\n\n称号：初入江湖\n关系：武当派 · 冲虚道长"
+text = "选择侠客后显示人物简介。"
 autowrap_mode = 2
 
 [node name="Back" type="TextureButton" parent="Paper"]

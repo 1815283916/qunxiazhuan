@@ -1,80 +1,37 @@
 extends Node
 
 const MALE_BATTLE_MODEL := "res://assets/Animations/r-nan-zhoucang"
-const HERO_MODEL_PATHS := [
-	"res://assets/Animations/r-nan-jiangwei",
-	"res://assets/Animations/r-nv-duguyanran",
-	"res://assets/Animations/r-nv-guanyinping",
-	"res://assets/Animations/r-nv-huangyishuangjian",
-	"res://assets/Animations/chenxi1",
-	"res://assets/Animations/chenxi2"
-]
+var HERO_MODEL_PATHS: Array[String] = []
 
 var money := 1280
 var reputation := 120
-var current_location := "中原地区"
-var current_scene := "长安西市"
+var current_location := "嵩山"
+var current_scene := "少林厢房"
+var map_region_id := ""
+var map_panel_return_scene := "res://scenes/world_map.tscn"
 var selected_hero := 0
-var heroes := [
-	{"id":"hero_beichou", "name":"北丑", "head":"res://assets/Heads/zhengtingyu.png", "model":"res://assets/Animations/r-nan-jiangwei", "level":1, "exp":0, "attack":67, "speed":63, "defense":42},
-	{"id":"hero_nanxian", "name":"南贤", "head":"res://assets/Heads/nanxian.png", "model":"res://assets/Animations/r-nv-duguyanran", "level":5, "exp":0, "attack":74, "speed":55, "defense":58},
-	{"id":"hero_huangrong", "name":"黄蓉", "head":"res://assets/Heads/huoqingtong.png", "model":"res://assets/Animations/r-nv-guanyinping", "level":5, "exp":0, "attack":52, "speed":72, "defense":39},
-	{"id":"hero_xiaolongnv", "name":"小龙女", "head":"res://assets/Heads/xishi.png", "model":"res://assets/Animations/r-nv-huangyishuangjian", "level":5, "exp":0, "attack":65, "speed":76, "defense":44},
-	{"id":"hero_wangyuyan", "name":"王语嫣", "head":"res://assets/Heads/wangyuyan.png", "model":"res://assets/Animations/chenxi1", "level":5, "exp":0, "attack":38, "speed":60, "defense":35},
-	{"id":"hero_chengying", "name":"程英", "head":"res://assets/Heads/chengying.png", "model":"res://assets/Animations/chenxi2", "level":5, "exp":0, "attack":49, "speed":68, "defense":38}
-]
-var hero_stats := [
-	{"strength":18, "agility":16, "insight":21, "luck":14, "constitution":17, "willpower":15, "fist":68, "sword":92, "blade":46, "unorthodox":52},
-	{"strength":20, "agility":14, "insight":23, "luck":12, "constitution":21, "willpower":22, "fist":82, "sword":88, "blade":51, "unorthodox":44},
-	{"strength":13, "agility":22, "insight":22, "luck":20, "constitution":14, "willpower":17, "fist":90, "sword":62, "blade":35, "unorthodox":81},
-	{"strength":17, "agility":23, "insight":18, "luck":16, "constitution":16, "willpower":19, "fist":56, "sword":94, "blade":38, "unorthodox":48},
-	{"strength":10, "agility":17, "insight":25, "luck":19, "constitution":12, "willpower":23, "fist":35, "sword":70, "blade":28, "unorthodox":65},
-	{"strength":14, "agility":20, "insight":20, "luck":17, "constitution":15, "willpower":18, "fist":48, "sword":84, "blade":33, "unorthodox":58}
-]
+var heroes: Array = []
+var hero_stats: Array = []
 var selected_party: Array[int] = [0]
 var hero_equipment := [{}, {}, {}, {}, {}, {}]
-var equipment_library := {
-	"魔神拳套":{"id":"weapon_moshenquantao", "slot":"weapon", "attack":28, "sword":12, "crit_damage":15, "icon":"res://assets/Items/moshenquantao.jpg"},
-	"朴刀":{"id":"weapon_pudao", "slot":"weapon", "attack":16, "sword":8, "icon":"res://assets/Items/dao3.jpg"},
-	"凝神枪":{"id":"weapon_ningshenqiang", "slot":"weapon", "attack":14, "agility":6, "sword":10, "icon":"res://assets/Items/liquanqiang.jpg"},
-	"魔神剑":{"id":"weapon_moshenjian", "slot":"weapon", "attack":45, "crit":10, "icon":"res://assets/Items/moshenjian.jpg"},
-	"粗布道袍":{"id":"armor_cubudaopao", "slot":"armor", "defense":12, "hp":80, "icon":"res://assets/Items/Dcubudaopao.jpg"},
-	"乌蚕衣":{"id":"armor_wucanyi", "slot":"armor", "defense":24, "speed":8, "icon":"res://assets/Items/daopao.jpg"},
-	"毒戒指":{"id":"accessory_dujiezhi", "slot":"accessory", "poison":15, "icon":"res://assets/Items/jiezhi3.jpg"},
-	"宝玉":{"id":"accessory_baoyu", "slot":"accessory", "luck":8, "willpower":5, "icon":"res://assets/Items/baoyu.jpg"}
-}
-var skill_library := {
-	"狂风刀法":{"id":"martial_blade_storm", "kind":"武学", "school":"刀法", "cost":16, "damage":32, "damage_growth":1, "range":1, "shape":"fan", "pattern":"方形六格", "icon":"res://assets/Icons/icon_waigong_114.jpg", "effect":"res://assets/Animations/e-feilong", "description":"刀势横扫。"},
-	"打狗棒法":{"id":"martial_dog_beating_staff", "kind":"武学", "school":"奇门", "cost":20, "damage":30, "damage_growth":1, "range":2, "shape":"cross", "pattern":"十字九格", "icon":"res://assets/Icons/zzc073.png", "effect":"res://assets/Animations/e-liumai", "description":"势大力沉。"},
-	"降龙十八掌":{"id":"martial_dragon_palm", "kind":"武学", "school":"拳掌", "cost":12, "damage":35, "damage_growth":2, "range":3, "shape":"single", "pattern":"单体", "icon":"res://assets/Icons/icon_waigong_107.jpg", "effect":"res://assets/Animations/e-rulai", "description":"掌影飘忽。"},
-	"独孤九剑":{"id":"martial_sword_unique", "kind":"武学", "school":"剑系", "cost":18, "damage":36, "damage_growth":1, "range":4, "shape":"line", "pattern":"直线四格", "icon":"res://assets/Icons/zzd28.png", "effect":"res://assets/Animations/e-tianjian", "description":"剑意纵横的上乘剑法。"},
-	"九阳神功":{"id":"internal_jiuyang", "kind":"心法", "school":"内功", "attack_bonus":2, "defense_bonus":6, "icon":"res://assets/Icons/icon_neigong_020.jpg", "description":"至阳至刚的上乘心法，善于防守。"},
-	"易筋经":{"id":"internal_yijin", "kind":"心法", "school":"内功", "attack_bonus":4, "defense_bonus":4, "icon":"res://assets/Icons/icon_neigong_020.jpg", "description":"少林镇派心法，攻守兼备。"}
-}
-var hero_skills := [
-	{"martial":["独孤九剑", "降龙十八掌", "打狗棒法"], "internal":"九阳神功", "levels":{"独孤九剑":3, "降龙十八掌":2, "打狗棒法":2, "九阳神功":3}, "exp":{}},
-	{"martial":["狂风刀法", "降龙十八掌"], "internal":"九阳神功", "levels":{"狂风刀法":2, "降龙十八掌":2, "九阳神功":4}, "exp":{}},
-	{"martial":["降龙十八掌", "打狗棒法"], "internal":"易筋经", "levels":{"降龙十八掌":3, "打狗棒法":2, "易筋经":3}, "exp":{}},
-	{"martial":["独孤九剑", "狂风刀法"], "internal":"九阳神功", "levels":{"独孤九剑":3, "狂风刀法":2, "九阳神功":3}, "exp":{}},
-	{"martial":["降龙十八掌"], "internal":"易筋经", "levels":{"降龙十八掌":2, "易筋经":4}, "exp":{}},
-	{"martial":[], "internal":"易筋经", "levels":{"易筋经":2}, "exp":{}}
-]
+var equipment_library: Dictionary = {}
+var item_library: Dictionary = {}
+var skill_library: Dictionary = {}
+var hero_skills: Array = []
 var inventory := ["魔神拳套", "朴刀", "凝神枪", "魔神剑", "粗布道袍", "乌蚕衣", "毒戒指", "宝玉", "大还丹", "疗伤药", "独孤九剑秘籍", "易筋经"]
-var journal := [
-	"江湖三年十一月七日，宇文逸初入长安。",
-	"江湖三年十一月八日，听闻华山论剑将启。",
-	"江湖三年十一月九日，神秘剑客发出挑战。"
-]
+var journal: Array = []
 var reward_money := 200
 var reward_exp := 120
 var selected_item := "魔神拳套"
 var detail_return_scene := "res://scenes/inventory.tscn"
 var character_tab := ""
+var character_return_scene := "res://scenes/roster.tscn"
 var selected_skill_name := "独孤九剑"
 var selected_skill_kind := "武学"
 var settings := {
 	"show_hp": true,
 	"show_buffs": true,
+	"show_battle_log": true,
 	"auto_save": false,
 	"auto_battle": false,
 	"battle_speed": 1.0,
@@ -90,14 +47,140 @@ var battle_allies: Array[Dictionary] = []
 var battle_enemies: Array[Dictionary] = []
 var battle_log: Array[String] = []
 var battle_outcome := "胜利"
-const SAVE_VERSION := 1
-const HERO_LEVEL_CAP := 30
-const HERO_LEVEL_EXP_MULTIPLIER := 200
-const SKILL_LEVEL_CAP := 10
-const SKILL_LEVEL_EXP_MULTIPLIER := 40
+const SAVE_VERSION := 4
+const SkillLoadout = preload("res://scripts/skill_loadout.gd")
+const SaveCodec = preload("res://scripts/save_codec.gd")
+var HERO_LEVEL_CAP := 30
+var HERO_LEVEL_EXP_MULTIPLIER := 200
+var SKILL_LEVEL_CAP := 10
+var SKILL_LEVEL_EXP_MULTIPLIER := 40
 const LEGACY_SKILL_NAMES := {"落英神剑掌":"降龙十八掌", "漫天花雨":"打狗棒法"}
 const LEGACY_ITEM_NAMES := {"玄铁剑":"魔神拳套", "君子剑":"朴刀", "淑女剑":"凝神枪"}
+const Adventure = preload("res://scripts/adventure.gd")
 var _new_game_defaults: Dictionary = {}
+var save_directory := "user://"
+var session_started := false
+var menu_return_scene := "res://scenes/main_menu.tscn"
+const Narrative = preload("res://scripts/narrative.gd")
+var story_data: Dictionary = {}
+var narrative_progress := {"next":"awake", "pending":false}
+var quest_stage := 0
+var current_encounter := "江湖切磋"
+var battle_rewards: Dictionary = {}
+var growth: Dictionary = {}
+var story_dialogues: Dictionary = {}
+var dialogue_story_id := ""
+var seen_stories: Array[String] = []
+
+func get_story_lines(id: String) -> Array:
+	var lines: Array = story_dialogues.get(id, {}).get("lines", []).duplicate(true)
+	for line in lines:
+		if line[0] == "主角": line[0] = heroes[0].name
+	return lines
+
+func complete_story(id: String) -> void:
+	Narrative.complete(self, id)
+
+func get_objective() -> String:
+	return Narrative.objective(self)
+
+func complete_dialogue() -> String:
+	complete_story(dialogue_story_id)
+	return ""
+
+func can_visit(place: String) -> bool:
+	for entry in story_data.locations:
+		if entry.id == place or entry.name == place: return Narrative.visitable(self, entry.id)
+	for entry in story_data.regions:
+		if entry.id == place or entry.name == place: return Narrative.region_open(self, entry.id)
+	return false
+
+func hero_available(index: int) -> bool:
+	return Narrative.available(self, index)
+
+func get_party_issue(party: Array) -> String:
+	if party.is_empty(): return "请至少选择一名侠客"
+	if party.size() > 3: return "最多选择三名侠客"
+	for index in party:
+		if index < 0 or index >= heroes.size(): return "出战侠客无效"
+		if not hero_available(index): return "%s当前未同行" % heroes[index].name
+		if index == 0 and not Narrative.healed(self): return "宋青书经脉未续，暂不能出战"
+		var loadout: Dictionary = hero_skills[index]
+		if loadout.get("martial", []).is_empty():
+			for name in loadout.get("learned", []):
+				if skill_library.has(name) and skill_library[name].kind == "武学": return "%s尚未装备武学，请到人物技能页装备后再出战" % heroes[index].name
+			return "%s尚未学习武学，请从背包研习秘籍后再出战" % heroes[index].name
+		for skill in loadout.martial:
+			if not skill_library.has(skill) or skill_library[skill].kind != "武学": return "%s的武学配置无效，请重新研习秘籍" % heroes[index].name
+		var internal := str(loadout.get("internal", ""))
+		if not skill_library.has(internal) or skill_library[internal].kind != "心法": return "%s尚未装备心法" % heroes[index].name
+	return ""
+
+func settle_battle(victory: bool, bonus_roll: float = -1.0) -> Dictionary:
+	# 发奖与界面使用同一份快照，重复打开结算不重复发奖。
+	if not battle_rewards.is_empty(): return battle_rewards
+	battle_outcome = "胜利" if victory else "失败"
+	battle_rewards = {"money":0, "items":[], "heroes":[], "victory":victory}
+	if not victory:
+		journal.append("%s挑战失利，可重新整备后再战。" % current_encounter)
+		return battle_rewards
+	battle_rewards.money = reward_money
+	money += reward_money
+	var drops: Array[String] = ["疗伤药"]
+	var roll := randf() if bonus_roll < 0 else bonus_roll
+	if roll < 0.15: drops.append("粗布道袍")
+	elif roll < 0.4: drops.append("大还丹")
+	for item in drops: inventory.append(item)
+	battle_rewards.items = drops
+	var rewarded: Array[int] = []
+	for actor in battle_allies:
+		var index: int = actor.hero_index
+		if rewarded.has(index): continue
+		rewarded.append(index)
+		var before: int = heroes[index].level
+		gain_hero_experience(index, reward_exp)
+		battle_rewards.heroes.append({"name":heroes[index].name, "exp":reward_exp, "before":before, "after":heroes[index].level})
+	journal.append("%s获胜，获得银两%d。" % [story_data.encounters.get(current_encounter, {"name":current_encounter}).name, reward_money])
+	if narrative_progress.pending:
+		Narrative.complete(self, narrative_progress.next, true)
+	return battle_rewards
+
+func set_setting(key: String, value: Variant) -> void:
+	if not settings.has(key): return
+	settings[key] = value
+	apply_settings()
+	var cfg := ConfigFile.new()
+	cfg.set_value("settings", "values", settings)
+	var err := cfg.save(save_directory.path_join("preferences.cfg"))
+	if err != OK: push_warning("设置保存失败：%s" % error_string(err))
+
+func apply_settings() -> void:
+	if DisplayServer.get_name() != "headless":
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if settings.fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
+	var audio := get_node_or_null("/root/AudioManager")
+	if audio != null and audio.music_player != null: audio.apply_settings(settings)
+
+func get_save_path(slot: int) -> String:
+	return save_directory.path_join("qunxia_auto.cfg" if slot == 0 else "qunxia_slot_%d.cfg" % slot)
+
+func load_latest() -> Error:
+	var candidates: Array[Dictionary] = []
+	for slot in 5:
+		var cfg := ConfigFile.new()
+		var path := get_save_path(slot)
+		if cfg.load(path) != OK: continue
+		var timestamp: Variant = cfg.get_value("meta", "saved_unix", FileAccess.get_modified_time(path))
+		if not (timestamp is int or timestamp is float): timestamp = FileAccess.get_modified_time(path)
+		candidates.append({"slot":slot, "time":float(timestamp)})
+	candidates.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.time > b.time)
+	for candidate in candidates:
+		if load_slot(int(candidate.slot)) == OK: return OK
+	return ERR_FILE_NOT_FOUND
+
+func autosave() -> Error:
+	if not session_started or not bool(settings.auto_save): return OK
+	return save_slot(0)
+
 
 func _trim_roster_to_six() -> void:
 	heroes.resize(HERO_MODEL_PATHS.size())
@@ -108,8 +191,28 @@ func _trim_roster_to_six() -> void:
 		heroes[i]["model"] = HERO_MODEL_PATHS[i]
 
 func _ready() -> void:
+	if not _load_configuration():
+		get_tree().quit(1)
+		return
 	_trim_roster_to_six()
 	hero_equipment = _empty_equipment_loadout()
+	_synchronize_loaded_configuration()
+	money = int(story_data.initial.money)
+	reputation = int(story_data.initial.reputation)
+	var start := Narrative.location(self, story_data.initial.location)
+	current_location = start.region
+	current_scene = start.name
+	inventory = story_data.initial.inventory.duplicate()
+	hero_skills[0] = story_data.initial.skills.duplicate(true)
+	journal = ["屠狮大会后，宋青书在少林厢房醒来。当前经脉尽断，须寻医续脉。"]
+	var preferences := ConfigFile.new()
+	if preferences.load(save_directory.path_join("preferences.cfg")) == OK:
+		var values: Variant = preferences.get_value("settings", "values", {})
+		if values is Dictionary:
+			for key in settings:
+				if values.get(key) is bool: settings[key] = values[key]
+			settings.battle_speed = 2.0 if values.get("battle_speed", 1.0) == 2.0 else 1.0
+	apply_settings()
 	# 深拷贝一份初始进度；设置项不放入快照，便于新游戏保留玩家偏好。
 	_new_game_defaults = {
 		"money": money, "reputation": reputation,
@@ -130,6 +233,16 @@ func _empty_equipment_loadout() -> Array:
 
 func reset_new_game() -> void:
 	if _new_game_defaults.is_empty(): return
+	character_return_scene = "res://scenes/roster.tscn"
+	session_started = true
+	quest_stage = 0
+	map_region_id = ""
+	map_panel_return_scene = "res://scenes/world_map.tscn"
+	narrative_progress = {"next":"awake", "pending":false}
+	dialogue_story_id = ""
+	seen_stories.clear()
+	current_encounter = "江湖切磋"
+	battle_rewards.clear()
 	money = int(_new_game_defaults.money)
 	reputation = int(_new_game_defaults.reputation)
 	current_location = str(_new_game_defaults.current_location)
@@ -157,6 +270,10 @@ func reset_new_game() -> void:
 	battle_outcome = "胜利"
 
 func new_battle() -> void:
+	battle_rewards = {}
+	var encounter: Dictionary = story_data.encounters.get(current_encounter, Adventure.encounter(current_encounter))
+	reward_money = encounter.money
+	reward_exp = encounter.exp
 	battle_allies.clear()
 	battle_enemies.clear()
 	battle_log.clear()	
@@ -174,17 +291,17 @@ func new_battle() -> void:
 			"hp":max_hp, "max_hp":max_hp, "mp":max_mp, "max_mp":max_mp,
 			"attack":combat.attack, "defense":combat.defense, "crit":combat.crit,
 			"crit_damage":combat.crit_damage, "poison":combat.poison,
-			"fist":combat.fist, "sword":combat.sword, "blade":combat.blade, "unorthodox":combat.unorthodox, "insight":combat.insight,
+			"fist":combat.fist, "sword":combat.sword, "blade":combat.blade, "unorthodox":combat.unorthodox, "insight":combat.insight, "luck":combat.luck, "willpower":combat.willpower,
 			"coord":Vector2i(2, i + 3), "alive":true, "moved":false,
 			"move_range":clampi(2 + int(combat.speed / 90.0), 2, 3),
 			"speed":combat.speed, "action_delay":clampi(120 - int(combat.speed), 35, 90),
 			"next_action":clampi(120 - int(combat.speed), 35, 90)
 		})
-	for i in 3:
+	for i in int(encounter.count):
 		battle_enemies.append({
-			"name":"华山弟子", "head":"res://assets/Heads/fangyi.png", "model":MALE_BATTLE_MODEL,
-			"hp":120, "max_hp":120, "mp":50, "max_mp":50, "attack":32, "defense":18, "poison_turns":0,
-			"coord":Vector2i(13, i + 3), "alive":true, "move_range":2,
+			"name":encounter.enemy, "head":"res://assets/Heads/fangyi.png", "model":MALE_BATTLE_MODEL,
+			"hp":encounter.hp, "max_hp":encounter.hp, "mp":50, "max_mp":50, "attack":encounter.attack, "defense":encounter.defense, "poison_turns":0, "willpower":15,
+			"coord":Vector2i(12 + (i % 2) * 2, 3 + (i / 2) * 2) if int(encounter.count) > 3 else Vector2i(13, i + 3), "alive":true, "move_range":2,
 			"speed":52 - i * 2, "action_delay":68 + i * 3, "next_action":68 + i * 3
 		})
 	if battle_allies.is_empty():
@@ -193,7 +310,7 @@ func new_battle() -> void:
 		new_battle()
 	player_hp = 100
 	player_mp = 60
-	enemy_hp = 360
+	enemy_hp = int(encounter.hp) * int(encounter.count)
 	battle_outcome = "胜利"
 
 func get_hero_model_path(hero_index: int) -> String:
@@ -203,11 +320,6 @@ func get_hero_model_path(hero_index: int) -> String:
 	# The first two roster entries are male; the remaining current entries are female.
 	return HERO_MODEL_PATHS[clampi(hero_index, 0, HERO_MODEL_PATHS.size() - 1)]
 
-func grant_battle_experience() -> void:
-	for hero_index in selected_party:
-		if hero_index < 0 or hero_index >= heroes.size(): continue
-		gain_hero_experience(hero_index, reward_exp)
-
 func gain_hero_experience(hero_index: int, amount: int) -> int:
 	if hero_index < 0 or hero_index >= heroes.size() or amount <= 0: return 0
 	var hero: Dictionary = heroes[hero_index]
@@ -216,9 +328,9 @@ func gain_hero_experience(hero_index: int, amount: int) -> int:
 	while hero.level < HERO_LEVEL_CAP and hero.exp >= get_hero_experience_needed(hero.level):
 		hero.exp -= get_hero_experience_needed(hero.level)
 		hero.level += 1
-		hero.attack += 3
-		hero.speed += 2
-		hero.defense += 2
+		hero.attack += int(growth.hero_level_attack)
+		hero.speed += int(growth.hero_level_speed)
+		hero.defense += int(growth.hero_level_defense)
 		var stats: Dictionary = hero_stats[hero_index]
 		for attribute in ["strength", "agility", "insight", "luck", "constitution", "willpower"]:
 			stats[attribute] += 1
@@ -276,7 +388,7 @@ func get_skill_experience_needed(level: int) -> int:
 	return maxi(0, level) * SKILL_LEVEL_EXP_MULTIPLIER
 
 func get_equipment_icon(item_name: String) -> String:
-	return str(equipment_library.get(item_name, {}).get("icon", "res://assets/Items/baoyu.jpg"))
+	return str(item_library.get(item_name, {}).get("icon", equipment_library.get(item_name, {}).get("icon", "res://assets/Items/baoyu.jpg")))
 
 func _rename_legacy_item(item_name: String) -> String:
 	return str(LEGACY_ITEM_NAMES.get(item_name, item_name))
@@ -299,24 +411,7 @@ func _synchronize_loaded_configuration() -> void:
 			else:
 				equipment[slot] = item_name
 	for loadout in hero_skills:
-		var valid_martial: Array[String] = []
-		var valid_levels := {}
-		var valid_experience := {}
-		for skill_entry in loadout.get("martial", []):
-			var skill_name := _rename_legacy_skill(str(skill_entry))
-			if not skill_library.has(skill_name) or skill_library[skill_name].kind != "武学" or valid_martial.has(skill_name): continue
-			valid_martial.append(skill_name)
-			valid_levels[skill_name] = int(loadout.get("levels", {}).get(skill_entry, loadout.get("levels", {}).get(skill_name, 1)))
-			valid_experience[skill_name] = int(loadout.get("exp", {}).get(skill_entry, loadout.get("exp", {}).get(skill_name, 0)))
-		var internal_name := _rename_legacy_skill(str(loadout.get("internal", "")))
-		if not skill_library.has(internal_name) or skill_library[internal_name].kind != "心法":
-			internal_name = "易筋经"
-		valid_levels[internal_name] = int(loadout.get("levels", {}).get(loadout.get("internal", ""), loadout.get("levels", {}).get(internal_name, 1)))
-		valid_experience[internal_name] = int(loadout.get("exp", {}).get(loadout.get("internal", ""), loadout.get("exp", {}).get(internal_name, 0)))
-		loadout.martial = valid_martial
-		loadout.internal = internal_name
-		loadout.levels = valid_levels
-		loadout.exp = valid_experience
+		loadout.merge(SkillLoadout.normalize(self, loadout), true)
 
 func equip_item(hero_index: int, item_name: String) -> String:
 	if hero_index < 0 or hero_index >= hero_equipment.size(): return "无法选择该侠客"
@@ -344,20 +439,50 @@ func unequip_item(hero_index: int, slot: String) -> String:
 
 func learn_from_book(hero_index: int, book_name: String) -> String:
 	if hero_index < 0 or hero_index >= hero_skills.size(): return "无法选择该侠客"
-	var learned_name := "独孤九剑" if book_name == "独孤九剑秘籍" else "易筋经" if book_name == "易筋经" else ""
+	if not inventory.has(book_name): return "背包中没有该秘籍"
+	var item: Dictionary = item_library.get(book_name, {})
+	var learned_name := ""
+	if item.get("kind", "") == "秘籍":
+		for name in skill_library:
+			if skill_library[name].id == item.skill_id: learned_name = name
 	if learned_name.is_empty(): return "这不是可研习的秘籍"
-	var skill: Dictionary = skill_library[learned_name]
+	return learn_skill(hero_index, learned_name)
+
+func learn_skill(hero_index: int, skill_name: String) -> String:
+	if hero_index < 0 or hero_index >= hero_skills.size() or not skill_library.has(skill_name): return "无法学习该技能"
 	var loadout: Dictionary = hero_skills[hero_index]
-	if skill.kind == "心法":
-		if loadout.internal == learned_name: return "已经装备该心法"
-		loadout.internal = learned_name
+	if loadout.learned.has(skill_name): return "已经学会该技能"
+	loadout.learned.append(skill_name)
+	loadout.levels[skill_name] = 1
+	loadout.exp[skill_name] = 0
+	return "%s学会了%s，请在技能页选择装备" % [heroes[hero_index].name, skill_name]
+
+func equip_skill(hero_index: int, skill_name: String, replace_index: int = -1) -> String:
+	if hero_index < 0 or hero_index >= hero_skills.size(): return "无法选择该侠客"
+	var loadout: Dictionary = hero_skills[hero_index]
+	if not skill_library.has(skill_name) or not loadout.learned.has(skill_name): return "尚未学会该技能"
+	if skill_library[skill_name].kind == "心法":
+		if loadout.internal == skill_name: return "已经装备该心法"
+		loadout.internal = skill_name
 	else:
-		if loadout.martial.has(learned_name): return "已经学会该武学"
-		if loadout.martial.size() >= 4: return "武学栏已满，请先遗忘一个武学"
-		loadout.martial.append(learned_name)
-	if not loadout.levels.has(learned_name): loadout.levels[learned_name] = 1
-	if not loadout.exp.has(learned_name): loadout.exp[learned_name] = 0
-	return "%s学会了%s" % [heroes[hero_index].name, learned_name]
+		if loadout.martial.has(skill_name): return "已经装备该武学"
+		if replace_index >= 0:
+			if replace_index >= loadout.martial.size(): return "无效武学槽"
+			var previous: String = loadout.martial[replace_index]
+			loadout.martial[replace_index] = skill_name
+			return "已将%s替换为%s，等级与经验保留" % [previous, skill_name]
+		if loadout.martial.size() >= 4: return "最多装备四个武学，请先卸下一个武学"
+		loadout.martial.append(skill_name)
+	return "已装备%s" % skill_name
+
+func unequip_skill(hero_index: int, skill_name: String) -> String:
+	if hero_index < 0 or hero_index >= hero_skills.size(): return "无法选择该侠客"
+	var loadout: Dictionary = hero_skills[hero_index]
+	if loadout.internal == skill_name: return "至少保留一个心法，请选择其他已学心法替换"
+	if not loadout.martial.has(skill_name): return "该武学未装备"
+	if loadout.martial.size() <= 1: return "至少保留一个武学，无法卸下"
+	loadout.martial.erase(skill_name)
+	return "已卸下%s，等级与经验保留" % skill_name
 
 func gain_skill_experience(hero_index: int, skill_name: String, amount: int = 12) -> int:
 	if hero_index < 0 or hero_index >= hero_skills.size() or not skill_library.has(skill_name): return 0
@@ -377,15 +502,18 @@ func gain_skill_experience(hero_index: int, skill_name: String, amount: int = 12
 	return levels_gained
 
 func goto(path: String) -> void:
-	if bool(settings.get("auto_save", false)) and not path.ends_with("main_menu.tscn") and not path.ends_with("save_load.tscn"):
-		save_slot(1)
+	# 只在返回探索、剧情结束和结算时保存，不让浏览菜单触发覆盖。
+	if path.ends_with("world_map.tscn") or path.ends_with("region_map.tscn") or path.ends_with("battle_result.tscn"):
+		var err := autosave()
+		if err != OK: push_warning("自动存档失败：%s" % error_string(err))
 	get_tree().change_scene_to_file(path)
 
 func save_slot(slot: int, path_override: String = "") -> Error:
-	if slot < 1 or slot > 4: return ERR_INVALID_PARAMETER
+	if slot < 0 or slot > 4: return ERR_INVALID_PARAMETER
 	var cfg := ConfigFile.new()
 	cfg.set_value("meta", "version", SAVE_VERSION)
 	cfg.set_value("meta", "game", "群侠传")
+	cfg.set_value("meta", "saved_unix", Time.get_unix_time_from_system())
 	cfg.set_value("player", "money", money)
 	cfg.set_value("player", "reputation", reputation)
 	cfg.set_value("player", "lead_name", str(heroes[selected_hero].name))
@@ -401,26 +529,48 @@ func save_slot(slot: int, path_override: String = "") -> Error:
 	cfg.set_value("progress", "scene", current_scene)
 	cfg.set_value("progress", "saved_at", Time.get_datetime_string_from_system(false, true))
 	cfg.set_value("progress", "journal", journal)
+	cfg.set_value("progress", "quest_stage", quest_stage)
+	cfg.set_value("progress", "adventure", narrative_progress)
+	cfg.set_value("progress", "seen_stories", seen_stories)
 	cfg.set_value("settings", "values", settings)
-	var path: String = path_override if not path_override.is_empty() else "user://qunxia_slot_%d.cfg" % slot
-	return cfg.save(path)
+	var path: String = path_override if not path_override.is_empty() else get_save_path(slot)
+	SaveCodec.encode(cfg, self)
+	var err := cfg.save(path + ".tmp")
+	if err != OK: return err
+	var previous := ConfigFile.new()
+	if previous.load(path) == OK:
+		var previous_version: Variant = previous.get_value("meta", "version", 0)
+		if previous_version is int and previous_version >= 0 and previous_version < SAVE_VERSION:
+			var backup_path := path + ".v%d.bak" % previous_version
+			if not FileAccess.file_exists(backup_path):
+				err = DirAccess.copy_absolute(path, backup_path)
+				if err != OK:
+					DirAccess.remove_absolute(path + ".tmp")
+					return err
+	return DirAccess.rename_absolute(path + ".tmp", path)
 
 func load_slot(slot: int, path_override: String = "") -> Error:
-	if slot < 1 or slot > 4: return ERR_INVALID_PARAMETER
+	if slot < 0 or slot > 4: return ERR_INVALID_PARAMETER
 	var cfg := ConfigFile.new()
-	var path: String = path_override if not path_override.is_empty() else "user://qunxia_slot_%d.cfg" % slot
+	var path: String = path_override if not path_override.is_empty() else get_save_path(slot)
 	var err := cfg.load(path)
 	if err != OK: return err
 	# version=0 代表早期开发版存档，允许兼容；未来版本则不能静默读取。
-	var saved_version: int = int(cfg.get_value("meta", "version", 0))
+	var version_value: Variant = cfg.get_value("meta", "version", 0)
+	if not version_value is int: return ERR_FILE_CORRUPT
+	var saved_version: int = version_value
 	if saved_version < 0 or saved_version > SAVE_VERSION: return ERR_FILE_UNRECOGNIZED
+	if saved_version >= 4 and not Narrative.valid(self, cfg.get_value("progress", "adventure")): return ERR_FILE_CORRUPT
+	if saved_version >= 2 and SaveCodec.decode(cfg, self) != OK: return ERR_FILE_CORRUPT
+	if not _valid_save_data(cfg): return ERR_FILE_CORRUPT
+	reset_new_game()
 	money = int(cfg.get_value("player", "money", money))
 	reputation = int(cfg.get_value("player", "reputation", reputation))
-	var saved_inventory: Variant = cfg.get_value("player", "inventory", inventory)
+	var saved_inventory: Variant = cfg.get_value("player", "inventory", inventory.duplicate(true))
 	if saved_inventory is Array:
 		inventory.clear()
 		for item in saved_inventory: inventory.append(str(item))
-	var saved_party: Variant = cfg.get_value("player", "selected_party", selected_party)
+	var saved_party: Variant = cfg.get_value("player", "selected_party", selected_party.duplicate(true))
 	if saved_party is Array:
 		selected_party.clear()
 		for hero_index in saved_party:
@@ -429,38 +579,144 @@ func load_slot(slot: int, path_override: String = "") -> Error:
 	if selected_party.is_empty(): selected_party.append(0)
 	selected_hero = clampi(int(cfg.get_value("player", "selected_hero", selected_hero)), 0, heroes.size() - 1)
 	character_tab = str(cfg.get_value("player", "character_tab", character_tab))
-	var saved_equipment: Variant = cfg.get_value("player", "hero_equipment", hero_equipment)
+	var saved_equipment: Variant = cfg.get_value("player", "hero_equipment", hero_equipment.duplicate(true))
 	if saved_equipment is Array:
 		hero_equipment.clear()
 		for equipment in saved_equipment.slice(0, heroes.size()):
 			if equipment is Dictionary: hero_equipment.append(equipment)
 	while hero_equipment.size() < heroes.size():
 		hero_equipment.append({})
-	var saved_heroes: Variant = cfg.get_value("player", "heroes", heroes)
+	var saved_heroes: Variant = cfg.get_value("player", "heroes", heroes.duplicate(true))
 	if saved_heroes is Array:
 		for i in mini(saved_heroes.size(), heroes.size()):
 			if saved_heroes[i] is Dictionary:
 				var merged_hero: Dictionary = heroes[i].duplicate(true)
 				merged_hero.merge(saved_heroes[i], true)
+				for key in ["id", "name", "head"]: merged_hero[key] = _new_game_defaults.heroes[i][key]
 				merged_hero["model"] = HERO_MODEL_PATHS[i]
 				heroes[i] = merged_hero
-	var saved_stats: Variant = cfg.get_value("player", "hero_stats", hero_stats)
+	var saved_stats: Variant = cfg.get_value("player", "hero_stats", hero_stats.duplicate(true))
 	if saved_stats is Array:
 		for i in mini(saved_stats.size(), hero_stats.size()):
 			if saved_stats[i] is Dictionary: hero_stats[i] = saved_stats[i]
-	var saved_skills: Variant = cfg.get_value("player", "hero_skills", hero_skills)
+	var saved_skills: Variant = cfg.get_value("player", "hero_skills", hero_skills.duplicate(true))
 	if saved_skills is Array:
 		for i in mini(saved_skills.size(), hero_skills.size()):
 			if saved_skills[i] is Dictionary: hero_skills[i] = saved_skills[i]
 	_trim_roster_to_six()
 	current_location = str(cfg.get_value("progress", "location", current_location))
 	current_scene = str(cfg.get_value("progress", "scene", current_scene))
-	var saved_journal: Variant = cfg.get_value("progress", "journal", journal)
+	var saved_journal: Variant = cfg.get_value("progress", "journal", journal.duplicate(true))
 	if saved_journal is Array:
 		journal.clear()
 		for entry in saved_journal: journal.append(str(entry))
-	var saved_settings: Variant = cfg.get_value("settings", "values", settings)
-	if saved_settings is Dictionary:
-		for key in settings: settings[key] = saved_settings.get(key, settings[key])
+	quest_stage = clampi(int(cfg.get_value("progress", "quest_stage", 0)), 0, 3)
+	for id in cfg.get_value("progress", "seen_stories", []):
+		if story_dialogues.has(id) and not seen_stories.has(id): seen_stories.append(id)
+	if saved_version >= 4:
+		narrative_progress = cfg.get_value("progress", "adventure").duplicate(true)
+		if narrative_progress.pending: current_encounter = Narrative.current(self).battle
+		if not can_visit(current_scene): current_scene = Narrative.location(self, Narrative.current(self).get("location", "shaolin_room")).name
+	else:
+		current_scene = "少林厢房"
+		current_location = "嵩山"
+		journal.append("剧情已更新：保留原有物品和养成，从少林醒来开始新主线。")
+	if selected_party.any(func(index: int) -> bool: return not hero_available(index)):
+		Narrative.choose_party(self)
+	if not hero_available(selected_hero): selected_hero = 0
 	_synchronize_loaded_configuration()
+	for index in heroes.size():
+		if hero_available(index): continue
+		for slot_name in ["weapon", "armor", "accessory"]:
+			if not str(hero_equipment[index].get(slot_name, "")).is_empty(): unequip_item(index, slot_name)
+	apply_settings()
 	return OK
+
+func _valid_save_data(cfg: ConfigFile) -> bool:
+	if not cfg.has_section_key("player", "money"): return false
+	for key in ["money", "reputation", "selected_hero"]:
+		var number: Variant = cfg.get_value("player", key, 0)
+		if not (number is int) or number < 0: return false
+	var stage: Variant = cfg.get_value("progress", "quest_stage", 0)
+	if not stage is int or stage < 0 or stage > 3: return false
+	var stories: Variant = cfg.get_value("progress", "seen_stories", [])
+	if not stories is Array: return false
+	for id in stories:
+		if not id is String: return false
+	for key in ["inventory", "selected_party", "hero_equipment", "heroes", "hero_stats", "hero_skills"]:
+		var entries: Variant = cfg.get_value("player", key, [])
+		if not entries is Array: return false
+		for entry in entries:
+			if key == "inventory":
+				if not entry is String: return false
+			elif key == "selected_party":
+				if not entry is int: return false
+			elif not entry is Dictionary: return false
+			elif key == "heroes":
+				for field in ["id", "name", "head", "model"]:
+					if not entry.get(field, "") is String: return false
+				for field in ["level", "exp", "attack", "defense", "speed"]:
+					if not entry.get(field, 0) is int or entry.get(field, 0) < 0: return false
+				if int(entry.get("level", 1)) < 1 or int(entry.get("level", 1)) > HERO_LEVEL_CAP: return false
+			elif key == "hero_stats":
+				for field in hero_stats[0]:
+					if not entry.get(field) is int or entry[field] < 0: return false
+			elif key == "hero_skills":
+				if not entry.get("martial", []) is Array or not entry.get("levels", {}) is Dictionary or not entry.get("exp", {}) is Dictionary: return false
+				if not entry.get("internal", "") is String: return false
+				if not entry.get("learned", []) is Array: return false
+				for skill in entry.get("learned", []):
+					if not skill is String: return false
+				for skill in entry.get("martial", []):
+					if not skill is String: return false
+				for field in ["levels", "exp"]:
+					for value in entry.get(field, {}).values():
+						if not value is int or value < 0: return false
+	return true
+
+func _load_configuration() -> bool:
+	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/configuration.json"))
+	if not parsed is Dictionary:
+		push_error("无法读取游戏配置，请运行 tools/export_config.py")
+		return false
+	var data: Dictionary = _configuration_integers(parsed)
+	heroes = data.heroes
+	hero_stats = data.hero_stats
+	hero_skills = data.hero_skills
+	skill_library = data.skills
+	equipment_library = data.equipment
+	item_library = data.items
+	growth = data.growth
+	var story: Variant = JSON.parse_string(FileAccess.get_file_as_string("res://data/story.json"))
+	if not story is Dictionary or not story.get("dialogues") is Dictionary:
+		push_error("无法读取剧情配置，请运行 tools/export_story.py")
+		return false
+	story_data = _configuration_integers(story)
+	story_dialogues = story_data.dialogues
+	for i in heroes.size():
+		var profile: Dictionary = story_data.profiles[i]
+		heroes[i].name = profile.name
+		heroes[i].head = "res://assets/Heads/" + str(profile.head) + ("" if str(profile.head).contains(".") else ".png")
+		heroes[i]["biography"] = profile.bio
+	skill_library.merge(story_data.skills, true)
+	item_library.merge(story_data.items, true)
+	HERO_LEVEL_CAP = int(growth.hero_level_cap)
+	HERO_LEVEL_EXP_MULTIPLIER = int(growth.hero_level_exp)
+	SKILL_LEVEL_CAP = int(growth.skill_level_cap)
+	SKILL_LEVEL_EXP_MULTIPLIER = int(growth.skill_level_exp)
+	HERO_MODEL_PATHS.clear()
+	for hero in heroes: HERO_MODEL_PATHS.append(str(hero.model))
+	return true
+
+func _configuration_integers(value: Variant) -> Variant:
+	# JSON numbers arrive as floats; keep game and save-file numeric types stable.
+	if value is float: return int(value)
+	if value is Array:
+		var entries: Array = []
+		for entry in value: entries.append(_configuration_integers(entry))
+		return entries
+	if value is Dictionary:
+		var entries: Dictionary = {}
+		for key in value: entries[key] = _configuration_integers(value[key])
+		return entries
+	return value

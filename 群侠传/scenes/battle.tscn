@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://by82qr6hkf73a"]
 
 [ext_resource type="Script" uid="uid://ds2q8unf674sx" path="res://scripts/battle.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/battle_log.gd" id="battle_log"]
 [ext_resource type="Texture2D" uid="uid://b6hibkyxtqm8j" path="res://assets/BattleBg/biwu.jpg" id="2"]
 [ext_resource type="Texture2D" uid="uid://bs6qcm2hvp1fy" path="res://assets/UI/block.png" id="3"]
 [ext_resource type="Texture2D" uid="uid://hr7n368n6kh8" path="res://assets/Heads/zhengtingyu.png" id="4"]
@@ -193,9 +194,24 @@ theme_override_styles/pressed = SubResource("command_hover")
 theme_override_styles/hover = SubResource("command_hover")
 text = "战斗 1倍"
 
+[node name="LogToggle" type="Button" parent="Top"]
+offset_left = 365.0
+offset_top = 12.0
+offset_right = 550.0
+offset_bottom = 44.0
+toggle_mode = true
+button_pressed = true
+focus_mode = 0
+theme_override_font_sizes/font_size = 19
+theme_override_styles/normal = SubResource("command_normal")
+theme_override_styles/pressed = SubResource("command_hover")
+theme_override_styles/hover = SubResource("command_hover")
+text = "隐藏战斗详情"
+
 [node name="Board" type="Control" parent="." unique_id=315734005]
+scale = Vector2(0.8, 0.8)
 anchors_preset = 0
-offset_left = 40.0
+offset_left = 350.0
 offset_top = 78.0
 offset_right = 1560.0
 offset_bottom = 708.0
@@ -955,6 +971,42 @@ theme_override_font_sizes/font_size = 22
 text = "返回江湖"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="BattleLog" type="Panel" parent="."]
+z_index = 15
+layout_mode = 0
+offset_left = 20.0
+offset_top = 95.0
+offset_right = 320.0
+offset_bottom = 710.0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("hover_panel")
+script = ExtResource("battle_log")
+
+[node name="Title" type="Label" parent="BattleLog"]
+offset_left = 14.0
+offset_top = 7.0
+offset_right = 286.0
+offset_bottom = 34.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.96, 0.82, 0.5, 1)
+theme_override_font_sizes/font_size = 21
+text = "战斗详情"
+
+[node name="Scroll" type="ScrollContainer" parent="BattleLog"]
+offset_left = 14.0
+offset_top = 38.0
+offset_right = 286.0
+offset_bottom = 605.0
+horizontal_scroll_mode = 0
+
+[node name="Text" type="Label" parent="BattleLog/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+autowrap_mode = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.94, 0.91, 0.83, 1)
+theme_override_font_sizes/font_size = 19
 
 [connection signal="pressed" from="UndoMove" to="." method="_on_undo_move_pressed"]
 [connection signal="pressed" from="Rest" to="." method="_on_rest_pressed"]

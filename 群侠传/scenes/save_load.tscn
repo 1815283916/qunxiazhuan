@@ -45,9 +45,9 @@ horizontal_alignment = 1
 [node name="Slots" type="GridContainer" parent="."]
 layout_mode = 0
 offset_left = 130.0
-offset_top = 125.0
+offset_top = 175.0
 offset_right = 1280.0
-offset_bottom = 750.0
+offset_bottom = 790.0
 theme_override_constants/h_separation = 20
 theme_override_constants/v_separation = 18
 columns = 2
@@ -194,5 +194,22 @@ flat = true
 theme_override_colors/font_color = Color(0.76, 0.02, 0.01, 1)
 theme_override_font_sizes/font_size = 86
 text = "×"
+
+[node name="AutoInfo" type="Label" parent="."]
+layout_mode = 0
+offset_left = 190.0
+offset_top = 125.0
+offset_right = 1130.0
+offset_bottom = 170.0
+theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.2, 0.12, 0.08, 1)
+
+[node name="AutoLoad" type="Button" parent="."]
+layout_mode = 0
+offset_left = 1150.0
+offset_top = 120.0
+offset_right = 1380.0
+offset_bottom = 165.0
+text = "读取自动存档"
 
 [connection signal="pressed" from="Close" to="." method="_on_close_pressed"]

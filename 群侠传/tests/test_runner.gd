@@ -1,4 +1,5 @@
 extends SceneTree
+const Fixture = preload("res://tests/mechanics_fixture.gd")
 
 var failures := 0
 
@@ -7,7 +8,12 @@ func _initialize() -> void:
 
 func _run() -> void:
 	var game_state := root.get_node("GameState")
-	game_state.reset_new_game()
+	game_state.save_directory = "res://tests/.regression_runtime"
+	DirAccess.make_dir_recursive_absolute(game_state.save_directory)
+	game_state.settings.auto_save = false
+	game_state.settings.auto_battle = false
+	game_state.settings.battle_speed = 1.0
+	Fixture.reset(game_state)
 	_test_configuration_sync(game_state)
 	_test_reusable_books(game_state)
 	_test_equipment_flow(game_state)
@@ -23,6 +29,9 @@ func _run() -> void:
 		print("TESTS PASSED: reusable books, hero growth, battle range, move undo, hover details, skill selection, action timeline")
 	else:
 		push_error("TESTS FAILED: %d assertion(s)" % failures)
+	var preferences: String = game_state.save_directory.path_join("preferences.cfg")
+	if FileAccess.file_exists(preferences): DirAccess.remove_absolute(preferences)
+	DirAccess.remove_absolute(game_state.save_directory)
 	quit(failures)
 
 func _test_configuration_sync(game_state: Node) -> void:
@@ -44,7 +53,7 @@ func _test_configuration_sync(game_state: Node) -> void:
 	game_state._synchronize_loaded_configuration()
 	_expect(game_state.inventory == ["魔神拳套"], "旧存档中的装备名称应迁移到新名称")
 	_expect(game_state.hero_skills[0].martial == ["降龙十八掌"], "旧存档中已删除的武学引用应移除，改名武学应迁移")
-	game_state.reset_new_game()
+	Fixture.reset(game_state)
 
 func _test_reusable_books(game_state: Node) -> void:
 	var book_count: int = game_state.inventory.count("独孤九剑秘籍")
@@ -53,7 +62,7 @@ func _test_reusable_books(game_state: Node) -> void:
 	_expect(game_state.inventory.count("独孤九剑秘籍") == book_count, "秘籍研习后不应被消耗")
 
 func _test_equipment_flow(game_state: Node) -> void:
-	game_state.reset_new_game()
+	Fixture.reset(game_state)
 	var hero_index := 0
 	var equipped: Dictionary = game_state.hero_equipment[hero_index]
 	_expect(equipped.is_empty(), "New games start with no equipment worn")
@@ -68,7 +77,7 @@ func _test_equipment_flow(game_state: Node) -> void:
 	_expect(not game_state.unequip_item(hero_index, "bad_slot").is_empty(), "Invalid equipment slots are rejected")
 
 func _test_inventory_ui(game_state: Node) -> void:
-	game_state.reset_new_game()
+	Fixture.reset(game_state)
 	var inventory: Node = load("res://scenes/inventory.tscn").instantiate()
 	root.add_child(inventory)
 	await process_frame
@@ -85,7 +94,7 @@ func _test_inventory_ui(game_state: Node) -> void:
 	await process_frame
 
 func _test_empty_equipment_ui(game_state: Node) -> void:
-	game_state.reset_new_game()
+	Fixture.reset(game_state)
 	var character: Node = load("res://scenes/character.tscn").instantiate()
 	root.add_child(character)
 	await process_frame
@@ -97,7 +106,7 @@ func _test_empty_equipment_ui(game_state: Node) -> void:
 	await process_frame
 
 func _test_character_equipment_menu(game_state: Node) -> void:
-	game_state.reset_new_game()
+	Fixture.reset(game_state)
 	var character: Node = load("res://scenes/character.tscn").instantiate()
 	root.add_child(character)
 	await process_frame
@@ -107,8 +116,8 @@ func _test_character_equipment_menu(game_state: Node) -> void:
 	_expect(not str(game_state.hero_equipment[0].get("weapon", "")).is_empty(), "Choosing an item from an empty slot equips it immediately")
 	var skills_tab: String = character.get_node("Paper/Tabs/Skills").tooltip_text
 	character._show_tab(skills_tab)
-	var martial_text: String = character.get_node("Paper/SkillsPanel/Grid/Sword/Name").text
-	var internal_button: Control = character.get_node("Paper/SkillsPanel/Grid").get_child(game_state.hero_skills[0].martial.size())
+	var martial_text: String = character.get_node("Paper/SkillsPanel/Scroll/Grid/Sword/Name").text
+	var internal_button: Control = character.get_node("Paper/SkillsPanel/Scroll/Grid").get_child(game_state.hero_skills[0].martial.size())
 	var internal_text: String = internal_button.get_node("Name").text
 	_expect(not martial_text.contains("经验") and martial_text.contains("Lv."), "武学页只显示武学等级，不显示经验")
 	_expect(not internal_text.contains("经验") and internal_text.contains("攻+") and internal_text.contains("防+"), "武学页显示心法攻防加成但不显示经验")
@@ -131,7 +140,7 @@ func _test_character_equipment_menu(game_state: Node) -> void:
 	await process_frame
 
 func _test_shop_sell_icons(game_state: Node) -> void:
-	game_state.reset_new_game()
+	Fixture.reset(game_state)
 	var shop: Node = load("res://scenes/shop.tscn").instantiate()
 	root.add_child(shop)
 	await process_frame
@@ -143,7 +152,7 @@ func _test_shop_sell_icons(game_state: Node) -> void:
 	await process_frame
 
 func _test_hero_growth(game_state: Node) -> void:
-	game_state.reset_new_game()
+	Fixture.reset(game_state)
 	var hero: Dictionary = game_state.heroes[0]
 	var stats: Dictionary = game_state.hero_stats[0]
 	var old_level: int = hero.level
@@ -157,7 +166,7 @@ func _test_hero_growth(game_state: Node) -> void:
 		_expect(stats[technique] == old_stats[technique] + 2, "升级应提升武器技巧：%s" % technique)
 
 func _test_battle_range(game_state: Node) -> void:
-	game_state.reset_new_game()
+	Fixture.reset(game_state)
 	_expect(game_state.heroes.size() == 6 and game_state.hero_stats.size() == 6 and game_state.hero_equipment.size() == 6 and game_state.hero_skills.size() == 6, "队伍资料应统一收敛为六名角色")
 	_expect(game_state.heroes[0].model.ends_with("r-nan-jiangwei"), "主角应使用姜维模型")
 	_expect(game_state.get_hero_model_path(1).ends_with("r-nv-duguyanran"), "第二名队友应使用独孤雁然模型")
@@ -371,7 +380,7 @@ func _test_battle_range(game_state: Node) -> void:
 	await process_frame
 
 func _test_party_turns(game_state: Node) -> void:
-	game_state.reset_new_game()
+	Fixture.reset(game_state)
 	game_state.selected_party.clear()
 	game_state.selected_party.append(0)
 	game_state.selected_party.append(1)
@@ -408,7 +417,7 @@ func _test_party_turns(game_state: Node) -> void:
 	await process_frame
 
 func _test_auto_battle(game_state: Node) -> void:
-	game_state.reset_new_game()
+	Fixture.reset(game_state)
 	game_state.selected_party.clear()
 	game_state.selected_party.append(0)
 	game_state.new_battle()

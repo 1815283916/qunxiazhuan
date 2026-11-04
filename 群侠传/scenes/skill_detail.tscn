@@ -111,7 +111,7 @@ text = "切换武学/心法"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Forget" type="TextureButton" parent="Paper"]
+[node name="Equip" type="TextureButton" parent="Paper"]
 layout_mode = 0
 offset_left = 875.0
 offset_top = 650.0
@@ -120,7 +120,7 @@ offset_bottom = 725.0
 texture_normal = ExtResource("4")
 ignore_texture_size = true
 stretch_mode = 0
-[node name="Label" type="Label" parent="Paper/Forget"]
+[node name="Label" type="Label" parent="Paper/Equip"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -130,7 +130,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.95, 0.9, 0.8, 1)
 theme_override_font_sizes/font_size = 27
-text = "遗 忘"
+text = "装 备"
 horizontal_alignment = 1
 vertical_alignment = 1
 
@@ -146,5 +146,5 @@ stretch_mode = 5
 tooltip_text = "关闭"
 
 [connection signal="pressed" from="Paper/Switch" to="." method="_on_switch_pressed"]
-[connection signal="pressed" from="Paper/Forget" to="." method="_on_forget_pressed"]
+[connection signal="pressed" from="Paper/Equip" to="." method="_on_equip_pressed"]
 [connection signal="pressed" from="Paper/Close" to="." method="_on_close_pressed"]

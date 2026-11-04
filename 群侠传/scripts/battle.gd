@@ -43,7 +43,13 @@ var hover_hide_revision := 0
 var skill_effect_frames_cache: Dictionary = {}
 
 func _ready() -> void:
+	preload("res://scripts/top_bar.gd").apply($Top, "battle")
 	if game_state.battle_allies.is_empty(): game_state.new_battle()
+	if game_state.story_data.encounters.has(game_state.current_encounter):
+		$Background.texture = load(game_state.story_data.encounters[game_state.current_encounter].background)
+	while $Board/Enemies.get_child_count() < game_state.battle_enemies.size():
+		var unit := preload("res://scenes/battle_unit.tscn").instantiate()
+		$Board/Enemies.add_child(unit)
 	auto_battle_enabled = bool(game_state.settings.get("auto_battle", false))
 	battle_speed = float(game_state.settings.get("battle_speed", 1.0))
 	if battle_speed != 2.0: battle_speed = 1.0
@@ -51,7 +57,6 @@ func _ready() -> void:
 	_update_auto_button()
 	$Top/AutoBattle.text = "自动：开" if auto_battle_enabled else "自动：关"
 	_update_speed_button()
-	$Top/BattleSpeed.text = "战斗 1倍"
 	$Top/AutoBattle.toggled.connect(_on_auto_battle_toggled)
 	$Top/BattleSpeed.pressed.connect(_on_battle_speed_pressed)
 	$Top/Surrender.pressed.connect(_on_surrender_pressed)
@@ -146,7 +151,7 @@ func _select_actor(index: int) -> void:
 		return
 	selected_skill = -1
 	var actor: Dictionary = game_state.battle_allies[index]
-	$Top/Hint.text = "%s行动中：可移动到蓝色地块，或选择武学" % actor.name
+	$Top/Hint.text = "%s行动中：可移动到绿色地块，或选择武学" % actor.name
 	_highlight_move_tiles()
 	_refresh_units()
 	_refresh_skill_buttons()
@@ -162,14 +167,14 @@ func _select_skill(index: int) -> void:
 		return
 	if selected_skill == index:
 		selected_skill = -1
-		$Top/Hint.text = "已取消武学，点击蓝色地块移动或重新选择招式"
+		$Top/Hint.text = "已取消武学，点击绿色地块移动或重新选择招式"
 		_highlight_move_tiles()
 		_update_skill_selection_visuals()
 		return
 	selected_skill = index
 	$ItemPanel.visible = false
 	if auto_battle_enabled: $Top/Hint.text = "自动战斗：正在行动"
-	$Top/Hint.text = "%s：选择橙红色地块释放；悬停时绿色显示本次攻击范围" % actor.name
+	$Top/Hint.text = "%s：选择绿色地块释放；悬停时红色显示本次攻击范围" % actor.name
 	_highlight_attack_tiles()
 	_update_skill_selection_visuals()
 
@@ -199,7 +204,7 @@ func _on_tile_pressed(index: int) -> void:
 			_highlight_move_tiles()
 			_update_undo_button()
 		else:
-			$Top/Hint.text = "该地块不可到达，请选择蓝色地块"
+			$Top/Hint.text = "该地块不可到达，请选择绿色地块"
 		return
 	if not _can_target(coord):
 		$Top/Hint.text = "该地块不在武学攻击范围内"
@@ -219,6 +224,7 @@ func _on_tile_pressed(index: int) -> void:
 	var critical: bool = randf() * 100.0 < actor.crit
 	if critical: damage = int(damage * actor.crit_damage / 100.0)
 	actor.mp -= skill.cost
+	get_node("/root/AudioManager").play_effect("attack")
 	var hurt_enemy_nodes: Array[Control] = []
 	var hit_results: Array[Dictionary] = []
 	var effect_coords := _affected_coords(coord)
@@ -245,7 +251,7 @@ func _on_tile_pressed(index: int) -> void:
 		_show_unit_float(enemy_node, "-%d" % actual_damage, Color("#ffe04b") if critical else Color("#f5f3ed"), 30 if critical else 22)
 		_refresh_unit_status(enemy_node, enemy)
 		game_state.battle_log.append("%s%s对%s造成%d点伤害" % ["暴击！" if critical else "", actor.name, enemy.name, actual_damage])
-		if actor.poison > 0 and randf() * 100.0 < actor.poison:
+		if actor.poison > 0 and randf() * 100.0 < _poison_chance(actor, enemy):
 			enemy.poison_turns = 3
 			game_state.battle_log.append("%s中毒，持续3回合" % enemy.name)
 		if enemy.hp <= 0:
@@ -263,9 +269,10 @@ func _on_tile_pressed(index: int) -> void:
 	if martial_levels_gained > 0:
 		_show_unit_float(leveling_actor_node, "武学升级 %s Lv.%d" % [skill_name, loadout.levels[skill_name]], Color("#70e06d"))
 	var internal_name: String = str(loadout.internal)
-	var internal_levels_gained: int = game_state.gain_skill_experience(actor.hero_index, internal_name, skill_experience)
+	var internal_levels_gained: int = game_state.gain_skill_experience(actor.hero_index, internal_name, maxi(1, int(game_state.growth.battle_internal_exp) * int(actor.insight)))
 	if internal_levels_gained > 0:
 		_show_unit_float(leveling_actor_node, "心法升级 %s Lv.%d" % [internal_name, loadout.levels[internal_name]], Color("#70e06d"))
+	_sync_actor_growth(actor)
 	_refresh_units()
 	player_action_resolving = false
 	if _all_enemies_defeated():
@@ -277,12 +284,12 @@ func _on_board_tile_pressed(index: int) -> void:
 	_on_tile_pressed(_board_coord_from_index(index).y * BOARD_WIDTH + _board_coord_from_index(index).x)
 
 func _on_surrender_pressed() -> void:
-	if battle_finished: return
+	if battle_finished or player_action_resolving or not is_player_turn: return
 	_clear_range_display()
 	_finish_battle(false)
 
 func _on_restart_battle_pressed() -> void:
-	if battle_finished: return
+	if battle_finished or player_action_resolving or not is_player_turn: return
 	game_state.new_battle()
 	get_tree().reload_current_scene()
 
@@ -448,11 +455,11 @@ func _restore_action_hint() -> void:
 	if not _active_actor_valid(): return
 	var actor: Dictionary = game_state.battle_allies[selected_actor]
 	if selected_skill >= 0 and selected_skill < current_skills.size():
-		$Top/Hint.text = "%s：选择橙红色地块释放；悬停时绿色显示本次攻击范围" % current_skills[selected_skill]
+		$Top/Hint.text = "%s：选择绿色地块释放；悬停时红色显示本次攻击范围" % current_skills[selected_skill]
 	elif actor.moved:
 		$Top/Hint.text = "%s已完成移动，可撤回移动，或选择武学、物品和调息" % actor.name
 	else:
-		$Top/Hint.text = "%s行动中：点击蓝色地块移动，或选择武学" % actor.name
+		$Top/Hint.text = "%s行动中：点击绿色地块移动，或选择武学" % actor.name
 
 func _on_rest_pressed() -> void:
 	if auto_action_running and not automation_command: return
@@ -466,6 +473,7 @@ func _on_rest_pressed() -> void:
 	_refresh_unit_status(actor_node, actor)
 	if actor.hp > old_hp: _show_unit_float(actor_node, "气血 +%d" % (actor.hp - old_hp), Color("#70e06d"))
 	if actor.mp > old_mp: _show_unit_float(actor_node, "内力 +%d" % (actor.mp - old_mp), Color("#65aaff"))
+	get_node("/root/AudioManager").play_effect("heal")
 	game_state.battle_log.append("%s调息，恢复气血与内力" % actor.name)
 	selected_skill = -1
 	_complete_actor_action()
@@ -486,30 +494,30 @@ func _on_undo_move_pressed() -> void:
 	movement_tween.tween_property(unit_node, "position", _coord_to_board(origin), 0.18)
 	move_origin = Vector2i(-1, -1)
 	move_actor_index = -1
-	$Top/Hint.text = "已撤回移动，可重新选择蓝色地块或武学"
+	$Top/Hint.text = "已撤回移动，可重新选择绿色地块或武学"
 	_highlight_move_tiles()
 	_update_undo_button()
 	_update_skill_selection_visuals()
 
 func _on_items_pressed() -> void:
 	$ItemPanel.visible = not $ItemPanel.visible
-	$ItemPanel/Healing.text = "疗伤药 × %d\n恢复35气血" % game_state.inventory.count("疗伤药")
-	$ItemPanel/Great.text = "大还丹 × %d\n恢复60气血、30内力" % game_state.inventory.count("大还丹")
+	$ItemPanel/Healing.text = _medicine_text("疗伤药")
+	$ItemPanel/Great.text = _medicine_text("大还丹")
 	$ItemPanel/Healing.disabled = not game_state.inventory.has("疗伤药")
 	$ItemPanel/Great.disabled = not game_state.inventory.has("大还丹")
 
 func _use_item(item_name: String) -> void:
 	if auto_action_running and not automation_command: return
 	if not _active_actor_valid() or not game_state.inventory.has(item_name): return
+	var medicine: Dictionary = game_state.item_library.get(item_name, {})
+	if medicine.get("kind", "") != "药品": return
 	var actor: Dictionary = game_state.battle_allies[selected_actor]
 	var old_hp: int = actor.hp
 	var old_mp: int = actor.mp
 	game_state.inventory.erase(item_name)
-	if item_name == "大还丹":
-		actor.hp = mini(actor.max_hp, actor.hp + 60)
-		actor.mp = mini(actor.max_mp, actor.mp + 30)
-	else:
-		actor.hp = mini(actor.max_hp, actor.hp + 35)
+	get_node("/root/AudioManager").play_effect("heal")
+	actor.hp = mini(actor.max_hp, actor.hp + int(medicine.heal_hp))
+	actor.mp = mini(actor.max_mp, actor.mp + int(medicine.heal_mp))
 	var actor_node := $Board/Allies.get_child(selected_actor) as Control
 	_refresh_unit_status(actor_node, actor)
 	if actor.hp > old_hp: _show_unit_float(actor_node, "气血 +%d" % (actor.hp - old_hp), Color("#70e06d"))
@@ -533,7 +541,7 @@ func _complete_actor_action() -> void:
 
 func _on_auto_battle_toggled(enabled: bool) -> void:
 	auto_battle_enabled = enabled
-	game_state.settings["auto_battle"] = enabled
+	game_state.set_setting("auto_battle", enabled)
 	_update_auto_button()
 	$Top/AutoBattle.text = "自动：开" if enabled else "自动：关"
 	if enabled:
@@ -550,9 +558,8 @@ func _update_auto_button() -> void:
 
 func _on_battle_speed_pressed() -> void:
 	battle_speed = 2.0 if battle_speed == 1.0 else 1.0
-	game_state.settings["battle_speed"] = battle_speed
+	game_state.set_setting("battle_speed", battle_speed)
 	_update_speed_button()
-	$Top/BattleSpeed.text = "战斗 %d倍" % int(battle_speed)
 	_apply_battle_speed()
 
 func _apply_battle_speed() -> void:
@@ -756,6 +763,7 @@ func _enemy_take_action(enemy_index: int) -> void:
 		target_node.play_action("hurt")
 		await enemy_node.wait_for_action("attack")
 		await target_node.wait_for_action("hurt")
+		get_node("/root/AudioManager").play_effect("attack")
 		var actual_damage: int = maxi(1, enemy.attack - int(target.defense / 8.0))
 		target.hp = maxi(0, target.hp - actual_damage)
 		_show_unit_float(target_node, "-%d" % actual_damage, Color("#f5f3ed"))
@@ -774,14 +782,7 @@ func _finish_battle(victory: bool) -> void:
 	if battle_finished: return
 	_clear_move_undo()
 	battle_finished = true
-	game_state.battle_outcome = "胜利" if victory else "失败"
-	if victory:
-		game_state.money += game_state.reward_money
-		game_state.inventory.append("疗伤药")
-		game_state.grant_battle_experience()
-		game_state.journal.append("华山论剑初战告捷，获得银两 %d。" % game_state.reward_money)
-	else:
-		game_state.journal.append("华山论剑初战失利，暂退江湖养精蓄锐。")
+	game_state.settle_battle(victory)
 	game_state.goto("res://scenes/battle_result.tscn")
 
 func _refresh_units() -> void:
@@ -790,6 +791,7 @@ func _refresh_units() -> void:
 		node.visible = i < game_state.battle_allies.size()
 		if not node.visible: continue
 		var actor: Dictionary = game_state.battle_allies[i]
+		node.visible = actor.alive
 		node.position = _coord_to_board(actor.coord)
 		var hero_index := int(actor.get("hero_index", i))
 		node.configure(str(actor.get("model", game_state.get_hero_model_path(hero_index))), false)
@@ -800,6 +802,7 @@ func _refresh_units() -> void:
 		node.get_node("MP").value = actor.mp
 		node.get_node("MP").max_value = actor.max_mp
 		node.get_node("MP").visible = true
+		_refresh_unit_status(node, actor)
 	for i in $Board/Enemies.get_child_count():
 		var node := $Board/Enemies.get_child(i)
 		if i >= game_state.battle_enemies.size():
@@ -816,6 +819,7 @@ func _refresh_units() -> void:
 		node.get_node("MP").value = float(enemy.get("mp", 0))
 		node.get_node("MP").max_value = float(enemy.get("max_mp", 1))
 		node.get_node("MP").visible = enemy.has("mp")
+		_refresh_unit_status(node, enemy)
 
 func _refresh() -> void:
 	var active_index := _first_alive_ally()
@@ -1047,10 +1051,10 @@ func _skill_damage(actor: Dictionary, skill: Dictionary, level: int) -> int:
 	return int(round(float(skill.damage) * _skill_multiplier(level, int(skill.get("damage_growth", 1))))) + int(actor.attack / 8.0) + int(technique / 20.0)
 
 func _skill_experience_reward(actor: Dictionary) -> int:
-	return maxi(1, 5 * int(actor.get("insight", 0)))
+	return maxi(1, int(game_state.growth.battle_skill_exp) * int(actor.get("insight", 0)))
 
 func _active_actor_valid() -> bool:
-	return is_player_turn and not player_action_resolving and selected_actor >= 0 and selected_actor < game_state.battle_allies.size() and game_state.battle_allies[selected_actor].alive
+	return not battle_finished and is_player_turn and not player_action_resolving and selected_actor >= 0 and selected_actor < game_state.battle_allies.size() and game_state.battle_allies[selected_actor].alive
 
 func _enemy_at_any() -> int:
 	for i in game_state.battle_enemies.size():
@@ -1175,9 +1179,29 @@ func _load_skill_effect_frames(resource_path: String) -> SpriteFrames:
 
 func _refresh_unit_status(unit: Control, stats: Dictionary) -> void:
 	if unit == null: return
+	unit.get_node("Status").text = "中毒 %d" % int(stats.get("poison_turns", 0))
+	unit.get_node("Status").visible = bool(game_state.settings.show_buffs) and int(stats.get("poison_turns", 0)) > 0
 	var hp_bar := unit.get_node("HP") as ProgressBar
+	hp_bar.visible = bool(game_state.settings.show_hp)
 	hp_bar.max_value = float(stats.max_hp)
 	hp_bar.value = float(stats.hp)
 	var mp_bar := unit.get_node("MP") as ProgressBar
 	mp_bar.max_value = float(stats.get("max_mp", 1))
 	mp_bar.value = float(stats.get("mp", 0))
+
+func _poison_chance(actor: Dictionary, target: Dictionary) -> float:
+	if actor.get("poison", 0) <= 0 or target.get("poison_immune", false): return 0.0
+	return clampf(float(actor.poison) + float(actor.get("luck", 0)) * 0.2 - float(target.get("willpower", 0)) * 0.2, 0.0, 100.0)
+
+func _sync_actor_growth(actor: Dictionary) -> void:
+	var combat: Dictionary = game_state.get_hero_combat_stats(actor.hero_index)
+	actor.hp = mini(combat.max_hp, int(actor.hp) + maxi(0, int(combat.max_hp) - int(actor.max_hp)))
+	actor.mp = mini(combat.max_mp, int(actor.mp) + maxi(0, int(combat.max_mp) - int(actor.max_mp)))
+	for key in ["max_hp", "max_mp", "attack", "defense", "speed", "crit", "crit_damage", "poison", "fist", "sword", "blade", "unorthodox", "insight", "luck", "willpower"]:
+		actor[key] = combat[key]
+	actor.action_delay = clampi(120 - int(combat.speed), 35, 90)
+	actor.move_range = clampi(2 + int(combat.speed / 90.0), 2, 3)
+
+func _medicine_text(item_name: String) -> String:
+	var item: Dictionary = game_state.item_library[item_name]
+	return "%s × %d\n恢复%d气血、%d内力" % [item_name, game_state.inventory.count(item_name), item.heal_hp, item.heal_mp]

@@ -238,7 +238,8 @@ layout_mode = 0
 offset_left = 1200.0
 offset_top = 385.0
 offset_right = 1500.0
-offset_bottom = 445.0
+offset_bottom = 600.0
+autowrap_mode = 2
 theme_override_colors/font_color = Color(0.9, 0.12, 0.08, 1)
 theme_override_font_sizes/font_size = 32
 text = "已选择1人"
@@ -277,6 +278,15 @@ texture_normal = ExtResource("10")
 ignore_texture_size = true
 stretch_mode = 5
 tooltip_text = "返回江湖"
+
+[node name="ConfigureSkill" type="Button" parent="."]
+visible = false
+offset_left = 1210.0
+offset_top = 570.0
+offset_right = 1460.0
+offset_bottom = 625.0
+theme_override_font_sizes/font_size = 24
+text = "前往技能页装备"
 
 [connection signal="pressed" from="Fight" to="." method="_on_fight_pressed"]
 [connection signal="pressed" from="Close" to="." method="_on_close_pressed"]

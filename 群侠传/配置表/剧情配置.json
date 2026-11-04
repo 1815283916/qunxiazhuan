@@ -1,0 +1,781 @@
+{
+  "source": "剧情.txt",
+  "adaptation": "直接导入剧情.txt后半扩写十二场的对白与旁白；分场绑定不删减原稿记录。涉及性暴力或未成年人的性暗示仅作非露骨转换；明确记录替换和说话人误标校正。",
+  "locations": [
+    {
+      "id": "shaolin_room",
+      "name": "少林厢房",
+      "region": "嵩山",
+      "background": "res://assets/BattleBg/shinei.jpg",
+      "description": "屠狮大会后，重伤的宋青书在这里醒来。",
+      "shop": false,
+      "parent": "shaolin",
+      "local_name": "厢房"
+    },
+    {
+      "id": "shaolin_library",
+      "name": "少林藏经阁",
+      "region": "嵩山",
+      "background": "res://assets/BattleBg/simiao.jpg",
+      "description": "经卷与扫帚之间，藏着一位不问世事的高僧。",
+      "shop": false,
+      "parent": "shaolin",
+      "local_name": "藏经阁"
+    },
+    {
+      "id": "road_inn",
+      "name": "山道客栈",
+      "region": "河南",
+      "background": "res://assets/BattleBg/wanshang.jpg",
+      "description": "离开少林的旅途，也是一段旧关系的终点。",
+      "shop": false,
+      "parent": "henan_road",
+      "local_name": "山道客栈"
+    },
+    {
+      "id": "dongting_tavern",
+      "name": "洞庭酒家",
+      "region": "洞庭",
+      "background": "res://assets/BattleBg/jiuguan.jpg",
+      "description": "湖畔商旅往来，胡氏母子在此歇脚。",
+      "shop": true,
+      "parent": "dongting",
+      "local_name": "洞庭酒家"
+    },
+    {
+      "id": "baimasi",
+      "name": "白马寺镇",
+      "region": "洞庭",
+      "background": "res://assets/BattleBg/menpai.jpg",
+      "description": "原稿中洞庭湖一带的小镇，胡氏母子曾在此经过。",
+      "shop": false,
+      "parent": "dongting",
+      "local_name": "白马寺镇"
+    },
+    {
+      "id": "yaowang",
+      "name": "药王庄",
+      "region": "洞庭",
+      "background": "res://assets/BattleBg/zhulin.jpg",
+      "description": "程灵素引路，毒手药王在此救治胡斐。",
+      "shop": true,
+      "parent": "dongting",
+      "local_name": "药王庄"
+    },
+    {
+      "id": "yanziwu",
+      "name": "姑苏燕子坞",
+      "region": "姑苏",
+      "background": "res://assets/BattleBg/shuizhan.jpg",
+      "description": "水路深处，阿碧迎客，慕容氏收藏天下武学。",
+      "shop": false,
+      "parent": "gusu",
+      "local_name": "燕子坞"
+    },
+    {
+      "id": "mantuo",
+      "name": "曼陀山庄",
+      "region": "姑苏",
+      "background": "res://assets/BattleBg/yewai.jpg",
+      "description": "王语嫣熟知各派武学，也许知道续接经脉之法。",
+      "shop": false,
+      "parent": "gusu",
+      "local_name": "曼陀山庄"
+    },
+    {
+      "id": "jingzhou_manor",
+      "name": "荆州万府",
+      "region": "荆州",
+      "background": "res://assets/BattleBg/city.jpg",
+      "description": "万震山门下的旧案，牵出神照经与连城宝藏。",
+      "shop": true,
+      "parent": "jingzhou",
+      "local_name": "万府"
+    },
+    {
+      "id": "jingzhou_prison",
+      "name": "荆州大牢",
+      "region": "荆州",
+      "background": "res://assets/BattleBg/mishi.jpg",
+      "description": "丁典与狄云困于牢中，凌霜华是打开僵局的关键。",
+      "shop": false,
+      "parent": "jingzhou",
+      "local_name": "大牢"
+    },
+    {
+      "id": "jingzhou_yamen",
+      "name": "荆州府衙",
+      "region": "荆州",
+      "background": "res://assets/BattleBg/menpai2.jpg",
+      "description": "粮道安危、雪山刺客与丁凌之约，在此交汇。",
+      "shop": false,
+      "parent": "jingzhou",
+      "local_name": "府衙"
+    },
+    {
+      "id": "jingzhou_temple",
+      "name": "荆州破庙",
+      "region": "荆州",
+      "background": "res://assets/BattleBg/feixu.jpg",
+      "description": "追兵暂远，一场误会却让同行之人身受重伤。",
+      "shop": false,
+      "parent": "jingzhou",
+      "local_name": "郊外破庙"
+    },
+    {
+      "id": "wuliang_cave",
+      "name": "无量玉洞",
+      "region": "大理",
+      "background": "res://assets/BattleBg/dongxue.jpg",
+      "description": "琅嬛旧迹尚在，北冥与凌波的机缘已有归属。",
+      "shop": false,
+      "parent": "dali",
+      "local_name": "无量玉洞"
+    },
+    {
+      "id": "tianlong",
+      "name": "大理天龙寺",
+      "region": "大理",
+      "background": "res://assets/BattleBg/simiao.jpg",
+      "description": "枯荣与本字辈高僧守寺，六脉神剑并非唾手可得。",
+      "shop": false,
+      "parent": "dali",
+      "local_name": "天龙寺"
+    },
+    {
+      "id": "sword_tomb",
+      "name": "襄阳独孤剑冢",
+      "region": "襄阳",
+      "background": "res://assets/BattleBg/jianchi.jpg",
+      "description": "剑冢无言，留下的是剑道的层次，而非现成秘籍。",
+      "shop": false,
+      "parent": "xiangyang",
+      "local_name": "独孤剑冢"
+    },
+    {
+      "id": "huashan_foot",
+      "name": "华山途中",
+      "region": "华山",
+      "background": "res://assets/BattleBg/shanding.jpg",
+      "description": "宋青书离开剑冢，踏上前往华山的道路；原稿尚未写到抵达华山。",
+      "shop": false,
+      "parent": "huashan",
+      "local_name": "华山途中"
+    },
+    {
+      "id": "gusu_inn",
+      "name": "姑苏沿途客栈",
+      "local_name": "沿途客栈",
+      "region": "姑苏",
+      "parent": "gusu",
+      "background": "res://assets/BattleBg/shinei.jpg",
+      "description": "前往燕子坞途中暂住的客栈。",
+      "shop": false
+    }
+  ],
+  "nodes": [
+    {
+      "id": "awake",
+      "title": "异世醒来",
+      "location": "shaolin_room",
+      "chapter": 1,
+      "source_span": {
+        "start": 0,
+        "stop": 20
+      }
+    },
+    {
+      "id": "treatment",
+      "title": "性命得保，经脉难续",
+      "location": "shaolin_room",
+      "chapter": 2,
+      "source_span": {
+        "start": 0,
+        "stop": 28
+      }
+    },
+    {
+      "id": "night_truth",
+      "title": "夜会·假治疗与真相",
+      "location": "shaolin_room",
+      "chapter": 3,
+      "source_span": {
+        "start": 0,
+        "stop": 19
+      }
+    },
+    {
+      "id": "sweeper",
+      "title": "藏经阁·无名圣僧",
+      "location": "shaolin_library",
+      "chapter": 4,
+      "source_span": {
+        "start": 0,
+        "stop": 33
+      }
+    },
+    {
+      "id": "midnight",
+      "chapter": 5,
+      "source_span": {
+        "start": 0,
+        "stop": 41
+      },
+      "title": "少林夜闯·无忌与芷若",
+      "location": "shaolin_room"
+    },
+    {
+      "id": "break",
+      "title": "出奇愤怒·报复与逃亡",
+      "location": "road_inn",
+      "chapter": 5,
+      "source_span": {
+        "start": 41,
+        "stop": 71
+      }
+    },
+    {
+      "id": "tavern",
+      "title": "洞庭相救",
+      "location": "dongting_tavern",
+      "chapter": 6,
+      "battle": "tavern",
+      "join": [
+        1
+      ],
+      "source_span": {
+        "start": 0,
+        "stop": 2
+      }
+    },
+    {
+      "id": "tavern_after",
+      "chapter": 6,
+      "source_span": {
+        "start": 2,
+        "stop": 40
+      },
+      "title": "胡斐代父结义·同赴白马寺",
+      "location": "dongting_tavern",
+      "automatic": true
+    },
+    {
+      "id": "abduction",
+      "title": "白马寺外的毒手",
+      "location": "baimasi",
+      "chapter": 7,
+      "source_span": {
+        "start": 0,
+        "stop": 29
+      }
+    },
+    {
+      "id": "medicine",
+      "title": "药王指路姑苏",
+      "location": "yaowang",
+      "chapter": 7,
+      "money": 120,
+      "source_span": {
+        "start": 29,
+        "stop": 49
+      }
+    },
+    {
+      "id": "gusu_lodging",
+      "chapter": 8,
+      "source_span": {
+        "start": 0,
+        "stop": 8
+      },
+      "title": "姑苏途中·客栈相伴",
+      "location": "gusu_inn"
+    },
+    {
+      "id": "yanzi",
+      "title": "水路入燕子坞",
+      "location": "yanziwu",
+      "chapter": 8,
+      "source_span": {
+        "start": 8,
+        "stop": 39
+      }
+    },
+    {
+      "id": "shenzhao_hint",
+      "title": "王语嫣论续脉",
+      "location": "mantuo",
+      "chapter": 9,
+      "money": 200,
+      "source_span": {
+        "start": 0,
+        "stop": 26
+      }
+    },
+    {
+      "id": "prison_scout",
+      "chapter": 10,
+      "source_span": {
+        "start": 0,
+        "stop": 7
+      },
+      "title": "荆州牢外·查探守备",
+      "location": "jingzhou_prison"
+    },
+    {
+      "id": "wan",
+      "title": "夜探万府",
+      "location": "jingzhou_manor",
+      "chapter": 10,
+      "source_span": {
+        "start": 7,
+        "stop": 28
+      }
+    },
+    {
+      "id": "prison",
+      "title": "丁典的约定",
+      "location": "jingzhou_prison",
+      "chapter": 11,
+      "source_span": {
+        "start": 0,
+        "stop": 17
+      }
+    },
+    {
+      "id": "yamen",
+      "title": "府衙惊变",
+      "location": "jingzhou_yamen",
+      "chapter": 11,
+      "battle": "snow",
+      "join": [
+        2
+      ],
+      "source_span": {
+        "start": 17,
+        "stop": 27
+      }
+    },
+    {
+      "id": "yamen_after",
+      "chapter": 11,
+      "source_span": {
+        "start": 27,
+        "stop": 43
+      },
+      "title": "刑堂解围·九阴移魂",
+      "location": "jingzhou_yamen",
+      "leave": [
+        2
+      ],
+      "automatic": true
+    },
+    {
+      "id": "rebirth",
+      "title": "神照续脉",
+      "location": "jingzhou_temple",
+      "chapter": 11,
+      "heal": true,
+      "leave": [
+        1
+      ],
+      "money": 300,
+      "source_span": {
+        "start": 43,
+        "stop": 84
+      }
+    },
+    {
+      "id": "cave",
+      "title": "玉洞机缘已逝",
+      "location": "wuliang_cave",
+      "chapter": 12,
+      "source_span": {
+        "start": 0,
+        "stop": 2
+      }
+    },
+    {
+      "id": "six_monks",
+      "title": "天龙寺论武",
+      "location": "tianlong",
+      "chapter": 12,
+      "battle": "tianlong",
+      "source_span": {
+        "start": 2,
+        "stop": 8
+      }
+    },
+    {
+      "id": "six_monks_after",
+      "chapter": 12,
+      "source_span": {
+        "start": 8,
+        "stop": 29
+      },
+      "title": "天龙寺·六脉之议",
+      "location": "tianlong",
+      "automatic": true
+    },
+    {
+      "id": "tomb",
+      "title": "剑冢无书",
+      "location": "sword_tomb",
+      "chapter": 12,
+      "items": [
+        "剑冢木剑"
+      ],
+      "source_span": {
+        "start": 29,
+        "stop": 32
+      }
+    },
+    {
+      "id": "pursuit",
+      "title": "另一条追踪之路",
+      "location": "yaowang",
+      "chapter": 12,
+      "interlude": true,
+      "source_span": {
+        "start": 32,
+        "stop": 47
+      }
+    },
+    {
+      "id": "chapter_end",
+      "title": "华山途中·前路待续",
+      "location": "huashan_foot",
+      "chapter": 12
+    }
+  ],
+  "dialogues": {
+    "chapter_end": {
+      "lines": [
+        [
+          "章节结束",
+          "本段原稿到此结束。宋青书已取走剑冢木剑，正在前往华山；周芷若被胡斐、程灵素引往东北。可回顾已开放场所的剧情。"
+        ]
+      ]
+    }
+  },
+  "encounters": {
+    "tavern": {
+      "id": "tavern",
+      "name": "酒家解围",
+      "enemy": "酒家恶客",
+      "count": 2,
+      "hp": 65,
+      "attack": 18,
+      "defense": 10,
+      "money": 100,
+      "exp": 120,
+      "background": "res://assets/BattleBg/jiuguan.jpg"
+    },
+    "snow": {
+      "id": "snow",
+      "name": "府衙御敌",
+      "enemy": "雪山刺客",
+      "count": 3,
+      "hp": 100,
+      "attack": 25,
+      "defense": 16,
+      "money": 100,
+      "exp": 120,
+      "background": "res://assets/BattleBg/menpai2.jpg"
+    },
+    "tianlong": {
+      "id": "tianlong",
+      "name": "天龙寺交锋",
+      "enemy": "天龙高僧",
+      "count": 6,
+      "hp": 85,
+      "attack": 23,
+      "defense": 18,
+      "money": 100,
+      "exp": 120,
+      "background": "res://assets/BattleBg/simiao.jpg"
+    }
+  },
+  "profiles": [
+    {
+      "name": "宋青书",
+      "head": "zhujue01.png",
+      "bio": "屠狮大会后重伤的武当弟子。来自另一个世界的宋卿疏在他身上醒来，以续接经脉为起点踏入交错的江湖。"
+    },
+    {
+      "name": "胡夫人",
+      "head": "xiangfuren.png",
+      "bio": "胡一刀遗孀，胡斐之母，名为冰雪儿。在洞庭救下宋青书，陪他求医，待他伤愈后返回药王庄照看儿子。"
+    },
+    {
+      "name": "黄蓉",
+      "head": "huoqingtong",
+      "bio": "襄阳守城的丐帮帮主。为保护粮道来到荆州，在府衙遭袭时暂时协力。"
+    },
+    {
+      "name": "阿朱",
+      "head": "abi",
+      "bio": "燕子坞的聪慧少女，精于易容，与宋青书交换见闻。"
+    },
+    {
+      "name": "王语嫣",
+      "head": "wangyuyan",
+      "bio": "熟读诸派武学。在曼陀山庄指出神照经才是续接断脉的线索。"
+    },
+    {
+      "name": "程灵素",
+      "head": "shenxiangyun.png",
+      "bio": "毒手药王弟子。引路救治胡斐，也与胡斐一起隐去宋青书的去向。"
+    }
+  ],
+  "skills": {
+    "九阴真经": {
+      "id": "internal_jiuyin",
+      "kind": "心法",
+      "school": "内功",
+      "attack_bonus": 8,
+      "defense_bonus": 4,
+      "icon": "res://assets/Icons/icon_neigong_020.jpg",
+      "description": "九阴武学总纲，原身留下的武学记忆。"
+    },
+    "神照经": {
+      "id": "internal_shenzhao",
+      "kind": "心法",
+      "school": "内功",
+      "attack_bonus": 4,
+      "defense_bonus": 8,
+      "icon": "res://assets/Icons/icon_neigong_020.jpg",
+      "description": "丁典传授的完整奇功，可续断脉，护持生机。"
+    }
+  },
+  "items": {
+    "剑冢木剑": {
+      "id": "quest_wood_sword",
+      "kind": "任务品",
+      "buy_price": 0,
+      "sell_price": 0,
+      "shop": false,
+      "icon": "res://assets/Items/baoyu.jpg",
+      "skill_id": "",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "襄阳独孤剑冢",
+      "description": "剑冢拾得的木剑，仅作纪念。没有从中取得剑谱。"
+    }
+  },
+  "initial": {
+    "money": 80,
+    "reputation": 0,
+    "location": "shaolin_room",
+    "inventory": [
+      "疗伤药",
+      "疗伤药",
+      "大还丹"
+    ],
+    "skills": {
+      "learned": [
+        "降龙十八掌",
+        "九阴真经"
+      ],
+      "martial": [
+        "降龙十八掌"
+      ],
+      "internal": "九阴真经",
+      "levels": {
+        "降龙十八掌": 1,
+        "九阴真经": 1
+      },
+      "exp": {}
+    }
+  },
+  "world_map": {
+    "background": "res://assets/Maps/daditu.png",
+    "marker_size": [
+      195,
+      44
+    ]
+  },
+  "portraits": {
+    "周芷若": "res://assets/Heads/jiangxue.png",
+    "阿碧": "res://assets/Heads/abi.png",
+    "东方不败": "res://assets/Heads/dongfangbubai1.png",
+    "夕妍": "res://assets/Heads/xiyan.png",
+    "沈湘芸": "res://assets/Heads/shenxiangyun.png",
+    "湘夫人": "res://assets/Heads/xiangfuren.png"
+  },
+  "regions": [
+    {
+      "id": "shaolin",
+      "name": "少林寺",
+      "map_position": [
+        850,
+        250
+      ],
+      "background": "res://assets/BattleBg/simiao.jpg",
+      "description": "少林山门内，厢房与藏经阁各有一段因缘。"
+    },
+    {
+      "id": "henan_road",
+      "name": "河南驿道",
+      "map_position": [
+        640,
+        345
+      ],
+      "background": "res://assets/BattleBg/wanshang.jpg",
+      "description": "离开少林的山道，途经客栈暂歇。"
+    },
+    {
+      "id": "dongting",
+      "name": "洞庭",
+      "map_position": [
+        800,
+        660
+      ],
+      "background": "res://assets/BattleBg/jiuguan.jpg",
+      "description": "洞庭湖一带：酒家结义、白马寺镇追敌，再往药王庄求医。"
+    },
+    {
+      "id": "gusu",
+      "name": "姑苏",
+      "map_position": [
+        1230,
+        350
+      ],
+      "background": "res://assets/BattleBg/shuizhan.jpg",
+      "description": "循江南水路，可往燕子坞与曼陀山庄。"
+    },
+    {
+      "id": "jingzhou",
+      "name": "荆州",
+      "map_position": [
+        900,
+        480
+      ],
+      "background": "res://assets/BattleBg/city.jpg",
+      "description": "万府旧案、狱中约定与府衙惊变，汇成荆州的一段风波。"
+    },
+    {
+      "id": "dali",
+      "name": "大理",
+      "map_position": [
+        400,
+        660
+      ],
+      "background": "res://assets/BattleBg/yewai.jpg",
+      "description": "从无量山的玉洞到天龙寺，寻访南疆武藏。"
+    },
+    {
+      "id": "xiangyang",
+      "name": "襄阳",
+      "map_position": [
+        650,
+        465
+      ],
+      "background": "res://assets/BattleBg/jianchi.jpg",
+      "description": "城外山野中，独孤剑冢静候来客。"
+    },
+    {
+      "id": "huashan",
+      "name": "华山",
+      "map_position": [
+        400,
+        145
+      ],
+      "background": "res://assets/BattleBg/shanding.jpg",
+      "description": "山麓相望，新的武藏之路尚在前方。"
+    }
+  ],
+  "source_edits": {
+    "5:48": {
+      "speaker": "旁白",
+      "text": "宋青书以夫妻关系为借口，威胁已被药物制住的周芷若。",
+      "reason": "性暴力段落非露骨转换"
+    },
+    "5:50": {
+      "speaker": "旁白",
+      "text": "他无视周芷若的拒绝，将自己的报复强加于她。",
+      "reason": "性暴力段落非露骨转换"
+    },
+    "5:52": {
+      "speaker": "旁白",
+      "text": "宋青书不顾后果，仍执意报复。",
+      "reason": "性暴力段落非露骨转换"
+    },
+    "5:54": {
+      "speaker": "旁白",
+      "text": "嫉恨让他拒绝听取周芷若的解释。",
+      "reason": "性暴力段落非露骨转换"
+    },
+    "5:58": {
+      "speaker": "旁白",
+      "text": "宋青书对周芷若实施了性暴力。事后，他意识到自己对她与张无忌的关系判断有误，却仍以匕首相逼。",
+      "reason": "性暴力段落非露骨转换"
+    },
+    "5:61": {
+      "speaker": "旁白",
+      "text": "宋青书以死亡威胁周芷若，继续强迫并伤害她。",
+      "reason": "性暴力段落非露骨转换"
+    },
+    "5:62": {
+      "speaker": "旁白",
+      "text": "周芷若在威胁下无法脱身。",
+      "reason": "性暴力段落非露骨转换"
+    },
+    "5:63": {
+      "speaker": "旁白",
+      "text": "宋青书继续以羞辱掩饰自己的暴行。",
+      "reason": "性暴力段落非露骨转换"
+    },
+    "7:16": {
+      "speaker": "旁白",
+      "text": "书生以恶言威胁胡夫人，声称眼下另有要事，随后带走胡斐。",
+      "reason": "成人性暴力威胁非露骨转换"
+    },
+    "7:17": {
+      "speaker": "旁白",
+      "text": "胡斐挣扎反抗，书生仍抓着他不放。",
+      "reason": "移除涉及未成年人的性暗示"
+    },
+    "6:38": {
+      "speaker": "宋青书",
+      "text": "嫂嫂，你们母子找毒手药王何事呢？",
+      "reason": "原稿说话人及称谓误标校正"
+    },
+    "11:8": {
+      "speaker": "丁典",
+      "text": "你要是真的能说服霜华和我一起远走高飞，我倒是可以把神照经教给你。",
+      "reason": "原稿说话人误标：传授神照经者为丁典"
+    },
+    "12:32": {
+      "speaker": "胡斐",
+      "text": "这位漂亮的阿姨，你真的是宋大哥的妻子么？",
+      "reason": "原稿说话人误标：提问者为胡斐"
+    }
+  },
+  "story_triggers": {
+    "awake": "周芷若",
+    "treatment": "张无忌",
+    "night_truth": "周芷若",
+    "sweeper": "无名僧",
+    "midnight": "张无忌",
+    "break": "周芷若",
+    "tavern": "胡斐",
+    "tavern_after": "胡夫人",
+    "abduction": "书生",
+    "medicine": "毒手药王",
+    "gusu_lodging": "掌柜",
+    "yanzi": "阿碧",
+    "shenzhao_hint": "王语嫣",
+    "prison_scout": "胡夫人",
+    "wan": "吴六奇",
+    "prison": "丁典",
+    "yamen": "黄蓉",
+    "yamen_after": "吴六奇",
+    "rebirth": "丁典",
+    "cave": "查探玉洞",
+    "six_monks": "枯荣禅师",
+    "six_monks_after": "枯荣禅师",
+    "tomb": "查看剑冢",
+    "pursuit": "胡斐",
+    "chapter_end": "踏上山道"
+  }
+}

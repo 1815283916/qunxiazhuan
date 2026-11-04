@@ -34,12 +34,17 @@ theme_override_font_sizes/font_size = 50
 text = "江湖日志"
 horizontal_alignment = 1
 
-[node name="Entries" type="Label" parent="."]
+[node name="Scroll" type="ScrollContainer" parent="."]
 layout_mode = 0
 offset_left = 125.0
 offset_top = 180.0
-offset_right = 1325.0
-offset_bottom = 690.0
+offset_right = 1400.0
+offset_bottom = 730.0
+horizontal_scroll_mode = 0
+
+[node name="Entries" type="Label" parent="Scroll"]
+size_flags_horizontal = 3
+layout_mode = 2
 theme_override_colors/font_color = Color(0.24, 0.14, 0.12, 1)
 theme_override_font_sizes/font_size = 25
 text = "江湖三年十一月七日，宇文逸初入长安。"
@@ -53,7 +58,7 @@ offset_right = 1050.0
 offset_bottom = 820.0
 theme_override_colors/font_color = Color(0.12, 0.1, 0.08, 1)
 theme_override_font_sizes/font_size = 29
-text = "《《     第1页，共1页     》》"
+text = "当前目标与江湖纪事 · 滚动查看"
 horizontal_alignment = 1
 
 [node name="Close" type="Button" parent="."]

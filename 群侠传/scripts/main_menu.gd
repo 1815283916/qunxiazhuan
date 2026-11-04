@@ -6,7 +6,7 @@ func _on_start_pressed() -> void:
 	game_state.goto("res://scenes/world_map.tscn")
 
 func _on_continue_pressed() -> void:
-	var err: Error = game_state.load_slot(1)
+	var err: Error = game_state.load_latest()
 	if err == OK:
 		game_state.goto("res://scenes/world_map.tscn")
 	else:
@@ -14,6 +14,7 @@ func _on_continue_pressed() -> void:
 		$Notice.visible = true
 
 func _on_settings_pressed() -> void:
+	game_state.menu_return_scene = "res://scenes/main_menu.tscn"
 	game_state.goto("res://scenes/system_menu.tscn")
 
 func _on_quit_pressed() -> void:

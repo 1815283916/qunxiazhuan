@@ -3,6 +3,8 @@ extends Control
 @onready var game_state := get_node("/root/GameState")
 
 func _ready() -> void:
+	$Buttons/Back/Label.text = "返回主菜单" if game_state.menu_return_scene.ends_with("main_menu.tscn") else "返回游戏"
+	$Buttons/Save.disabled = not game_state.session_started
 	var option_keys := {
 		"ShowHP": "show_hp", "ShowBuffs": "show_buffs", "AutoSave": "auto_save",
 		"AutoBattle": "auto_battle", "Music": "music", "Sound": "sound", "Fullscreen": "fullscreen"
@@ -17,11 +19,10 @@ func _ready() -> void:
 	speed_option.item_selected.connect(_on_battle_speed_selected)
 
 func _toggle(value: bool, key: String) -> void:
-	game_state.settings[key] = value
-	if key == "fullscreen": DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if value else DisplayServer.WINDOW_MODE_WINDOWED)
+	game_state.set_setting(key, value)
 
 func _on_battle_speed_selected(index: int) -> void:
-	game_state.settings["battle_speed"] = 2.0 if index == 1 else 1.0
+	game_state.set_setting("battle_speed", 2.0 if index == 1 else 1.0)
 
 func _on_save_pressed() -> void:
 	game_state.goto("res://scenes/save_load.tscn")
@@ -30,4 +31,4 @@ func _on_main_menu_pressed() -> void:
 	game_state.goto("res://scenes/main_menu.tscn")
 
 func _on_back_pressed() -> void:
-	game_state.goto("res://scenes/world_map.tscn")
+	game_state.goto(game_state.menu_return_scene)

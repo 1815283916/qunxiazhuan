@@ -2,33 +2,19 @@ extends Control
 
 @onready var game_state := get_node("/root/GameState")
 var selected_equipped_slot := ""
-var data := {
-	"玄铁剑":{"type":"武器【稀有】", "icon":"res://assets/Items/moshenjian.jpg", "text":"重剑无锋，大巧不工。\n\n物品效果：\n攻击力 +28\n剑法技巧 +12\n暴击伤害 +15%"},
-	"君子剑":{"type":"武器【普通】", "icon":"res://assets/Items/liquanqiang.jpg", "text":"剑身清亮，端正古雅。\n\n物品效果：\n攻击力 +16\n剑法技巧 +8"},
-	"淑女剑":{"type":"武器【精良】", "icon":"res://assets/Items/dao3.jpg", "text":"轻灵秀雅，适合迅捷剑招。\n\n物品效果：\n攻击力 +14\n身法 +6"},
-	"魔神剑":{"type":"武器【传说】", "icon":"res://assets/Items/moshenquantao.jpg", "text":"来历不明的古兵，剑意凛然。\n\n物品效果：\n攻击力 +45\n暴击率 +10%"},
-	"粗布道袍":{"type":"衣物【普通】", "icon":"res://assets/Items/Dcubudaopao.jpg", "text":"结实耐用的粗布道袍。\n\n物品效果：\n防御力 +12\n生命上限 +80"},
-	"乌蚕衣":{"type":"衣物【稀有】", "icon":"res://assets/Items/daopao.jpg", "text":"以乌蚕丝织成，柔韧异常。\n\n物品效果：\n防御力 +24\n韧性 +8"},
-	"毒戒指":{"type":"饰品【稀有】", "icon":"res://assets/Items/jiezhi3.jpg", "text":"淬有奇毒的古朴戒指。\n\n物品效果：\n攻击有 15% 概率施加毒素。"},
-	"宝玉":{"type":"饰品【精良】", "icon":"res://assets/Items/baoyu.jpg", "text":"温润通透的随身宝玉。\n\n物品效果：\n福缘 +8\n定力 +5"},
-	"独孤九剑秘籍":{"type":"经书【绝学】", "icon":"res://assets/Items/Bdugujiujianjianpu.jpg", "text":"记载破尽天下招式的剑理。\n\n使用后可研习独孤九剑。"},
-	"易筋经":{"type":"经书【绝学】", "icon":"res://assets/Items/Bkuihuabaodian.jpg", "text":"少林镇派内功典籍。\n\n使用后可研习上乘心法。"},
-	"大还丹":{"type":"药品【稀有】", "icon":"res://assets/Items/dahuandan.jpg", "text":"药力浑厚的疗伤丹药。\n\n战斗中恢复大量生命与内力。"},
-	"疗伤药":{"type":"药品【普通】", "icon":"res://assets/Items/caoyao.jpg", "text":"常见的江湖伤药。\n\n战斗中恢复少量生命。"}
-}
-var slots := {
-	"玄铁剑":"weapon", "君子剑":"weapon", "淑女剑":"weapon", "魔神剑":"weapon",
-	"粗布道袍":"armor", "乌蚕衣":"armor", "毒戒指":"accessory", "宝玉":"accessory"
-}
-var books := {"独孤九剑秘籍":"独孤九剑", "易筋经":"易筋经"}
+var slots := {}
+var books := {}
 
 func _ready() -> void:
 	for item_name in game_state.equipment_library:
 		slots[item_name] = str(game_state.equipment_library[item_name].slot)
-	var info: Dictionary = data.get(game_state.selected_item, {})
-	if game_state.equipment_library.has(game_state.selected_item):
-		info = {"type":"装备", "icon":game_state.get_equipment_icon(game_state.selected_item), "text":"装备属性"}
-	if info.is_empty(): info = {"type":"物品", "icon":"res://assets/Items/baoyu.jpg", "text":"暂无说明"}
+	for name in game_state.item_library:
+		if game_state.item_library[name].kind == "秘籍": books[name] = game_state.item_library[name].skill_id
+	var item: Dictionary = game_state.item_library.get(game_state.selected_item, {})
+	var info := {"type":item.get("kind", "物品"), "icon":item.get("icon", "res://assets/Items/baoyu.jpg"), "text":item.get("description", "暂无说明")}
+	if not item.is_empty():
+		if item.kind == "药品": info.text += "\n恢复气血 %d、内力 %d" % [item.heal_hp, item.heal_mp]
+		info.text += "\n获取：%s\n买价 %d 两 · 卖价 %d 两" % [item.source, item.buy_price, item.sell_price]
 	$Paper/ItemIcon.texture = load(info.icon)
 	$Paper/ItemName.text = game_state.selected_item
 	$Paper/ItemType.text = info.type
@@ -40,7 +26,7 @@ func _ready() -> void:
 	call_deferred("_refresh_equip_button")
 	for i in $Paper/LearnerPanel/Grid.get_child_count():
 		var card := $Paper/LearnerPanel/Grid.get_child(i)
-		card.visible = i < game_state.heroes.size()
+		card.visible = i < game_state.heroes.size() and game_state.hero_available(i)
 		if not card.visible: continue
 		card.get_node("Portrait").texture = load(game_state.heroes[i].head)
 		card.get_node("Name").text = game_state.heroes[i].name

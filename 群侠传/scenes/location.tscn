@@ -56,7 +56,7 @@ offset_right = 600.0
 offset_bottom = 55.0
 theme_override_colors/font_color = Color(0.87, 0.86, 0.12, 1)
 theme_override_font_sizes/font_size = 26
-text = "长安西市"
+text = "少林厢房"
 
 [node name="Date" type="Label" parent="TopBar"]
 layout_mode = 0
@@ -208,8 +208,17 @@ offset_right = 1285.0
 offset_bottom = 190.0
 theme_override_colors/font_color = Color(0.25, 0.13, 0.11, 1)
 theme_override_font_sizes/font_size = 25
-text = "你来到了长安西市。"
+text = "你来到了少林厢房。"
 autowrap_mode = 2
+
+[node name="Lore" type="Button" parent="."]
+layout_mode = 0
+offset_left = 1180.0
+offset_top = 185.0
+offset_right = 1480.0
+offset_bottom = 250.0
+theme_override_font_sizes/font_size = 26
+text = "往事回顾"
 
 [connection signal="pressed" from="Interactions/NPC" to="." method="_on_npc_pressed"]
 [connection signal="pressed" from="Interactions/Plaza" to="." method="_on_plaza_pressed"]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/battle_result.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/UI/dikuang2.png" id="2"]
@@ -6,14 +6,6 @@
 [ext_resource type="Texture2D" path="res://assets/Items/Braozhiroujianjianpu.jpg" id="4"]
 [ext_resource type="Texture2D" path="res://assets/Items/Bsixiangzhangquanpu.jpg" id="5"]
 [ext_resource type="Texture2D" path="res://assets/UI/buttonbg.png" id="6"]
-
-[sub_resource type="StyleBoxFlat" id="detail"]
-bg_color = Color(0.1, 0.08, 0.06, 0.93)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.65, 0.48, 0.2, 1)
 
 [node name="BattleResult" type="Control"]
 layout_mode = 3
@@ -129,29 +121,6 @@ theme_override_font_sizes/font_size = 19
 text = "华山残章"
 horizontal_alignment = 1
 
-[node name="Details" type="TextureButton" parent="."]
-layout_mode = 0
-offset_left = 655.0
-offset_top = 715.0
-offset_right = 965.0
-offset_bottom = 800.0
-texture_normal = ExtResource("6")
-ignore_texture_size = true
-stretch_mode = 0
-[node name="Label" type="Label" parent="Details"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.95, 0.84, 0.5, 1)
-theme_override_font_sizes/font_size = 29
-text = "战斗详情"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="Confirm" type="TextureButton" parent="."]
 layout_mode = 0
 offset_left = 1090.0
@@ -178,9 +147,9 @@ vertical_alignment = 1
 [node name="Retry" type="TextureButton" parent="."]
 visible = false
 layout_mode = 0
-offset_left = 655.0
+offset_left = 220.0
 offset_top = 715.0
-offset_right = 965.0
+offset_right = 530.0
 offset_bottom = 800.0
 texture_normal = ExtResource("6")
 ignore_texture_size = true
@@ -199,27 +168,24 @@ text = "重新挑战"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Detail" type="Panel" parent="."]
-visible = false
+[node name="Growth" type="Label" parent="."]
 layout_mode = 0
-offset_left = 480.0
-offset_top = 500.0
-offset_right = 1120.0
-offset_bottom = 680.0
-theme_override_styles/panel = SubResource("detail")
-[node name="Text" type="Label" parent="Detail"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.93, 0.86, 0.72, 1)
-theme_override_font_sizes/font_size = 22
-text = "宇文逸造成伤害：120\n华山弟子造成伤害：38\n本场使用武学：独孤九剑"
-horizontal_alignment = 1
-vertical_alignment = 1
+offset_left = 360.0
+offset_top = 510.0
+offset_right = 1250.0
+offset_bottom = 625.0
+theme_override_colors/font_color = Color(0.25, 0.15, 0.1, 1)
+theme_override_font_sizes/font_size = 24
 
-[connection signal="pressed" from="Details" to="." method="_on_details_pressed"]
+[node name="Objective" type="Label" parent="."]
+layout_mode = 0
+offset_left = 260.0
+offset_top = 640.0
+offset_right = 1360.0
+offset_bottom = 700.0
+theme_override_colors/font_color = Color(0.4, 0.15, 0.05, 1)
+theme_override_font_sizes/font_size = 24
+autowrap_mode = 2
+
 [connection signal="pressed" from="Confirm" to="." method="_on_confirm_pressed"]
 [connection signal="pressed" from="Retry" to="." method="_on_retry_pressed"]

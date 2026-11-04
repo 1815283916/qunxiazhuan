@@ -1,0 +1,670 @@
+{
+  "heroes": [
+    {
+      "id": "hero_beichou",
+      "name": "北丑",
+      "head": "res://assets/Heads/zhengtingyu.png",
+      "model": "res://assets/Animations/r-nan-jiangwei",
+      "level": 1,
+      "exp": 0,
+      "attack": 67,
+      "speed": 63,
+      "defense": 42
+    },
+    {
+      "id": "hero_nanxian",
+      "name": "南贤",
+      "head": "res://assets/Heads/nanxian.png",
+      "model": "res://assets/Animations/r-nv-duguyanran",
+      "level": 5,
+      "exp": 0,
+      "attack": 74,
+      "speed": 55,
+      "defense": 58
+    },
+    {
+      "id": "hero_huangrong",
+      "name": "黄蓉",
+      "head": "res://assets/Heads/huoqingtong.png",
+      "model": "res://assets/Animations/r-nv-guanyinping",
+      "level": 5,
+      "exp": 0,
+      "attack": 52,
+      "speed": 72,
+      "defense": 39
+    },
+    {
+      "id": "hero_xiaolongnv",
+      "name": "小龙女",
+      "head": "res://assets/Heads/xishi.png",
+      "model": "res://assets/Animations/r-nv-huangyishuangjian",
+      "level": 5,
+      "exp": 0,
+      "attack": 65,
+      "speed": 76,
+      "defense": 44
+    },
+    {
+      "id": "hero_wangyuyan",
+      "name": "王语嫣",
+      "head": "res://assets/Heads/wangyuyan.png",
+      "model": "res://assets/Animations/chenxi1",
+      "level": 5,
+      "exp": 0,
+      "attack": 38,
+      "speed": 60,
+      "defense": 35
+    },
+    {
+      "id": "hero_chengying",
+      "name": "程英",
+      "head": "res://assets/Heads/chengying.png",
+      "model": "res://assets/Animations/chenxi2",
+      "level": 5,
+      "exp": 0,
+      "attack": 49,
+      "speed": 68,
+      "defense": 38
+    }
+  ],
+  "hero_stats": [
+    {
+      "strength": 18,
+      "agility": 16,
+      "insight": 21,
+      "luck": 14,
+      "constitution": 17,
+      "willpower": 15,
+      "fist": 68,
+      "sword": 92,
+      "blade": 46,
+      "unorthodox": 52
+    },
+    {
+      "strength": 20,
+      "agility": 14,
+      "insight": 23,
+      "luck": 12,
+      "constitution": 21,
+      "willpower": 22,
+      "fist": 82,
+      "sword": 88,
+      "blade": 51,
+      "unorthodox": 44
+    },
+    {
+      "strength": 13,
+      "agility": 22,
+      "insight": 22,
+      "luck": 20,
+      "constitution": 14,
+      "willpower": 17,
+      "fist": 90,
+      "sword": 62,
+      "blade": 35,
+      "unorthodox": 81
+    },
+    {
+      "strength": 17,
+      "agility": 23,
+      "insight": 18,
+      "luck": 16,
+      "constitution": 16,
+      "willpower": 19,
+      "fist": 56,
+      "sword": 94,
+      "blade": 38,
+      "unorthodox": 48
+    },
+    {
+      "strength": 10,
+      "agility": 17,
+      "insight": 25,
+      "luck": 19,
+      "constitution": 12,
+      "willpower": 23,
+      "fist": 35,
+      "sword": 70,
+      "blade": 28,
+      "unorthodox": 65
+    },
+    {
+      "strength": 14,
+      "agility": 20,
+      "insight": 20,
+      "luck": 17,
+      "constitution": 15,
+      "willpower": 18,
+      "fist": 48,
+      "sword": 84,
+      "blade": 33,
+      "unorthodox": 58
+    }
+  ],
+  "hero_skills": [
+    {
+      "martial": [
+        "独孤九剑",
+        "降龙十八掌",
+        "打狗棒法"
+      ],
+      "internal": "九阳神功",
+      "levels": {
+        "独孤九剑": 3,
+        "降龙十八掌": 2,
+        "打狗棒法": 2,
+        "九阳神功": 3
+      },
+      "exp": {}
+    },
+    {
+      "martial": [
+        "狂风刀法",
+        "降龙十八掌"
+      ],
+      "internal": "九阳神功",
+      "levels": {
+        "狂风刀法": 2,
+        "降龙十八掌": 2,
+        "九阳神功": 4
+      },
+      "exp": {}
+    },
+    {
+      "martial": [
+        "降龙十八掌",
+        "打狗棒法"
+      ],
+      "internal": "易筋经",
+      "levels": {
+        "降龙十八掌": 3,
+        "打狗棒法": 2,
+        "易筋经": 3
+      },
+      "exp": {}
+    },
+    {
+      "martial": [
+        "独孤九剑",
+        "狂风刀法"
+      ],
+      "internal": "九阳神功",
+      "levels": {
+        "独孤九剑": 3,
+        "狂风刀法": 2,
+        "九阳神功": 3
+      },
+      "exp": {}
+    },
+    {
+      "martial": [
+        "降龙十八掌"
+      ],
+      "internal": "易筋经",
+      "levels": {
+        "降龙十八掌": 2,
+        "易筋经": 4
+      },
+      "exp": {}
+    },
+    {
+      "martial": [],
+      "internal": "易筋经",
+      "levels": {
+        "易筋经": 2
+      },
+      "exp": {}
+    }
+  ],
+  "skills": {
+    "狂风刀法": {
+      "id": "martial_blade_storm",
+      "kind": "武学",
+      "school": "刀法",
+      "cost": 16,
+      "damage": 32,
+      "damage_growth": 1,
+      "range": 1,
+      "shape": "fan",
+      "pattern": "方形六格",
+      "icon": "res://assets/Icons/icon_waigong_114.jpg",
+      "effect": "res://assets/Animations/e-feilong",
+      "description": "刀势横扫。"
+    },
+    "打狗棒法": {
+      "id": "martial_dog_beating_staff",
+      "kind": "武学",
+      "school": "奇门",
+      "cost": 20,
+      "damage": 30,
+      "damage_growth": 1,
+      "range": 2,
+      "shape": "cross",
+      "pattern": "十字九格",
+      "icon": "res://assets/Icons/zzc073.png",
+      "effect": "res://assets/Animations/e-liumai",
+      "description": "势大力沉。"
+    },
+    "降龙十八掌": {
+      "id": "martial_dragon_palm",
+      "kind": "武学",
+      "school": "拳掌",
+      "cost": 12,
+      "damage": 35,
+      "damage_growth": 2,
+      "range": 3,
+      "shape": "single",
+      "pattern": "单体",
+      "icon": "res://assets/Icons/icon_waigong_107.jpg",
+      "effect": "res://assets/Animations/e-rulai",
+      "description": "掌影飘忽。"
+    },
+    "独孤九剑": {
+      "id": "martial_sword_unique",
+      "kind": "武学",
+      "school": "剑系",
+      "cost": 18,
+      "damage": 36,
+      "damage_growth": 1,
+      "range": 4,
+      "shape": "line",
+      "pattern": "直线四格",
+      "icon": "res://assets/Icons/zzd28.png",
+      "effect": "res://assets/Animations/e-tianjian",
+      "description": "剑意纵横的上乘剑法。"
+    },
+    "九阳神功": {
+      "id": "internal_jiuyang",
+      "kind": "心法",
+      "school": "内功",
+      "attack_bonus": 2,
+      "defense_bonus": 6,
+      "icon": "res://assets/Icons/icon_neigong_020.jpg",
+      "description": "至阳至刚的上乘心法，善于防守。"
+    },
+    "易筋经": {
+      "id": "internal_yijin",
+      "kind": "心法",
+      "school": "内功",
+      "attack_bonus": 4,
+      "defense_bonus": 4,
+      "icon": "res://assets/Icons/icon_neigong_020.jpg",
+      "description": "少林镇派心法，攻守兼备。"
+    }
+  },
+  "equipment": {
+    "魔神拳套": {
+      "id": "weapon_moshenquantao",
+      "slot": "weapon",
+      "icon": "res://assets/Items/moshenquantao.jpg",
+      "attack": 28,
+      "defense": 0,
+      "hp": 0,
+      "speed": 0,
+      "crit": 0,
+      "crit_damage": 15,
+      "poison": 0,
+      "agility": 0,
+      "luck": 0,
+      "willpower": 0,
+      "fist": 0,
+      "sword": 12,
+      "blade": 0,
+      "unorthodox": 0
+    },
+    "朴刀": {
+      "id": "weapon_pudao",
+      "slot": "weapon",
+      "icon": "res://assets/Items/dao3.jpg",
+      "attack": 16,
+      "defense": 0,
+      "hp": 0,
+      "speed": 0,
+      "crit": 0,
+      "crit_damage": 0,
+      "poison": 0,
+      "agility": 0,
+      "luck": 0,
+      "willpower": 0,
+      "fist": 0,
+      "sword": 8,
+      "blade": 0,
+      "unorthodox": 0
+    },
+    "凝神枪": {
+      "id": "weapon_ningshenqiang",
+      "slot": "weapon",
+      "icon": "res://assets/Items/liquanqiang.jpg",
+      "attack": 14,
+      "defense": 0,
+      "hp": 0,
+      "speed": 0,
+      "crit": 0,
+      "crit_damage": 0,
+      "poison": 0,
+      "agility": 6,
+      "luck": 0,
+      "willpower": 0,
+      "fist": 0,
+      "sword": 10,
+      "blade": 0,
+      "unorthodox": 0
+    },
+    "魔神剑": {
+      "id": "weapon_moshenjian",
+      "slot": "weapon",
+      "icon": "res://assets/Items/moshenjian.jpg",
+      "attack": 45,
+      "defense": 0,
+      "hp": 0,
+      "speed": 0,
+      "crit": 10,
+      "crit_damage": 0,
+      "poison": 0,
+      "agility": 0,
+      "luck": 0,
+      "willpower": 0,
+      "fist": 0,
+      "sword": 0,
+      "blade": 0,
+      "unorthodox": 0
+    },
+    "粗布道袍": {
+      "id": "armor_cubudaopao",
+      "slot": "armor",
+      "icon": "res://assets/Items/Dcubudaopao.jpg",
+      "attack": 0,
+      "defense": 12,
+      "hp": 80,
+      "speed": 0,
+      "crit": 0,
+      "crit_damage": 0,
+      "poison": 0,
+      "agility": 0,
+      "luck": 0,
+      "willpower": 0,
+      "fist": 0,
+      "sword": 0,
+      "blade": 0,
+      "unorthodox": 0
+    },
+    "乌蚕衣": {
+      "id": "armor_wucanyi",
+      "slot": "armor",
+      "icon": "res://assets/Items/daopao.jpg",
+      "attack": 0,
+      "defense": 24,
+      "hp": 0,
+      "speed": 8,
+      "crit": 0,
+      "crit_damage": 0,
+      "poison": 0,
+      "agility": 0,
+      "luck": 0,
+      "willpower": 0,
+      "fist": 0,
+      "sword": 0,
+      "blade": 0,
+      "unorthodox": 0
+    },
+    "毒戒指": {
+      "id": "accessory_dujiezhi",
+      "slot": "accessory",
+      "icon": "res://assets/Items/jiezhi3.jpg",
+      "attack": 0,
+      "defense": 0,
+      "hp": 0,
+      "speed": 0,
+      "crit": 0,
+      "crit_damage": 0,
+      "poison": 15,
+      "agility": 0,
+      "luck": 0,
+      "willpower": 0,
+      "fist": 0,
+      "sword": 0,
+      "blade": 0,
+      "unorthodox": 0
+    },
+    "宝玉": {
+      "id": "accessory_baoyu",
+      "slot": "accessory",
+      "icon": "res://assets/Items/baoyu.jpg",
+      "attack": 0,
+      "defense": 0,
+      "hp": 0,
+      "speed": 0,
+      "crit": 0,
+      "crit_damage": 0,
+      "poison": 0,
+      "agility": 0,
+      "luck": 8,
+      "willpower": 5,
+      "fist": 0,
+      "sword": 0,
+      "blade": 0,
+      "unorthodox": 0
+    }
+  },
+  "growth": {
+    "hero_level_cap": 30,
+    "hero_level_exp": 200,
+    "hero_level_attack": 3,
+    "hero_level_speed": 2,
+    "hero_level_defense": 2,
+    "skill_level_cap": 10,
+    "skill_level_exp": 40,
+    "battle_skill_exp": 5,
+    "battle_internal_exp": 5
+  },
+  "items": {
+    "魔神拳套": {
+      "id": "weapon_moshenquantao",
+      "kind": "装备",
+      "buy_price": 1200,
+      "sell_price": 600,
+      "shop": false,
+      "icon": "res://assets/Items/moshenquantao.jpg",
+      "skill_id": "",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "初始背包",
+      "description": "穿戴后提供属性加成。"
+    },
+    "朴刀": {
+      "id": "weapon_pudao",
+      "kind": "装备",
+      "buy_price": 520,
+      "sell_price": 260,
+      "shop": true,
+      "icon": "res://assets/Items/dao3.jpg",
+      "skill_id": "",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "初始背包；商店",
+      "description": "穿戴后提供属性加成。"
+    },
+    "凝神枪": {
+      "id": "weapon_ningshenqiang",
+      "kind": "装备",
+      "buy_price": 600,
+      "sell_price": 300,
+      "shop": false,
+      "icon": "res://assets/Items/liquanqiang.jpg",
+      "skill_id": "",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "初始背包",
+      "description": "穿戴后提供属性加成。"
+    },
+    "魔神剑": {
+      "id": "weapon_moshenjian",
+      "kind": "装备",
+      "buy_price": 1800,
+      "sell_price": 900,
+      "shop": false,
+      "icon": "res://assets/Items/moshenjian.jpg",
+      "skill_id": "",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "初始背包",
+      "description": "穿戴后提供属性加成。"
+    },
+    "粗布道袍": {
+      "id": "armor_cubudaopao",
+      "kind": "装备",
+      "buy_price": 220,
+      "sell_price": 110,
+      "shop": true,
+      "icon": "res://assets/Items/Dcubudaopao.jpg",
+      "skill_id": "",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "初始背包；商店；战斗掉落",
+      "description": "穿戴后提供属性加成。"
+    },
+    "乌蚕衣": {
+      "id": "armor_wucanyi",
+      "kind": "装备",
+      "buy_price": 950,
+      "sell_price": 475,
+      "shop": false,
+      "icon": "res://assets/Items/daopao.jpg",
+      "skill_id": "",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "初始背包",
+      "description": "穿戴后提供属性加成。"
+    },
+    "毒戒指": {
+      "id": "accessory_dujiezhi",
+      "kind": "装备",
+      "buy_price": 350,
+      "sell_price": 175,
+      "shop": true,
+      "icon": "res://assets/Items/jiezhi3.jpg",
+      "skill_id": "",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "初始背包；商店",
+      "description": "穿戴后提供属性加成。"
+    },
+    "宝玉": {
+      "id": "accessory_baoyu",
+      "kind": "装备",
+      "buy_price": 700,
+      "sell_price": 350,
+      "shop": false,
+      "icon": "res://assets/Items/baoyu.jpg",
+      "skill_id": "",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "初始背包",
+      "description": "穿戴后提供属性加成。"
+    },
+    "大还丹": {
+      "id": "medicine_great",
+      "kind": "药品",
+      "buy_price": 180,
+      "sell_price": 90,
+      "shop": true,
+      "icon": "res://assets/Items/dahuandan.jpg",
+      "skill_id": "",
+      "heal_hp": 60,
+      "heal_mp": 30,
+      "source": "初始背包；商店；任务；战斗掉落",
+      "description": "药力浑厚，恢复气血与内力。"
+    },
+    "疗伤药": {
+      "id": "medicine_healing",
+      "kind": "药品",
+      "buy_price": 60,
+      "sell_price": 30,
+      "shop": true,
+      "icon": "res://assets/Items/caoyao.jpg",
+      "skill_id": "",
+      "heal_hp": 35,
+      "heal_mp": 0,
+      "source": "初始背包；商店；战斗掉落",
+      "description": "常见的江湖伤药。"
+    },
+    "狂风刀法秘籍": {
+      "id": "book_martial_blade_storm",
+      "kind": "秘籍",
+      "buy_price": 750,
+      "sell_price": 375,
+      "shop": true,
+      "icon": "res://assets/Icons/icon_waigong_114.jpg",
+      "skill_id": "martial_blade_storm",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "商店",
+      "description": "研习后学会狂风刀法；秘籍可重复使用，学习后到技能页装备。"
+    },
+    "打狗棒法秘籍": {
+      "id": "book_martial_dog_beating_staff",
+      "kind": "秘籍",
+      "buy_price": 750,
+      "sell_price": 375,
+      "shop": true,
+      "icon": "res://assets/Icons/zzc073.png",
+      "skill_id": "martial_dog_beating_staff",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "商店",
+      "description": "研习后学会打狗棒法；秘籍可重复使用，学习后到技能页装备。"
+    },
+    "降龙十八掌秘籍": {
+      "id": "book_martial_dragon_palm",
+      "kind": "秘籍",
+      "buy_price": 750,
+      "sell_price": 375,
+      "shop": true,
+      "icon": "res://assets/Icons/icon_waigong_107.jpg",
+      "skill_id": "martial_dragon_palm",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "商店",
+      "description": "研习后学会降龙十八掌；秘籍可重复使用，学习后到技能页装备。"
+    },
+    "独孤九剑秘籍": {
+      "id": "book_unique_sword",
+      "kind": "秘籍",
+      "buy_price": 900,
+      "sell_price": 450,
+      "shop": true,
+      "icon": "res://assets/Items/Bdugujiujianjianpu.jpg",
+      "skill_id": "martial_sword_unique",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "初始背包；商店",
+      "description": "研习后学会独孤九剑；秘籍可重复使用，学习后到技能页装备。"
+    },
+    "九阳神功秘籍": {
+      "id": "book_internal_jiuyang",
+      "kind": "秘籍",
+      "buy_price": 1000,
+      "sell_price": 500,
+      "shop": true,
+      "icon": "res://assets/Icons/icon_neigong_020.jpg",
+      "skill_id": "internal_jiuyang",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "商店",
+      "description": "研习后学会九阳神功；秘籍可重复使用，学习后到技能页装备。"
+    },
+    "易筋经": {
+      "id": "book_yijin",
+      "kind": "秘籍",
+      "buy_price": 1200,
+      "sell_price": 600,
+      "shop": true,
+      "icon": "res://assets/Items/Bkuihuabaodian.jpg",
+      "skill_id": "internal_yijin",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "初始背包；商店；任务",
+      "description": "研习后学会易筋经；秘籍可重复使用，学习后到技能页装备。"
+    }
+  }
+}

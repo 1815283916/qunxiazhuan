@@ -7,25 +7,16 @@ const CATEGORY_LABELS := {
 	"All": "全部", "Equipment": "装备", "Books": "秘籍",
 	"Consumables": "消耗品", "Special": "特殊", "Tasks": "任务品"
 }
-const BOOK_ITEMS := ["独孤九剑秘籍", "易筋经"]
-const CONSUMABLE_ITEMS := ["大还丹", "疗伤药"]
 
 var current_category := "All"
 var item_grid: GridContainer
 var item_scroll: ScrollContainer
 var item_template: Button
-var item_icons := {
-	"玄铁剑":"res://assets/Items/moshenjian.jpg", "君子剑":"res://assets/Items/liquanqiang.jpg",
-	"淑女剑":"res://assets/Items/dao3.jpg", "魔神剑":"res://assets/Items/moshenquantao.jpg",
-	"粗布道袍":"res://assets/Items/Dcubudaopao.jpg", "乌蚕衣":"res://assets/Items/daopao.jpg",
-	"毒戒指":"res://assets/Items/jiezhi3.jpg", "宝玉":"res://assets/Items/baoyu.jpg",
-	"独孤九剑秘籍":"res://assets/Items/Bdugujiujianjianpu.jpg", "易筋经":"res://assets/Items/Bkuihuabaodian.jpg",
-	"大还丹":"res://assets/Items/dahuandan.jpg", "疗伤药":"res://assets/Items/caoyao.jpg"
-}
+var item_icons := {}
 
 func _ready() -> void:
-	for item_name in game_state.equipment_library:
-		item_icons[item_name] = game_state.get_equipment_icon(item_name)
+	for item_name in game_state.item_library:
+		item_icons[item_name] = game_state.item_library[item_name].icon
 	item_grid = $Items
 	item_template = item_grid.get_node("ItemTemplate")
 	_make_item_grid_scrollable()
@@ -66,9 +57,10 @@ func _matches_category(item_name: String) -> bool:
 	match current_category:
 		"All": return true
 		"Equipment": return game_state.equipment_library.has(item_name)
-		"Books": return item_name in BOOK_ITEMS
-		"Consumables": return item_name in CONSUMABLE_ITEMS
-		"Special", "Tasks": return false
+		"Books": return game_state.item_library.get(item_name, {}).get("kind", "") == "秘籍"
+		"Consumables": return game_state.item_library.get(item_name, {}).get("kind", "") == "药品"
+		"Tasks": return game_state.item_library.get(item_name, {}).get("kind", "") == "任务品"
+		"Special": return false
 	return false
 
 func _add_item_card(item_name: String) -> void:
@@ -96,7 +88,7 @@ func _owned_item_count() -> int:
 	return game_state.inventory.size()
 
 func _on_close_pressed() -> void:
-	game_state.goto("res://scenes/world_map.tscn")
+	game_state.goto(game_state.map_panel_return_scene)
 
 func _open_item(item_name: String) -> void:
 	game_state.selected_item = item_name
