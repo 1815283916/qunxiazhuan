@@ -60,8 +60,20 @@ def export():
         if len(coords) != 2 or not 0 <= coords[0] <= 1600 - width or not 76 <= coords[1] <= 800 - height:
             raise ValueError(f'invalid map position: {region["id"]}')
     base = json.loads((ROOT / 'data' / 'configuration.json').read_text(encoding='utf-8'))
-    skills = base['skills'] | data['skills']
-    items = base['items'] | data['items']
+    if data.get('skills') or data.get('items'):
+        raise ValueError('configure skills and items in the design workbooks')
+    skills = base['skills']
+    items = base['items']
+    for encounter in data['encounters'].values():
+        martial = encounter.get('martial', [])
+        if (not isinstance(martial, list) or not 1 <= len(martial) <= 4
+                or any(not isinstance(name, str) for name in martial) or len(set(martial)) != len(martial)):
+            raise ValueError(f'invalid enemy martial loadout: {encounter["id"]}')
+        if any(skills.get(name, {}).get('kind') != '武学' for name in martial):
+            raise ValueError(f'unknown enemy martial skill: {encounter["id"]}')
+        power = encounter.get('skill_power_percent', 100)
+        if type(power) is not int or not 1 <= power <= 100:
+            raise ValueError(f'invalid enemy skill power: {encounter["id"]}')
     for profile in data['profiles']:
         head = profile['head'] + ('' if '.' in profile['head'] else '.png')
         if not (ROOT / 'assets' / 'Heads' / head).is_file():

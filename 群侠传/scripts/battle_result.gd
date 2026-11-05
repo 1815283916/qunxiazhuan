@@ -10,7 +10,7 @@ func _ready() -> void:
 	var growth: Array[String] = []
 	for hero in result.get("heroes", []):
 		growth.append("%s：+%d经验  Lv.%d%s" % [hero.name, hero.exp, hero.before, " → %d" % hero.after if hero.after > hero.before else ""])
-	$Growth.text = "\n".join(growth) if victory else "本场未获结算奖励，可重新整备后再战。"
+	$Growth.text = "\n".join(growth) if victory else "已恢复开战前的药品与成长，可重新整备后再战。"
 	$Objective.text = game_state.get_objective()
 	var counts := {}
 	for item in result.get("items", []): counts[item] = int(counts.get(item, 0)) + 1

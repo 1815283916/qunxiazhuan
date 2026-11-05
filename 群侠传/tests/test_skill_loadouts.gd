@@ -72,6 +72,7 @@ func _run() -> void:
 	check(battle.current_skills.size() == 4 and not battle.current_skills.has("独孤九剑"), "combat only exposes equipped martial skills")
 	var inactive_exp: int = loadout.exp["独孤九剑"]
 	var old_internal_exp: int = loadout.exp.get("九阳神功", 0)
+	game.battle_enemies[0].coord = Vector2i(3, 3)
 	battle._select_skill(0)
 	await battle._on_tile_pressed(3 * 16 + 3)
 	check(loadout.exp["独孤九剑"] == inactive_exp and loadout.exp.get("九阳神功", 0) == old_internal_exp, "unequipped skills gain no combat experience")

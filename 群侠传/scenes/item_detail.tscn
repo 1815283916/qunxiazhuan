@@ -87,7 +87,7 @@ offset_bottom = 585.0
 theme_override_colors/font_color = Color(0.95, 0.93, 0.88, 1)
 theme_override_font_sizes/font_size = 25
 text = "重剑无锋，大巧不工。"
-autowrap_mode = 2
+autowrap_mode = 3
 
 [node name="Equip" type="TextureButton" parent="Paper"]
 layout_mode = 0
@@ -164,10 +164,6 @@ layout_mode = 2
 [node name="Hero4" parent="Paper/LearnerPanel/Grid" instance=ExtResource("5")]
 layout_mode = 2
 [node name="Hero5" parent="Paper/LearnerPanel/Grid" instance=ExtResource("5")]
-layout_mode = 2
-[node name="Hero6" parent="Paper/LearnerPanel/Grid" instance=ExtResource("5")]
-layout_mode = 2
-[node name="Hero7" parent="Paper/LearnerPanel/Grid" instance=ExtResource("5")]
 layout_mode = 2
 
 [node name="Close" type="TextureButton" parent="Paper"]

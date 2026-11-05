@@ -12,7 +12,6 @@ func _ready() -> void:
 	$TopBar/Region.text = "江湖行旅 · 大地图"
 	$TopBar/Date.text = "剧情进度  %d / %d" % [mini(Narrative.position(game_state) + 1, game_state.story_data.nodes.size()), game_state.story_data.nodes.size()]
 	$Portrait.texture = load(game_state.heroes[0].head)
-	$Objective.text = game_state.get_objective()
 	var template: Button = $Locations.get_child(0)
 	for marker in $Locations.get_children():
 		$Locations.remove_child(marker)

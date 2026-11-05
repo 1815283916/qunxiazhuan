@@ -27,7 +27,9 @@ func _ready() -> void:
 	equipment_menu.id_pressed.connect(_on_equipment_choice)
 	add_child(equipment_menu)
 	for i in $Paper/SkillsPanel/Grid.get_child_count():
-		$Paper/SkillsPanel/Grid.get_child(i).pressed.connect(_open_skill_slot.bind(i))
+		var skill_button := $Paper/SkillsPanel/Grid.get_child(i) as TextureButton
+		_prepare_skill_card(skill_button)
+		skill_button.pressed.connect(_open_skill_slot.bind(i))
 	skill_scroll = ScrollContainer.new()
 	skill_scroll.position = Vector2(0, 75)
 	skill_scroll.size = Vector2(830, 450)
@@ -46,10 +48,12 @@ func _refresh_hero() -> void:
 	$Paper/PortraitFrame/Portrait.texture = load(hero.head)
 	$Paper/Name.text = hero.name
 	$Paper/Overview.text = "等级  %d\n生命  %d / %d\n内力  %d / %d\n经验  %d / %d\n攻击  %d\n防御  %d\n暴击  %.1f%%" % [hero.level, combat.max_hp, combat.max_hp, combat.max_mp, combat.max_mp, hero.get("exp", 0), game_state.get_hero_experience_needed(hero.level), combat.attack, combat.defense, combat.crit]
-	var loadout: Dictionary = game_state.hero_skills[game_state.selected_hero]
 	var condition := ""
 	if game_state.selected_hero == 0: condition = "\n\n经脉状态：已续接" if game_state.Narrative.healed(game_state) else "\n\n经脉状态：尽断，暂不能出战"
-	$Paper/BiographyPanel.text = str(hero.get("biography", "")) + condition + "\n\n" + "%s · 等级%d\n\n已学技能：%d个\n\n装备武学：%s\n\n装备心法：%s\n\n出战状态：%s" % [hero.name, hero.level, loadout.learned.size(), "、".join(loadout.martial) if not loadout.martial.is_empty() else "尚未装备", loadout.internal, "已在出战队伍中" if game_state.selected_party.has(game_state.selected_hero) else "待命"]
+	$Paper/BiographyPanel.text = str(hero.get("biography", "")) + condition
+	var talent: Dictionary = hero.get("talent", {})
+	$Paper/TalentsPanel/Name.text = str(talent.get("name", "暂无天赋"))
+	$Paper/TalentsPanel/Description.text = str(talent.get("description", "该侠客尚无可用天赋。"))
 	$Paper/WeaponStats.text = "拳掌    %d\n\n剑法    %d\n\n刀法    %d\n\n奇门    %d" % [combat.fist, combat.sword, combat.blade, combat.unorthodox]
 	$Paper/BaseStats.text = "臂力    %d       福缘    %d\n\n身法    %d       根骨    %d\n\n悟性    %d       定力    %d" % [combat.strength, combat.luck, combat.agility, combat.constitution, combat.insight, combat.willpower]
 	_refresh_equipment()
@@ -74,13 +78,13 @@ func _on_tab_pressed(tab_name: String) -> void:
 	_show_tab(tab_name)
 
 func _show_tab(tab_name: String) -> void:
-	if tab_name == "天赋": tab_name = "属性"
 	current_tab = tab_name
 	game_state.character_tab = tab_name
 	var attribute_nodes := [$Paper/WeaponTitle, $Paper/WeaponStats, $Paper/BaseTitle, $Paper/BaseStats]
 	for node in attribute_nodes: node.visible = tab_name == "属性"
 	$Paper/EquipmentPanel.visible = tab_name == "装备"
 	$Paper/SkillsPanel.visible = tab_name == "技能"
+	$Paper/TalentsPanel.visible = tab_name == "天赋"
 	$Paper/BiographyPanel.visible = tab_name == "列传"
 
 func _open_item(item_name: String) -> void:
@@ -158,22 +162,23 @@ func _refresh_skills() -> void:
 		if button.has_node("EquippedBadge"): button.get_node("EquippedBadge").free()
 		grid.add_child(button)
 		button.pressed.connect(_open_skill_slot.bind(index))
-	grid.columns = 4
-	grid.custom_minimum_size = Vector2(790, ceili(equipped.size() / 4.0) * 159)
+	grid.columns = 5
+	grid.add_theme_constant_override("h_separation", 18)
+	grid.add_theme_constant_override("v_separation", 30)
+	var row_count := ceili(equipped.size() / 5.0)
+	grid.custom_minimum_size = Vector2(802, row_count * 150 + maxi(0, row_count - 1) * 30)
 	for i in grid.get_child_count():
 		var button := grid.get_child(i)
 		button.visible = i < equipped.size()
 		if not button.visible: continue
-		button.custom_minimum_size = Vector2(145, 145)
-		button.get_node("Name").offset_top = 60
-		button.get_node("Name").offset_right = 145
-		button.get_node("Name").offset_bottom = 145
+		_prepare_skill_card(button)
 		var skill_name: String = equipped[i]
 		var skill: Dictionary = game_state.skill_library[skill_name]
 		var level := int(loadout.levels.get(skill_name, 1))
-		button.texture_normal = load(skill.icon)
+		button.get_node("Icon").texture = load(skill.icon)
 		button.tooltip_text = skill_name
-		var detail := "%s\nLv.%d" % [skill_name, level]
+		var detail := skill_name
+		button.get_node("Level").text = "Lv.%d" % level
 		var worn: bool = loadout.martial.has(skill_name) or loadout.internal == skill_name
 		var badge := button.get_node_or_null("EquippedBadge") as Control
 		if badge == null:
@@ -181,17 +186,48 @@ func _refresh_skills() -> void:
 			badge.name = "EquippedBadge"
 			badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			button.add_child(badge)
-			badge.anchor_left = 1.0
-			badge.anchor_right = 1.0
-			badge.offset_left = -36
-			badge.offset_right = -4
-			badge.offset_top = 4
-			badge.offset_bottom = 36
+		badge.anchor_left = 0.0
+		badge.anchor_right = 0.0
+		badge.position = Vector2(14, 4)
+		badge.size = Vector2(32, 32)
 		badge.visible = worn
 		button.tooltip_text = skill_name + ("（已装备）" if worn else "（未装备）")
-		if skill.kind == "心法":
-			detail += "\n攻+%d 防+%d" % [level * int(skill.get("attack_bonus", 0)), level * int(skill.get("defense_bonus", 0))]
 		button.get_node("Name").text = detail
+
+func _prepare_skill_card(button: TextureButton) -> void:
+	button.custom_minimum_size = Vector2(146, 150)
+	var icon := button.get_node_or_null("Icon") as TextureRect
+	if icon == null:
+		icon = TextureRect.new()
+		icon.name = "Icon"
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		button.add_child(icon)
+		button.move_child(icon, 0)
+		icon.texture = button.texture_normal
+	button.texture_normal = null
+	icon.position = Vector2(14, 0)
+	icon.size = Vector2(118, 118)
+	var level_label := button.get_node_or_null("Level") as Label
+	if level_label == null:
+		level_label = Label.new()
+		level_label.name = "Level"
+		level_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		level_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		level_label.add_theme_color_override("font_color", Color("ffe58a"))
+		level_label.add_theme_color_override("font_outline_color", Color("1a0d08"))
+		level_label.add_theme_constant_override("outline_size", 4)
+		level_label.add_theme_font_size_override("font_size", 18)
+		button.add_child(level_label)
+	level_label.position = Vector2(76, 3)
+	level_label.size = Vector2(54, 30)
+	var label := button.get_node("Name") as Label
+	label.position = Vector2(0, 121)
+	label.size = Vector2(146, 29)
+	label.add_theme_font_size_override("font_size", 18)
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
 func _restore_character_tab() -> void:
 	if not initial_character_tab.is_empty(): _show_tab(initial_character_tab)

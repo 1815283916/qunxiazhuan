@@ -9,7 +9,13 @@
       "exp": 0,
       "attack": 67,
       "speed": 63,
-      "defense": 42
+      "defense": 42,
+      "talent": {
+        "id": "mighty",
+        "name": "力大无穷",
+        "description": "战斗中攻击力提高10%。",
+        "battle_attack_percent": 10
+      }
     },
     {
       "id": "hero_nanxian",
@@ -20,7 +26,13 @@
       "exp": 0,
       "attack": 74,
       "speed": 55,
-      "defense": 58
+      "defense": 58,
+      "talent": {
+        "id": "mighty",
+        "name": "力大无穷",
+        "description": "战斗中攻击力提高10%。",
+        "battle_attack_percent": 10
+      }
     },
     {
       "id": "hero_huangrong",
@@ -31,7 +43,13 @@
       "exp": 0,
       "attack": 52,
       "speed": 72,
-      "defense": 39
+      "defense": 39,
+      "talent": {
+        "id": "mighty",
+        "name": "力大无穷",
+        "description": "战斗中攻击力提高10%。",
+        "battle_attack_percent": 10
+      }
     },
     {
       "id": "hero_xiaolongnv",
@@ -42,7 +60,13 @@
       "exp": 0,
       "attack": 65,
       "speed": 76,
-      "defense": 44
+      "defense": 44,
+      "talent": {
+        "id": "mighty",
+        "name": "力大无穷",
+        "description": "战斗中攻击力提高10%。",
+        "battle_attack_percent": 10
+      }
     },
     {
       "id": "hero_wangyuyan",
@@ -53,7 +77,13 @@
       "exp": 0,
       "attack": 38,
       "speed": 60,
-      "defense": 35
+      "defense": 35,
+      "talent": {
+        "id": "mighty",
+        "name": "力大无穷",
+        "description": "战斗中攻击力提高10%。",
+        "battle_attack_percent": 10
+      }
     },
     {
       "id": "hero_chengying",
@@ -64,7 +94,13 @@
       "exp": 0,
       "attack": 49,
       "speed": 68,
-      "defense": 38
+      "defense": 38,
+      "talent": {
+        "id": "mighty",
+        "name": "力大无穷",
+        "description": "战斗中攻击力提高10%。",
+        "battle_attack_percent": 10
+      }
     }
   ],
   "hero_stats": [
@@ -226,7 +262,11 @@
       "damage_growth": 1,
       "range": 1,
       "shape": "fan",
-      "pattern": "方形六格",
+      "pattern": "前方两排六格",
+      "target_mode": "direction",
+      "reach": 2,
+      "cooldown": 2,
+      "effects": [],
       "icon": "res://assets/Icons/icon_waigong_114.jpg",
       "effect": "res://assets/Animations/e-feilong",
       "description": "刀势横扫。"
@@ -241,6 +281,10 @@
       "range": 2,
       "shape": "cross",
       "pattern": "十字九格",
+      "target_mode": "tile",
+      "reach": 2,
+      "cooldown": 2,
+      "effects": [],
       "icon": "res://assets/Icons/zzc073.png",
       "effect": "res://assets/Animations/e-liumai",
       "description": "势大力沉。"
@@ -255,6 +299,10 @@
       "range": 3,
       "shape": "single",
       "pattern": "单体",
+      "target_mode": "tile",
+      "reach": 0,
+      "cooldown": 2,
+      "effects": [],
       "icon": "res://assets/Icons/icon_waigong_107.jpg",
       "effect": "res://assets/Animations/e-rulai",
       "description": "掌影飘忽。"
@@ -266,12 +314,502 @@
       "cost": 18,
       "damage": 36,
       "damage_growth": 1,
-      "range": 4,
+      "range": 1,
       "shape": "line",
       "pattern": "直线四格",
+      "target_mode": "direction",
+      "reach": 4,
+      "cooldown": 2,
+      "effects": [],
       "icon": "res://assets/Icons/zzd28.png",
       "effect": "res://assets/Animations/e-tianjian",
       "description": "剑意纵横的上乘剑法。"
+    },
+    "回春架": {
+      "id": "martial_style_vanguard_recover",
+      "kind": "武学",
+      "school": "拳掌",
+      "cost": 12,
+      "damage": 16,
+      "damage_growth": 1,
+      "range": 3,
+      "shape": "single",
+      "pattern": "单体",
+      "target_mode": "tile",
+      "reach": 0,
+      "cooldown": 2,
+      "effects": [
+        [
+          "self",
+          "heal_regen",
+          2,
+          2
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_061.jpg",
+      "effect": "res://assets/Animations/e-rulai",
+      "description": "获得恢复2级（2回合）（我）。"
+    },
+    "断脉掌": {
+      "id": "martial_style_vanguard_wound",
+      "kind": "武学",
+      "school": "拳掌",
+      "cost": 10,
+      "damage": 30,
+      "damage_growth": 2,
+      "range": 3,
+      "shape": "single",
+      "pattern": "单体",
+      "target_mode": "tile",
+      "reach": 0,
+      "cooldown": 2,
+      "effects": [
+        [
+          "hit",
+          "wound",
+          1,
+          2
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_092.jpg",
+      "effect": "res://assets/Animations/e-rulai",
+      "description": "命中后获得重伤1级（2回合）（敌）。"
+    },
+    "震岳拳": {
+      "id": "martial_style_vanguard_stun",
+      "kind": "武学",
+      "school": "拳掌",
+      "cost": 24,
+      "damage": 32,
+      "damage_growth": 2,
+      "range": 3,
+      "shape": "single",
+      "pattern": "单体",
+      "target_mode": "tile",
+      "reach": 0,
+      "cooldown": 2,
+      "effects": [
+        [
+          "hit",
+          "stun",
+          1,
+          1
+        ],
+        [
+          "self",
+          "attack_up",
+          3,
+          3
+        ],
+        [
+          "self",
+          "defense_up",
+          3,
+          3
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_111.jpg",
+      "effect": "res://assets/Animations/e-rulai",
+      "description": "命中后获得晕眩1级（1回合）（敌）。获得攻击提高3级（3回合）（我）。获得防御提高3级（3回合）（我）。"
+    },
+    "掠影指": {
+      "id": "martial_style_swift_blind",
+      "kind": "武学",
+      "school": "奇门",
+      "cost": 10,
+      "damage": 25,
+      "damage_growth": 1,
+      "range": 2,
+      "shape": "cross",
+      "pattern": "十字九格",
+      "target_mode": "tile",
+      "reach": 2,
+      "cooldown": 2,
+      "effects": [
+        [
+          "hit",
+          "blind",
+          1,
+          2
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_113.jpg",
+      "effect": "res://assets/Animations/e-liumai",
+      "description": "命中后获得致盲1级（2回合）（敌）。"
+    },
+    "踏风式": {
+      "id": "martial_style_swift_haste",
+      "kind": "武学",
+      "school": "奇门",
+      "cost": 8,
+      "damage": 12,
+      "damage_growth": 1,
+      "range": 2,
+      "shape": "cross",
+      "pattern": "十字九格",
+      "target_mode": "tile",
+      "reach": 2,
+      "cooldown": 2,
+      "effects": [
+        [
+          "self",
+          "haste",
+          1,
+          2
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_121.jpg",
+      "effect": "res://assets/Animations/e-liumai",
+      "description": "获得神速1级（2回合）（我）。"
+    },
+    "流星连式": {
+      "id": "martial_style_swift_combo",
+      "kind": "武学",
+      "school": "剑系",
+      "cost": 20,
+      "damage": 24,
+      "damage_growth": 1,
+      "range": 1,
+      "shape": "line",
+      "pattern": "直线四格",
+      "target_mode": "direction",
+      "reach": 4,
+      "cooldown": 2,
+      "effects": [
+        [
+          "self",
+          "haste",
+          3,
+          2
+        ],
+        [
+          "self_on_hit",
+          "combo",
+          3,
+          1
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_124.jpg",
+      "effect": "res://assets/Animations/e-tianjian",
+      "description": "获得神速3级（2回合）（我）。命中后获得连击3级（1回合）（我）。"
+    },
+    "铁衣势": {
+      "id": "martial_style_reflect_defense",
+      "kind": "武学",
+      "school": "拳掌",
+      "cost": 8,
+      "damage": 16,
+      "damage_growth": 1,
+      "range": 3,
+      "shape": "single",
+      "pattern": "单体",
+      "target_mode": "tile",
+      "reach": 0,
+      "cooldown": 2,
+      "effects": [
+        [
+          "self",
+          "defense_up",
+          2,
+          2
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_132.jpg",
+      "effect": "res://assets/Animations/e-rulai",
+      "description": "获得防御提高2级（2回合）（我）。"
+    },
+    "卸劲掌": {
+      "id": "martial_style_reflect_weaken",
+      "kind": "武学",
+      "school": "拳掌",
+      "cost": 10,
+      "damage": 26,
+      "damage_growth": 2,
+      "range": 3,
+      "shape": "single",
+      "pattern": "单体",
+      "target_mode": "tile",
+      "reach": 0,
+      "cooldown": 2,
+      "effects": [
+        [
+          "hit",
+          "attack_down",
+          2,
+          2
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_137.jpg",
+      "effect": "res://assets/Animations/e-rulai",
+      "description": "命中后获得攻击弱化2级（2回合）（敌）。"
+    },
+    "不动桩": {
+      "id": "martial_style_reflect_guard",
+      "kind": "武学",
+      "school": "拳掌",
+      "cost": 10,
+      "damage": 14,
+      "damage_growth": 1,
+      "range": 3,
+      "shape": "single",
+      "pattern": "单体",
+      "target_mode": "tile",
+      "reach": 0,
+      "cooldown": 2,
+      "effects": [
+        [
+          "self",
+          "guard",
+          1,
+          2
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_138.jpg",
+      "effect": "res://assets/Animations/e-rulai",
+      "description": "获得坚守1级（2回合）（我）。"
+    },
+    "归元诀": {
+      "id": "martial_style_inner_restore",
+      "kind": "武学",
+      "school": "奇门",
+      "cost": 0,
+      "damage": 8,
+      "damage_growth": 1,
+      "range": 2,
+      "shape": "cross",
+      "pattern": "十字九格",
+      "target_mode": "tile",
+      "reach": 2,
+      "cooldown": 2,
+      "effects": [
+        [
+          "self",
+          "mana_regen",
+          3,
+          2
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_139.jpg",
+      "effect": "res://assets/Animations/e-liumai",
+      "description": "获得归元3级（2回合）（我）。"
+    },
+    "截气指": {
+      "id": "martial_style_inner_wound",
+      "kind": "武学",
+      "school": "奇门",
+      "cost": 10,
+      "damage": 26,
+      "damage_growth": 1,
+      "range": 2,
+      "shape": "cross",
+      "pattern": "十字九格",
+      "target_mode": "tile",
+      "reach": 2,
+      "cooldown": 2,
+      "effects": [
+        [
+          "hit",
+          "internal_wound",
+          1,
+          2
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_142.jpg",
+      "effect": "res://assets/Animations/e-liumai",
+      "description": "命中后获得内伤1级（2回合）（敌）。"
+    },
+    "玄寒掌": {
+      "id": "martial_style_inner_chill",
+      "kind": "武学",
+      "school": "拳掌",
+      "cost": 24,
+      "damage": 25,
+      "damage_growth": 2,
+      "range": 3,
+      "shape": "single",
+      "pattern": "单体",
+      "target_mode": "tile",
+      "reach": 0,
+      "cooldown": 2,
+      "effects": [
+        [
+          "hit",
+          "internal_wound",
+          1,
+          2
+        ],
+        [
+          "hit",
+          "chill",
+          5,
+          2
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_145.jpg",
+      "effect": "res://assets/Animations/e-rulai",
+      "description": "命中后获得内伤1级（2回合）（敌）。命中后获得寒冷5级（2回合）（敌）。"
+    },
+    "逍遥步": {
+      "id": "martial_style_utility_evasion",
+      "kind": "武学",
+      "school": "奇门",
+      "cost": 12,
+      "damage": 12,
+      "damage_growth": 1,
+      "range": 2,
+      "shape": "cross",
+      "pattern": "十字九格",
+      "target_mode": "tile",
+      "reach": 2,
+      "cooldown": 2,
+      "effects": [
+        [
+          "self",
+          "evasion",
+          2,
+          2
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_147.jpg",
+      "effect": "res://assets/Animations/e-liumai",
+      "description": "获得飘逸2级（2回合）（我）。"
+    },
+    "点穴指": {
+      "id": "martial_style_utility_lock",
+      "kind": "武学",
+      "school": "奇门",
+      "cost": 16,
+      "damage": 18,
+      "damage_growth": 1,
+      "range": 2,
+      "shape": "cross",
+      "pattern": "十字九格",
+      "target_mode": "tile",
+      "reach": 2,
+      "cooldown": 2,
+      "effects": [
+        [
+          "hit",
+          "paralysis",
+          1,
+          2
+        ],
+        [
+          "hit",
+          "root",
+          1,
+          1
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_149.jpg",
+      "effect": "res://assets/Animations/e-liumai",
+      "description": "命中后获得麻痹1级（2回合）（敌）。命中后获得定身1级（1回合）（敌）。"
+    },
+    "破甲刀": {
+      "id": "martial_style_utility_break",
+      "kind": "武学",
+      "school": "刀法",
+      "cost": 14,
+      "damage": 24,
+      "damage_growth": 1,
+      "range": 1,
+      "shape": "fan",
+      "pattern": "前方两排六格",
+      "target_mode": "direction",
+      "reach": 2,
+      "cooldown": 2,
+      "effects": [
+        [
+          "hit",
+          "defense_down",
+          2,
+          2
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_151.jpg",
+      "effect": "res://assets/Animations/e-feilong",
+      "description": "命中后获得防御弱化2级（2回合）（敌）。"
+    },
+    "守一诀": {
+      "id": "martial_style_utility_harmony",
+      "kind": "武学",
+      "school": "拳掌",
+      "cost": 22,
+      "damage": 16,
+      "damage_growth": 1,
+      "range": 3,
+      "shape": "single",
+      "pattern": "单体",
+      "target_mode": "tile",
+      "reach": 0,
+      "cooldown": 2,
+      "effects": [
+        [
+          "self",
+          "harmony",
+          1,
+          1
+        ]
+      ],
+      "icon": "res://assets/Icons/icon_waigong_154.jpg",
+      "effect": "res://assets/Animations/e-rulai",
+      "description": "获得天人合一1级（1回合）（我）。"
+    },
+    "魔焰式": {
+      "id": "martial_style_utility_rage",
+      "kind": "武学",
+      "school": "拳掌",
+      "cost": 10,
+      "damage": 18,
+      "damage_growth": 1,
+      "range": 3,
+      "shape": "single",
+      "pattern": "单体",
+      "target_mode": "tile",
+      "reach": 0,
+      "cooldown": 2,
+      "effects": [
+        [
+          "self",
+          "fury",
+          1,
+          2
+        ],
+        [
+          "self",
+          "berserk",
+          1,
+          1
+        ]
+      ],
+      "icon": "res://assets/Items/jianfamiji.jpg",
+      "effect": "res://assets/Animations/e-rulai",
+      "description": "获得狂战1级（2回合）（我）。获得入魔1级（1回合）（我）。"
+    },
+    "定心式": {
+      "id": "martial_style_utility_focus",
+      "kind": "武学",
+      "school": "拳掌",
+      "cost": 12,
+      "damage": 16,
+      "damage_growth": 1,
+      "range": 3,
+      "shape": "single",
+      "pattern": "单体",
+      "target_mode": "tile",
+      "reach": 0,
+      "cooldown": 2,
+      "effects": [
+        [
+          "self",
+          "focus",
+          2,
+          2
+        ]
+      ],
+      "icon": "res://assets/Items/xinfamiji.jpg",
+      "effect": "res://assets/Animations/e-rulai",
+      "description": "获得凝神2级（2回合）（我）。"
     },
     "九阳神功": {
       "id": "internal_jiuyang",
@@ -279,7 +817,8 @@
       "school": "内功",
       "attack_bonus": 2,
       "defense_bonus": 6,
-      "icon": "res://assets/Icons/icon_neigong_020.jpg",
+      "passive": "",
+      "icon": "res://assets/Icons/icon_neigong_038.jpg",
       "description": "至阳至刚的上乘心法，善于防守。"
     },
     "易筋经": {
@@ -288,8 +827,59 @@
       "school": "内功",
       "attack_bonus": 4,
       "defense_bonus": 4,
-      "icon": "res://assets/Icons/icon_neigong_020.jpg",
+      "passive": "",
+      "icon": "res://assets/Icons/icon_neigong_035.jpg",
       "description": "少林镇派心法，攻守兼备。"
+    },
+    "九阴真经": {
+      "id": "internal_jiuyin",
+      "kind": "心法",
+      "school": "内功",
+      "attack_bonus": 8,
+      "defense_bonus": 4,
+      "passive": "",
+      "icon": "res://assets/Icons/icon_neigong_036.jpg",
+      "description": "九阴武学总纲，原身留下的武学记忆。"
+    },
+    "神照经": {
+      "id": "internal_shenzhao",
+      "kind": "心法",
+      "school": "内功",
+      "attack_bonus": 4,
+      "defense_bonus": 8,
+      "passive": "",
+      "icon": "res://assets/Items/daofamiji.jpg",
+      "description": "丁典传授的完整奇功，可续断脉，护持生机。"
+    },
+    "游风心法": {
+      "id": "internal_style_swift",
+      "kind": "心法",
+      "school": "内功",
+      "attack_bonus": 2,
+      "defense_bonus": 0,
+      "passive": "swift",
+      "icon": "res://assets/Icons/icon_neigong_013.jpg",
+      "description": "免疫麻痹、定身和减速，寒冷仍扣内力。两次行动之间未损失气血时，本次行动获得三层攻击提高及一层凝神。"
+    },
+    "镜甲心法": {
+      "id": "internal_style_reflect",
+      "kind": "心法",
+      "school": "内功",
+      "attack_bonus": 0,
+      "defense_bonus": 2,
+      "passive": "reflect",
+      "icon": "res://assets/Icons/icon_neigong_014.jpg",
+      "description": "直接承伤减少30%，移动距离减少1格。受敌方直接攻击时，反弹本心法减伤前伤害的50%。"
+    },
+    "沧海心法": {
+      "id": "internal_style_inner",
+      "kind": "心法",
+      "school": "内功",
+      "attack_bonus": 1,
+      "defense_bonus": 1,
+      "passive": "inner",
+      "icon": "res://assets/Icons/icon_neigong_015.jpg",
+      "description": "主动命中按出招后的内力差追加至多25%伤害。受击可用内力抵挡60%伤害，每抵挡1点消耗1内力。"
     }
   },
   "equipment": {
@@ -594,7 +1184,7 @@
       "buy_price": 750,
       "sell_price": 375,
       "shop": true,
-      "icon": "res://assets/Icons/icon_waigong_114.jpg",
+      "icon": "res://assets/Items/daofamiji.jpg",
       "skill_id": "martial_blade_storm",
       "heal_hp": 0,
       "heal_mp": 0,
@@ -607,7 +1197,7 @@
       "buy_price": 750,
       "sell_price": 375,
       "shop": true,
-      "icon": "res://assets/Icons/zzc073.png",
+      "icon": "res://assets/Items/qimenmiji.jpg",
       "skill_id": "martial_dog_beating_staff",
       "heal_hp": 0,
       "heal_mp": 0,
@@ -620,7 +1210,7 @@
       "buy_price": 750,
       "sell_price": 375,
       "shop": true,
-      "icon": "res://assets/Icons/icon_waigong_107.jpg",
+      "icon": "res://assets/Items/quanfamiji.jpg",
       "skill_id": "martial_dragon_palm",
       "heal_hp": 0,
       "heal_mp": 0,
@@ -633,7 +1223,7 @@
       "buy_price": 900,
       "sell_price": 450,
       "shop": true,
-      "icon": "res://assets/Items/Bdugujiujianjianpu.jpg",
+      "icon": "res://assets/Items/jianfamiji.jpg",
       "skill_id": "martial_sword_unique",
       "heal_hp": 0,
       "heal_mp": 0,
@@ -646,7 +1236,7 @@
       "buy_price": 1000,
       "sell_price": 500,
       "shop": true,
-      "icon": "res://assets/Icons/icon_neigong_020.jpg",
+      "icon": "res://assets/Items/xinfamiji.jpg",
       "skill_id": "internal_jiuyang",
       "heal_hp": 0,
       "heal_mp": 0,
@@ -659,12 +1249,298 @@
       "buy_price": 1200,
       "sell_price": 600,
       "shop": true,
-      "icon": "res://assets/Items/Bkuihuabaodian.jpg",
+      "icon": "res://assets/Items/xinfamiji.jpg",
       "skill_id": "internal_yijin",
       "heal_hp": 0,
       "heal_mp": 0,
       "source": "初始背包；商店；任务",
       "description": "研习后学会易筋经；秘籍可重复使用，学习后到技能页装备。"
+    },
+    "回春架秘籍": {
+      "id": "book_martial_style_vanguard_recover",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/quanfamiji.jpg",
+      "skill_id": "martial_style_vanguard_recover",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会回春架。可重复研习，学习后在人物技能页装备。"
+    },
+    "断脉掌秘籍": {
+      "id": "book_martial_style_vanguard_wound",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/quanfamiji.jpg",
+      "skill_id": "martial_style_vanguard_wound",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会断脉掌。可重复研习，学习后在人物技能页装备。"
+    },
+    "震岳拳秘籍": {
+      "id": "book_martial_style_vanguard_stun",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/quanfamiji.jpg",
+      "skill_id": "martial_style_vanguard_stun",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会震岳拳。可重复研习，学习后在人物技能页装备。"
+    },
+    "掠影指秘籍": {
+      "id": "book_martial_style_swift_blind",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/qimenmiji.jpg",
+      "skill_id": "martial_style_swift_blind",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会掠影指。可重复研习，学习后在人物技能页装备。"
+    },
+    "踏风式秘籍": {
+      "id": "book_martial_style_swift_haste",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/qimenmiji.jpg",
+      "skill_id": "martial_style_swift_haste",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会踏风式。可重复研习，学习后在人物技能页装备。"
+    },
+    "流星连式秘籍": {
+      "id": "book_martial_style_swift_combo",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/jianfamiji.jpg",
+      "skill_id": "martial_style_swift_combo",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会流星连式。可重复研习，学习后在人物技能页装备。"
+    },
+    "铁衣势秘籍": {
+      "id": "book_martial_style_reflect_defense",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/quanfamiji.jpg",
+      "skill_id": "martial_style_reflect_defense",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会铁衣势。可重复研习，学习后在人物技能页装备。"
+    },
+    "卸劲掌秘籍": {
+      "id": "book_martial_style_reflect_weaken",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/quanfamiji.jpg",
+      "skill_id": "martial_style_reflect_weaken",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会卸劲掌。可重复研习，学习后在人物技能页装备。"
+    },
+    "不动桩秘籍": {
+      "id": "book_martial_style_reflect_guard",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/quanfamiji.jpg",
+      "skill_id": "martial_style_reflect_guard",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会不动桩。可重复研习，学习后在人物技能页装备。"
+    },
+    "归元诀秘籍": {
+      "id": "book_martial_style_inner_restore",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/qimenmiji.jpg",
+      "skill_id": "martial_style_inner_restore",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会归元诀。可重复研习，学习后在人物技能页装备。"
+    },
+    "截气指秘籍": {
+      "id": "book_martial_style_inner_wound",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/qimenmiji.jpg",
+      "skill_id": "martial_style_inner_wound",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会截气指。可重复研习，学习后在人物技能页装备。"
+    },
+    "玄寒掌秘籍": {
+      "id": "book_martial_style_inner_chill",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/quanfamiji.jpg",
+      "skill_id": "martial_style_inner_chill",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会玄寒掌。可重复研习，学习后在人物技能页装备。"
+    },
+    "逍遥步秘籍": {
+      "id": "book_martial_style_utility_evasion",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/qimenmiji.jpg",
+      "skill_id": "martial_style_utility_evasion",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会逍遥步。可重复研习，学习后在人物技能页装备。"
+    },
+    "点穴指秘籍": {
+      "id": "book_martial_style_utility_lock",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/qimenmiji.jpg",
+      "skill_id": "martial_style_utility_lock",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会点穴指。可重复研习，学习后在人物技能页装备。"
+    },
+    "破甲刀秘籍": {
+      "id": "book_martial_style_utility_break",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/daofamiji.jpg",
+      "skill_id": "martial_style_utility_break",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会破甲刀。可重复研习，学习后在人物技能页装备。"
+    },
+    "守一诀秘籍": {
+      "id": "book_martial_style_utility_harmony",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/quanfamiji.jpg",
+      "skill_id": "martial_style_utility_harmony",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会守一诀。可重复研习，学习后在人物技能页装备。"
+    },
+    "魔焰式秘籍": {
+      "id": "book_martial_style_utility_rage",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/quanfamiji.jpg",
+      "skill_id": "martial_style_utility_rage",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会魔焰式。可重复研习，学习后在人物技能页装备。"
+    },
+    "定心式秘籍": {
+      "id": "book_martial_style_utility_focus",
+      "kind": "秘籍",
+      "buy_price": 45,
+      "sell_price": 22,
+      "shop": true,
+      "icon": "res://assets/Items/quanfamiji.jpg",
+      "skill_id": "martial_style_utility_focus",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会定心式。可重复研习，学习后在人物技能页装备。"
+    },
+    "游风心法秘籍": {
+      "id": "book_internal_style_swift",
+      "kind": "秘籍",
+      "buy_price": 65,
+      "sell_price": 32,
+      "shop": true,
+      "icon": "res://assets/Items/xinfamiji.jpg",
+      "skill_id": "internal_style_swift",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会游风心法。可重复研习，学习后在人物技能页装备。"
+    },
+    "镜甲心法秘籍": {
+      "id": "book_internal_style_reflect",
+      "kind": "秘籍",
+      "buy_price": 65,
+      "sell_price": 32,
+      "shop": true,
+      "icon": "res://assets/Items/xinfamiji.jpg",
+      "skill_id": "internal_style_reflect",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会镜甲心法。可重复研习，学习后在人物技能页装备。"
+    },
+    "沧海心法秘籍": {
+      "id": "book_internal_style_inner",
+      "kind": "秘籍",
+      "buy_price": 65,
+      "sell_price": 32,
+      "shop": true,
+      "icon": "res://assets/Items/xinfamiji.jpg",
+      "skill_id": "internal_style_inner",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "行脚商铺",
+      "description": "研习后学会沧海心法。可重复研习，学习后在人物技能页装备。"
+    },
+    "剑冢木剑": {
+      "id": "quest_wood_sword",
+      "kind": "任务品",
+      "buy_price": 0,
+      "sell_price": 0,
+      "shop": false,
+      "icon": "res://assets/Items/baoyu.jpg",
+      "skill_id": "",
+      "heal_hp": 0,
+      "heal_mp": 0,
+      "source": "襄阳独孤剑冢",
+      "description": "剑冢拾得的木剑，仅作纪念。没有从中取得剑谱。"
     }
   }
 }

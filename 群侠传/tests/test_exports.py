@@ -41,6 +41,10 @@ class ExportTests(unittest.TestCase):
     def test_missing_asset(self):
         self.reject("武学", lambda rows: rows[0].update(图标资源="res://assets/does-not-exist.png"))
 
+    def test_reject_per_skill_targeting_and_cooldown(self):
+        self.reject("武学", lambda rows: rows[0].update(施展方式="自身或方向"))
+        self.reject("武学", lambda rows: rows[0].update(冷却="0"))
+
     def test_unknown_book_skill_id(self):
         self.reject("物品", lambda rows: rows[-1].update(技能ID="skill_missing"))
 

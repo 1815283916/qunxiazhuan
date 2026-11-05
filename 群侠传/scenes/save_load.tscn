@@ -1,8 +1,9 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/save_load.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/UI/dikuang2.png" id="2"]
 [ext_resource type="Texture2D" path="res://assets/Heads/zhengtingyu.png" id="3"]
+[ext_resource type="Texture2D" path="res://assets/UI/btn_cross.png" id="4"]
 
 [sub_resource type="StyleBoxFlat" id="slot"]
 bg_color = Color(0.19, 0.18, 0.15, 0.63)
@@ -76,102 +77,157 @@ theme_override_font_sizes/font_size = 21
 text = "快速存档\n宇文逸  【初入江湖】\n江湖三年十一月七日\n当前位置：中原地区"
 [node name="Save" type="Button" parent="Slots/Slot1"]
 layout_mode = 0
-offset_left = 175.0
+offset_left = 150.0
 offset_top = 210.0
-offset_right = 330.0
+offset_right = 260.0
 offset_bottom = 260.0
 text = "保存"
 [node name="Load" type="Button" parent="Slots/Slot1"]
 layout_mode = 0
-offset_left = 345.0
+offset_left = 270.0
+offset_top = 210.0
+offset_right = 380.0
+offset_bottom = 260.0
+text = "读取"
+[node name="Delete" type="Button" parent="Slots/Slot1"]
+layout_mode = 0
+offset_left = 390.0
 offset_top = 210.0
 offset_right = 500.0
 offset_bottom = 260.0
-text = "读取"
+text = "删除"
 
 [node name="Slot2" type="Panel" parent="Slots"]
 custom_minimum_size = Vector2(550, 280)
 layout_mode = 2
 theme_override_styles/panel = SubResource("slot")
+[node name="Portrait" type="TextureRect" parent="Slots/Slot2"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 70.0
+offset_right = 145.0
+offset_bottom = 190.0
+texture = ExtResource("3")
+expand_mode = 1
+stretch_mode = 5
 [node name="Info" type="Label" parent="Slots/Slot2"]
 layout_mode = 0
-offset_left = 145.0
-offset_top = 35.0
-offset_right = 500.0
-offset_bottom = 150.0
+offset_left = 150.0
+offset_top = 30.0
+offset_right = 520.0
+offset_bottom = 190.0
 theme_override_colors/font_color = Color(0.9, 0.88, 0.83, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 21
 text = "存档1\n空存档"
 [node name="Save" type="Button" parent="Slots/Slot2"]
 layout_mode = 0
-offset_left = 175.0
+offset_left = 150.0
 offset_top = 210.0
-offset_right = 330.0
+offset_right = 260.0
 offset_bottom = 260.0
 text = "保存"
 [node name="Load" type="Button" parent="Slots/Slot2"]
 layout_mode = 0
-offset_left = 345.0
+offset_left = 270.0
+offset_top = 210.0
+offset_right = 380.0
+offset_bottom = 260.0
+text = "读取"
+[node name="Delete" type="Button" parent="Slots/Slot2"]
+layout_mode = 0
+offset_left = 390.0
 offset_top = 210.0
 offset_right = 500.0
 offset_bottom = 260.0
-text = "读取"
+text = "删除"
 
 [node name="Slot3" type="Panel" parent="Slots"]
 custom_minimum_size = Vector2(550, 280)
 layout_mode = 2
 theme_override_styles/panel = SubResource("slot")
+[node name="Portrait" type="TextureRect" parent="Slots/Slot3"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 70.0
+offset_right = 145.0
+offset_bottom = 190.0
+texture = ExtResource("3")
+expand_mode = 1
+stretch_mode = 5
 [node name="Info" type="Label" parent="Slots/Slot3"]
 layout_mode = 0
-offset_left = 145.0
-offset_top = 35.0
-offset_right = 500.0
-offset_bottom = 150.0
+offset_left = 150.0
+offset_top = 30.0
+offset_right = 520.0
+offset_bottom = 190.0
 theme_override_colors/font_color = Color(0.9, 0.88, 0.83, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 21
 text = "存档2\n空存档"
 [node name="Save" type="Button" parent="Slots/Slot3"]
 layout_mode = 0
-offset_left = 175.0
+offset_left = 150.0
 offset_top = 210.0
-offset_right = 330.0
+offset_right = 260.0
 offset_bottom = 260.0
 text = "保存"
 [node name="Load" type="Button" parent="Slots/Slot3"]
 layout_mode = 0
-offset_left = 345.0
+offset_left = 270.0
+offset_top = 210.0
+offset_right = 380.0
+offset_bottom = 260.0
+text = "读取"
+[node name="Delete" type="Button" parent="Slots/Slot3"]
+layout_mode = 0
+offset_left = 390.0
 offset_top = 210.0
 offset_right = 500.0
 offset_bottom = 260.0
-text = "读取"
+text = "删除"
 
 [node name="Slot4" type="Panel" parent="Slots"]
 custom_minimum_size = Vector2(550, 280)
 layout_mode = 2
 theme_override_styles/panel = SubResource("slot")
+[node name="Portrait" type="TextureRect" parent="Slots/Slot4"]
+layout_mode = 0
+offset_left = 25.0
+offset_top = 70.0
+offset_right = 145.0
+offset_bottom = 190.0
+texture = ExtResource("3")
+expand_mode = 1
+stretch_mode = 5
 [node name="Info" type="Label" parent="Slots/Slot4"]
 layout_mode = 0
-offset_left = 145.0
-offset_top = 35.0
-offset_right = 500.0
-offset_bottom = 150.0
+offset_left = 150.0
+offset_top = 30.0
+offset_right = 520.0
+offset_bottom = 190.0
 theme_override_colors/font_color = Color(0.9, 0.88, 0.83, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 21
 text = "存档3\n空存档"
 [node name="Save" type="Button" parent="Slots/Slot4"]
 layout_mode = 0
-offset_left = 175.0
+offset_left = 150.0
 offset_top = 210.0
-offset_right = 330.0
+offset_right = 260.0
 offset_bottom = 260.0
 text = "保存"
 [node name="Load" type="Button" parent="Slots/Slot4"]
 layout_mode = 0
-offset_left = 345.0
+offset_left = 270.0
+offset_top = 210.0
+offset_right = 380.0
+offset_bottom = 260.0
+text = "读取"
+[node name="Delete" type="Button" parent="Slots/Slot4"]
+layout_mode = 0
+offset_left = 390.0
 offset_top = 210.0
 offset_right = 500.0
 offset_bottom = 260.0
-text = "读取"
+text = "删除"
 
 [node name="Notice" type="Label" parent="."]
 layout_mode = 0
@@ -184,16 +240,26 @@ theme_override_font_sizes/font_size = 24
 text = "选择存档位"
 horizontal_alignment = 1
 
-[node name="Close" type="Button" parent="."]
+[node name="Close" type="TextureButton" parent="."]
 layout_mode = 0
-offset_left = 1445.0
-offset_top = 15.0
-offset_right = 1575.0
-offset_bottom = 130.0
-flat = true
-theme_override_colors/font_color = Color(0.76, 0.02, 0.01, 1)
-theme_override_font_sizes/font_size = 86
-text = "×"
+offset_left = 1440.0
+offset_top = 16.0
+offset_right = 1572.0
+offset_bottom = 136.0
+texture_normal = ExtResource("4")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "关闭存档界面"
+
+[node name="AutoPortrait" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 130.0
+offset_top = 112.0
+offset_right = 182.0
+offset_bottom = 164.0
+texture = ExtResource("3")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="AutoInfo" type="Label" parent="."]
 layout_mode = 0
@@ -206,10 +272,24 @@ theme_override_colors/font_color = Color(0.2, 0.12, 0.08, 1)
 
 [node name="AutoLoad" type="Button" parent="."]
 layout_mode = 0
-offset_left = 1150.0
+offset_left = 1100.0
 offset_top = 120.0
-offset_right = 1380.0
+offset_right = 1280.0
 offset_bottom = 165.0
 text = "读取自动存档"
+
+[node name="AutoDelete" type="Button" parent="."]
+layout_mode = 0
+offset_left = 1290.0
+offset_top = 120.0
+offset_right = 1435.0
+offset_bottom = 165.0
+text = "删除自动档"
+
+[node name="DeleteConfirm" type="ConfirmationDialog" parent="."]
+title = "删除存档"
+dialog_text = "确定删除该存档？"
+ok_button_text = "删除"
+cancel_button_text = "取消"
 
 [connection signal="pressed" from="Close" to="." method="_on_close_pressed"]

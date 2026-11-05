@@ -1,8 +1,8 @@
 extends TextureButton
 
-const IDLE_SCALE := Vector2(0.85, 0.85)
-const ACTION_SCALE := Vector2(0.82, 0.82)
-const HURT_SCALE := Vector2(0.85, 0.85)
+const IDLE_SCALE := Vector2(1.22, 1.22)
+const ACTION_SCALE := Vector2(1.18, 1.18)
+const HURT_SCALE := Vector2(1.22, 1.22)
 
 @onready var model: AnimatedSprite2D = $Model
 
@@ -10,10 +10,24 @@ var model_path := ""
 var model_scale_factor := 1.0
 var facing_direction := Vector2i.RIGHT
 var floating_text_count := 0
+var hover_cell_rect := Rect2(Vector2.ZERO, Vector2(90, 62))
 
 func _ready() -> void:
 	model.animation_finished.connect(_on_animation_finished)
 	model.frame_changed.connect(_on_model_frame_changed)
+
+func model_bounds() -> Rect2:
+	if model.sprite_frames == null or not model.sprite_frames.has_animation(model.animation): return Rect2()
+	var texture := model.sprite_frames.get_frame_texture(model.animation, model.frame)
+	if texture == null: return Rect2()
+	var frame_size := texture.get_size()
+	return model.transform * Rect2(model.offset - frame_size * 0.5, frame_size)
+
+func _has_point(point: Vector2) -> bool:
+	return hover_cell_rect.has_point(point)
+
+func set_hover_cell(rect: Rect2) -> void:
+	hover_cell_rect = rect
 
 func configure(path: String, face_left: bool) -> void:
 	if path.is_empty(): return

@@ -462,6 +462,8 @@
       "id": "tavern",
       "name": "酒家解围",
       "enemy": "酒家恶客",
+      "martial": ["狂风刀法"],
+      "skill_power_percent": 65,
       "count": 2,
       "hp": 65,
       "attack": 18,
@@ -474,6 +476,8 @@
       "id": "snow",
       "name": "府衙御敌",
       "enemy": "雪山刺客",
+      "martial": ["流星连式", "玄寒掌"],
+      "skill_power_percent": 75,
       "count": 3,
       "hp": 100,
       "attack": 25,
@@ -486,6 +490,8 @@
       "id": "tianlong",
       "name": "天龙寺交锋",
       "enemy": "天龙高僧",
+      "martial": ["卸劲掌", "断脉掌"],
+      "skill_power_percent": 65,
       "count": 6,
       "hp": 85,
       "attack": 23,
@@ -527,41 +533,6 @@
       "bio": "毒手药王弟子。引路救治胡斐，也与胡斐一起隐去宋青书的去向。"
     }
   ],
-  "skills": {
-    "九阴真经": {
-      "id": "internal_jiuyin",
-      "kind": "心法",
-      "school": "内功",
-      "attack_bonus": 8,
-      "defense_bonus": 4,
-      "icon": "res://assets/Icons/icon_neigong_020.jpg",
-      "description": "九阴武学总纲，原身留下的武学记忆。"
-    },
-    "神照经": {
-      "id": "internal_shenzhao",
-      "kind": "心法",
-      "school": "内功",
-      "attack_bonus": 4,
-      "defense_bonus": 8,
-      "icon": "res://assets/Icons/icon_neigong_020.jpg",
-      "description": "丁典传授的完整奇功，可续断脉，护持生机。"
-    }
-  },
-  "items": {
-    "剑冢木剑": {
-      "id": "quest_wood_sword",
-      "kind": "任务品",
-      "buy_price": 0,
-      "sell_price": 0,
-      "shop": false,
-      "icon": "res://assets/Items/baoyu.jpg",
-      "skill_id": "",
-      "heal_hp": 0,
-      "heal_mp": 0,
-      "source": "襄阳独孤剑冢",
-      "description": "剑冢拾得的木剑，仅作纪念。没有从中取得剑谱。"
-    }
-  },
   "initial": {
     "money": 80,
     "reputation": 0,

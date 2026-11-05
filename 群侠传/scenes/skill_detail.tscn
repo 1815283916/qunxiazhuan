@@ -77,16 +77,19 @@ offset_right = 1170.0
 offset_bottom = 620.0
 theme_override_styles/panel = SubResource("detail")
 
-[node name="Description" type="Label" parent="Paper"]
+[node name="Description" type="RichTextLabel" parent="Paper"]
 layout_mode = 0
 offset_left = 515.0
 offset_top = 135.0
 offset_right = 1135.0
 offset_bottom = 585.0
-theme_override_colors/font_color = Color(0.95, 0.93, 0.88, 1)
-theme_override_font_sizes/font_size = 24
+theme_override_colors/default_color = Color(0.95, 0.93, 0.88, 1)
+theme_override_font_sizes/normal_font_size = 24
 text = "剑意纵横的上乘剑法"
-autowrap_mode = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
 
 [node name="Switch" type="TextureButton" parent="Paper"]
 layout_mode = 0

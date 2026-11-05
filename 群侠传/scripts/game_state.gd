@@ -30,7 +30,6 @@ var selected_skill_name := "独孤九剑"
 var selected_skill_kind := "武学"
 var settings := {
 	"show_hp": true,
-	"show_buffs": true,
 	"show_battle_log": true,
 	"auto_save": false,
 	"auto_battle": false,
@@ -67,6 +66,7 @@ var narrative_progress := {"next":"awake", "pending":false}
 var quest_stage := 0
 var current_encounter := "江湖切磋"
 var battle_rewards: Dictionary = {}
+var _battle_progress_before: Dictionary = {}
 var growth: Dictionary = {}
 var story_dialogues: Dictionary = {}
 var dialogue_story_id := ""
@@ -122,8 +122,10 @@ func settle_battle(victory: bool, bonus_roll: float = -1.0) -> Dictionary:
 	battle_outcome = "胜利" if victory else "失败"
 	battle_rewards = {"money":0, "items":[], "heroes":[], "victory":victory}
 	if not victory:
+		_rollback_battle_progress()
 		journal.append("%s挑战失利，可重新整备后再战。" % current_encounter)
 		return battle_rewards
+	_battle_progress_before.clear()
 	battle_rewards.money = reward_money
 	money += reward_money
 	var drops: Array[String] = ["疗伤药"]
@@ -145,6 +147,14 @@ func settle_battle(victory: bool, bonus_roll: float = -1.0) -> Dictionary:
 		Narrative.complete(self, narrative_progress.next, true)
 	return battle_rewards
 
+func _rollback_battle_progress() -> void:
+	if _battle_progress_before.is_empty(): return
+	inventory = _battle_progress_before.inventory
+	heroes = _battle_progress_before.heroes
+	hero_stats = _battle_progress_before.hero_stats
+	hero_skills = _battle_progress_before.hero_skills
+	_battle_progress_before.clear()
+
 func set_setting(key: String, value: Variant) -> void:
 	if not settings.has(key): return
 	settings[key] = value
@@ -156,12 +166,34 @@ func set_setting(key: String, value: Variant) -> void:
 
 func apply_settings() -> void:
 	if DisplayServer.get_name() != "headless":
-		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if settings.fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
+		var current_mode := DisplayServer.window_get_mode()
+		var target_mode := _window_mode_for_setting(current_mode, bool(settings.fullscreen))
+		if target_mode != current_mode: DisplayServer.window_set_mode(target_mode)
 	var audio := get_node_or_null("/root/AudioManager")
 	if audio != null and audio.music_player != null: audio.apply_settings(settings)
 
+func _window_mode_for_setting(current_mode: int, fullscreen_enabled: bool) -> int:
+	var is_fullscreen := current_mode == DisplayServer.WINDOW_MODE_FULLSCREEN or current_mode == DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN
+	if fullscreen_enabled:
+		return current_mode if is_fullscreen else DisplayServer.WINDOW_MODE_FULLSCREEN
+	return DisplayServer.WINDOW_MODE_WINDOWED if is_fullscreen else current_mode
+
 func get_save_path(slot: int) -> String:
 	return save_directory.path_join("qunxia_auto.cfg" if slot == 0 else "qunxia_slot_%d.cfg" % slot)
+
+func delete_save(slot: int) -> Error:
+	if slot < 0 or slot > 4: return ERR_INVALID_PARAMETER
+	var path := get_save_path(slot)
+	var candidates: Array[String] = [path, path + ".tmp"]
+	for version in SAVE_VERSION + 1:
+		candidates.append(path + ".v%d.bak" % version)
+	var removed := false
+	for candidate in candidates:
+		if not FileAccess.file_exists(candidate): continue
+		var err := DirAccess.remove_absolute(candidate)
+		if err != OK: return err
+		removed = true
+	return OK if removed else ERR_FILE_NOT_FOUND
 
 func load_latest() -> Error:
 	var candidates: Array[Dictionary] = []
@@ -243,6 +275,7 @@ func reset_new_game() -> void:
 	seen_stories.clear()
 	current_encounter = "江湖切磋"
 	battle_rewards.clear()
+	_battle_progress_before.clear()
 	money = int(_new_game_defaults.money)
 	reputation = int(_new_game_defaults.reputation)
 	current_location = str(_new_game_defaults.current_location)
@@ -270,6 +303,7 @@ func reset_new_game() -> void:
 	battle_outcome = "胜利"
 
 func new_battle() -> void:
+	_rollback_battle_progress()
 	battle_rewards = {}
 	var encounter: Dictionary = story_data.encounters.get(current_encounter, Adventure.encounter(current_encounter))
 	reward_money = encounter.money
@@ -284,12 +318,16 @@ func new_battle() -> void:
 		var hero: Dictionary = heroes[hero_index]
 		var model_path := get_hero_model_path(hero_index)
 		var combat := get_hero_combat_stats(hero_index)
+		var talent: Dictionary = hero.get("talent", {})
+		var battle_attack := get_hero_battle_attack(hero_index, combat.attack)
 		var max_hp: int = combat.max_hp
 		var max_mp: int = combat.max_mp
 		battle_allies.append({
 			"hero_index":hero_index, "name":hero.name, "head":hero.head, "model":model_path,
+			"passive":skill_library.get(hero_skills[hero_index].internal, {}).get("passive", ""),
 			"hp":max_hp, "max_hp":max_hp, "mp":max_mp, "max_mp":max_mp,
-			"attack":combat.attack, "defense":combat.defense, "crit":combat.crit,
+			"attack":battle_attack, "defense":combat.defense, "crit":combat.crit,
+			"talent":talent.duplicate(true),
 			"crit_damage":combat.crit_damage, "poison":combat.poison,
 			"fist":combat.fist, "sword":combat.sword, "blade":combat.blade, "unorthodox":combat.unorthodox, "insight":combat.insight, "luck":combat.luck, "willpower":combat.willpower,
 			"coord":Vector2i(2, i + 3), "alive":true, "moved":false,
@@ -300,6 +338,8 @@ func new_battle() -> void:
 	for i in int(encounter.count):
 		battle_enemies.append({
 			"name":encounter.enemy, "head":"res://assets/Heads/fangyi.png", "model":MALE_BATTLE_MODEL,
+			"martial":encounter.martial,
+			"skill_power_percent":int(encounter.get("skill_power_percent", 100)),
 			"hp":encounter.hp, "max_hp":encounter.hp, "mp":50, "max_mp":50, "attack":encounter.attack, "defense":encounter.defense, "poison_turns":0, "willpower":15,
 			"coord":Vector2i(12 + (i % 2) * 2, 3 + (i / 2) * 2) if int(encounter.count) > 3 else Vector2i(13, i + 3), "alive":true, "move_range":2,
 			"speed":52 - i * 2, "action_delay":68 + i * 3, "next_action":68 + i * 3
@@ -312,6 +352,19 @@ func new_battle() -> void:
 	player_mp = 60
 	enemy_hp = int(encounter.hp) * int(encounter.count)
 	battle_outcome = "胜利"
+	# 战中成长即时生效，消耗和成长在胜利后保留。
+	_battle_progress_before = {
+		"inventory": inventory.duplicate(),
+		"heroes": heroes.duplicate(true),
+		"hero_stats": hero_stats.duplicate(true),
+		"hero_skills": hero_skills.duplicate(true)
+	}
+
+func get_hero_battle_attack(hero_index: int, base_attack: int) -> int:
+	if hero_index < 0 or hero_index >= heroes.size(): return base_attack
+	var talent: Dictionary = heroes[hero_index].get("talent", {})
+	var bonus_percent := int(talent.get("battle_attack_percent", 0))
+	return roundi(float(base_attack) * (100.0 + bonus_percent) / 100.0)
 
 func get_hero_model_path(hero_index: int) -> String:
 	if hero_index >= 0 and hero_index < heroes.size():
@@ -698,8 +751,6 @@ func _load_configuration() -> bool:
 		heroes[i].name = profile.name
 		heroes[i].head = "res://assets/Heads/" + str(profile.head) + ("" if str(profile.head).contains(".") else ".png")
 		heroes[i]["biography"] = profile.bio
-	skill_library.merge(story_data.skills, true)
-	item_library.merge(story_data.items, true)
 	HERO_LEVEL_CAP = int(growth.hero_level_cap)
 	HERO_LEVEL_EXP_MULTIPLIER = int(growth.hero_level_exp)
 	SKILL_LEVEL_CAP = int(growth.skill_level_cap)

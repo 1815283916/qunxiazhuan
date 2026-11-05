@@ -1,5 +1,6 @@
 extends SceneTree
 const Fixture = preload("res://tests/mechanics_fixture.gd")
+const Rules = preload("res://scripts/combat_rules.gd")
 
 var failures := 0
 
@@ -119,15 +120,33 @@ func _test_character_equipment_menu(game_state: Node) -> void:
 	var martial_text: String = character.get_node("Paper/SkillsPanel/Scroll/Grid/Sword/Name").text
 	var internal_button: Control = character.get_node("Paper/SkillsPanel/Scroll/Grid").get_child(game_state.hero_skills[0].martial.size())
 	var internal_text: String = internal_button.get_node("Name").text
-	_expect(not martial_text.contains("经验") and martial_text.contains("Lv."), "武学页只显示武学等级，不显示经验")
-	_expect(not internal_text.contains("经验") and internal_text.contains("攻+") and internal_text.contains("防+"), "武学页显示心法攻防加成但不显示经验")
+	var skill_grid := character.get_node("Paper/SkillsPanel/Scroll/Grid") as GridContainer
+	var first_skill := skill_grid.get_child(0) as TextureButton
+	var first_icon := first_skill.get_node("Icon") as TextureRect
+	_expect(skill_grid.columns == 5 and first_skill.custom_minimum_size == Vector2(146, 150) and skill_grid.get_theme_constant("v_separation") == 30, "技能页每行排列五个卡片并增大上下间距")
+	var level_label := first_skill.get_node("Level") as Label
+	_expect(first_icon.size == Vector2(118, 118) and first_skill.get_node("Name").position.y >= first_icon.position.y + first_icon.size.y, "放大的技能名称位于对应图标下方")
+	_expect(not martial_text.contains("\n") and not martial_text.contains("Lv.") and first_skill.get_node("Name").get_theme_font_size("font_size") >= 18, "技能概览页放大技能名称")
+	_expect(level_label.text.begins_with("Lv.") and level_label.position.x + level_label.size.x <= first_icon.position.x + first_icon.size.x and level_label.position.y < 10.0, "技能等级显示在图标右上角")
+	_expect(not internal_text.contains("经验") and not internal_text.contains("攻+") and not internal_text.contains("防+") and not internal_text.contains("\n"), "技能页心法名称独占图标下方一行")
 	game_state.selected_skill_name = str(game_state.hero_skills[0].internal)
 	var skill_detail: Node = load("res://scenes/skill_detail.tscn").instantiate()
 	root.add_child(skill_detail)
 	await process_frame
 	var skill_details: String = skill_detail.get_node("Paper/Description").text
-	_expect(skill_details.contains("经验") and skill_details.contains("攻击 +6") and skill_details.contains("防御 +18"), "心法详情应显示经验和实际攻防加成")
+	_expect(skill_details.contains("经验：") and skill_details.contains("攻击：+6") and skill_details.contains("防御：+18"), "心法详情在经验后显示攻防加成")
+	_expect(skill_details.find("经验：") > skill_details.find("等级：") and skill_details.get_slice("\n", 2).begins_with("经验："), "技能详情的经验紧跟等级显示")
+	_expect(not skill_details.contains("经验随") and not skill_details.contains("单独累计") and not skill_details.contains("状态：") and not skill_details.contains("装备后生效") and not skill_details.contains("切换后"), "心法详情不显示经验获取提示、装备状态、生效提示和属性对比")
 	skill_detail.queue_free()
+	await process_frame
+	game_state.selected_skill_name = "震岳拳"
+	var martial_detail: Node = load("res://scenes/skill_detail.tscn").instantiate()
+	root.add_child(martial_detail)
+	await process_frame
+	var martial_details: String = martial_detail.get_node("Paper/Description").text
+	_expect(not martial_details.contains("获得") and not martial_details.contains(" · "), "武学详情移除Buff触发前缀并让每项独占一行")
+	_expect(martial_details.ends_with(Rules.highlight_status("晕眩1级（1回合）（敌）") + "\n" + Rules.highlight_status("攻击提高3级（3回合）（我）") + "\n" + Rules.highlight_status("防御提高3级（3回合）（我）")), "武学详情将所有Buff依次放在末尾")
+	martial_detail.queue_free()
 	await process_frame
 	character.queue_free()
 	await process_frame
@@ -146,7 +165,7 @@ func _test_shop_sell_icons(game_state: Node) -> void:
 	await process_frame
 	shop._set_mode("sell")
 	_expect(shop._icon_for("魔神剑", "res://assets/Items/caoyao.jpg").ends_with("moshenjian.jpg"), "Shop sell list uses the correct weapon icon")
-	_expect(shop._icon_for("独孤九剑秘籍", "res://assets/Items/caoyao.jpg").ends_with("Bdugujiujianjianpu.jpg"), "Shop sell list uses the correct book icon")
+	_expect(shop._icon_for("独孤九剑秘籍", "res://assets/Items/caoyao.jpg").ends_with("jianfamiji.jpg"), "Shop sell list uses the sword manual icon")
 	_expect(shop.goods_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_AUTO, "Shop goods list has a vertical scrollbar when it overflows")
 	shop.queue_free()
 	await process_frame
@@ -170,6 +189,7 @@ func _test_battle_range(game_state: Node) -> void:
 	_expect(game_state.heroes.size() == 6 and game_state.hero_stats.size() == 6 and game_state.hero_equipment.size() == 6 and game_state.hero_skills.size() == 6, "队伍资料应统一收敛为六名角色")
 	_expect(game_state.heroes[0].model.ends_with("r-nan-jiangwei"), "主角应使用姜维模型")
 	_expect(game_state.get_hero_model_path(1).ends_with("r-nv-duguyanran"), "第二名队友应使用独孤雁然模型")
+	var base_model_scale := 0.0
 	for hero_index in game_state.heroes.size():
 		var model_unit: Node = load("res://scenes/battle_unit.tscn").instantiate()
 		root.add_child(model_unit)
@@ -181,8 +201,9 @@ func _test_battle_range(game_state: Node) -> void:
 		model_unit.play_action("skill")
 		_expect(model_sprite.animation == "attack", "A skill action request should play the shared attack animation")
 		model_unit.play_action("idle")
-		if hero_index == 1: _expect(is_equal_approx(model_sprite.scale.x, 0.85 * 1.35), "Wang Chongyang model scale is enlarged")
-		if hero_index == 3: _expect(is_equal_approx(model_sprite.scale.x, 0.85 * 0.72), "Xiao Longnu model scale is reduced")
+		if hero_index == 0: base_model_scale = model_sprite.scale.x
+		if hero_index == 1: _expect(is_equal_approx(model_sprite.scale.x, base_model_scale * 1.35), "Wang Chongyang retains his relative model scale")
+		if hero_index == 3: _expect(is_equal_approx(model_sprite.scale.x, base_model_scale * 0.72), "Xiao Longnu retains her relative model scale")
 		if hero_index == 4:
 			_expect(frames.get_frame_count("idle") == 5 and frames.get_frame_count("attack") == 7, "Wang Yuyan stand3-7 and attack8-14 frames are bound by their source animation names")
 			_expect(frames.get_frame_count("hurt") == 2 and frames.get_frame_count("walk") == 8 and not frames.has_animation("skill"), "Wang Yuyan beattack1-2 and move15-22 frames are bound by their source animation names")
@@ -232,11 +253,21 @@ func _test_battle_range(game_state: Node) -> void:
 	_expect(not ally_model.flip_h, "朝右释放招式后人物模型应转向右侧")
 	_expect(walking_ally.sprite_frames.has_animation("walk") and walking_ally.sprite_frames.get_frame_count("walk") == 8, "有移动帧的独孤雁然模型应加载真实走路动画")
 	_expect(game_state.battle_enemies[0].model.ends_with("r-nan-zhoucang"), "敌人应统一使用周仓模型")
-	_expect(ally_model.offset.y < 0.0 and is_equal_approx(ally_model.scale.x, 0.85), "妯″瀷搴斿澶у苟浠ヨ剼搴曞榻愭牸瀛愪腑蹇?")
+	var standing_tile := battle.get_node("Board/Tiles").get_child((actor.coord.y - 2) * 16 + actor.coord.x) as Control
+	var stance: Vector2 = standing_tile.get_global_transform() * battle.UNIT_STANCE_IN_TILE
+	_expect(ally_model.offset.y < 0.0 and ally_model.global_position.is_equal_approx(stance), "人物模型应以脚底对齐所在格的站位")
+	_expect(not battle.get_node("Board/Allies/Ally1").has_node("Status"), "人物血条上方不再显示状态文字")
+	var upper_coord: Vector2i = Vector2i(actor.coord) + Vector2i.UP
+	var upper_tile := battle.get_node("Board/Tiles").get_child((upper_coord.y - 2) * 16 + upper_coord.x) as Control
+	var upper_pointer := upper_tile.get_global_rect().get_center()
+	_expect(battle._unit_click_coord(facing_unit, actor.coord, upper_pointer) == upper_coord, "人物模型覆盖上方格时点击仍应落到鼠标所在棋盘格")
 	_expect(not battle.get_node("Board/Allies/Ally1").has_node("HPText"), "妫嬬洏涓嶅簲鏄剧ず姘旇鍏蜂綋鏁板€?")
 	var hp_fill: StyleBoxFlat = battle.get_node("Board/Allies/Ally1/HP").get_theme_stylebox("fill")
 	var mp_fill: StyleBoxFlat = battle.get_node("Board/Allies/Ally1/MP").get_theme_stylebox("fill")
+	var hp_bar := battle.get_node("Board/Allies/Ally1/HP") as ProgressBar
+	var mp_bar := battle.get_node("Board/Allies/Ally1/MP") as ProgressBar
 	_expect(battle.get_node("Board/Allies/Ally1/HP").mouse_filter == Control.MOUSE_FILTER_IGNORE and battle.get_node("Board/Allies/Ally1/MP").mouse_filter == Control.MOUSE_FILTER_IGNORE, "Unit health and mana bars do not intercept board clicks")
+	_expect(ally_model.scale.x >= 1.2 and hp_bar.position.y <= -143.0 and mp_bar.position.y <= -132.0 and hp_bar.position.y + hp_bar.size.y <= mp_bar.position.y, "战斗人物模型放大且气血内力条上移到模型上方")
 	_expect(hp_fill.bg_color.r > hp_fill.bg_color.g and mp_fill.bg_color.b > mp_fill.bg_color.r, "姘旇鍜屽唴鍔涘簲鍒嗗埆浣跨敤绾㈣壊鍜岃摑鑹叉潯")
 	_expect(ally_model.sprite_frames.get_frame_count("idle") > 1 and ally_model.is_playing(), "战斗中的我方人物应使用循环模型帧动画")
 	_expect(enemy_model.sprite_frames.get_frame_count("idle") > 1 and enemy_model.flip_h, "敌方模型应播放待机帧并朝向我方")
@@ -244,20 +275,53 @@ func _test_battle_range(game_state: Node) -> void:
 	_expect(battle.get_node("Rest").texture_normal.resource_path == "res://assets/UI/zhuangtai.png", "调息应使用打坐运功图标")
 	_expect(battle.has_node("Top/Surrender") and battle.has_node("Top/RestartBattle"), "战斗界面应在右上角提供投降和重开按钮")
 	battle._on_ally_hovered(0)
-	_expect(battle.get_node("HoverInfo").visible and battle.get_node("HoverInfo/Kind").text == "我方状态", "悬停我方人物时应显示角色状态浮层")
-	_expect(battle.get_node("HoverInfo/Details").text.contains("内力") and battle.get_node("HoverInfo/Details").text.contains("当前行动"), "我方详情应包含内力和行动时序")
+	var hover_cell: Rect2 = facing_unit.hover_cell_rect
+	_expect(facing_unit._has_point(hover_cell.get_center()), "人物当前所在格应触发悬浮简报")
+	_expect(not facing_unit._has_point(Vector2(hover_cell.get_center().x, hover_cell.position.y - 1.0)), "人物模型伸出当前格的部分不应触发悬浮简报")
+	var hover_panel := battle.get_node("HoverInfo") as Control
+	var hover_start := hover_panel.position
+	var model_scale := ally_model.scale
+	ally_model.scale *= 1.25
+	battle._position_unit_hover()
+	_expect(hover_panel.position == hover_start, "模型动画尺寸变化时状态浮窗应保持稳定")
+	ally_model.scale = model_scale
+	facing_unit.position.x += 20.0
+	await process_frame
+	await process_frame
+	_expect(hover_panel.position.x > hover_start.x, "人物移动时状态浮窗应跟随")
+	facing_unit.position.x -= 20.0
+	_expect(battle.get_node("HoverInfo").visible and not battle.get_node("HoverInfo/Icon").visible, "人物悬浮应显示文字简报")
+	_expect(battle.get_node("HoverInfo/Details").text.contains("内力") and battle.get_node("HoverInfo/Details").text.contains("时序 当前"), "我方简报应包含内力和行动时序")
 	_expect(not battle.get_node("Top/Hint").text.contains("气血"), "角色详细数值不应在顶部重复显示")
 	battle._on_unit_exited()
 	battle._on_enemy_hovered(0)
 	_expect(battle.get_node("HoverInfo").visible, "悬停敌人时应显示状态详情浮层")
 	_expect(battle.get_node("HoverInfo/Details").text.contains("下次行动") and battle.get_node("HoverInfo/Details").text.contains("状态正常"), "敌人详情应包含时序和异常状态")
+	_expect(not battle.get_node("HoverInfo/Details").text.contains("攻击"), "战斗人物悬浮应隐藏详细攻防属性")
 	battle._on_unit_exited()
 	_expect(not battle.get_node("HoverInfo").visible, "移出敌人后应隐藏状态详情")
+	var battle_time: int = game_state.turn
+	battle.get_node("Bottom/Portrait").pressed.emit()
+	var overview := battle.get_node("UnitOverview")
+	_expect(overview.visible and paused, "点击右下头像应打开人物概览并暂停战斗")
+	var columns := overview.get_node("Panel/Content/Columns")
+	var enemy_list := columns.get_node("Enemies/List") as ItemList
+	_expect(columns.get_node("Allies/List").item_count == game_state.battle_allies.size() and enemy_list.item_count == game_state.battle_enemies.size(), "概览应列出敌我双方")
+	enemy_list.item_selected.emit(0)
+	_expect(columns.get_node("Details/Scroll/Info").text.contains("狂风刀法"), "点击敌人应查看其装备的武学")
+	await process_frame
+	overview.get_node("Panel/Content/Header/Close").pressed.emit()
+	_expect(not overview.visible and not paused and game_state.turn == battle_time, "关闭人物概览后应从原时序恢复战斗")
 	var action_hint: String = battle.get_node("Top/Hint").text
 	battle._on_skill_hovered(0)
 	_expect(battle.get_node("HoverInfo").visible and battle.get_node("HoverInfo/Kind").text == "武学详情", "悬停武学时应显示武学详情浮层")
-	_expect(battle.get_node("HoverInfo/Details").text.contains("预计伤害") and battle.get_node("HoverInfo/Details").text.contains("剑意纵横"), "武学详情应包含战斗数值和招式说明")
-	_expect(battle.get_node("HoverInfo/Details").text.contains("经验"), "战斗武学悬浮详情应显示经验进度")
+	var skill_details: String = battle.get_node("HoverInfo/Details").text
+	_expect(not skill_details.contains("预计伤害") and skill_details.contains("剑意纵横"), "武学浮框应保留招式说明并省略预计伤害")
+	_expect(skill_details.contains("经验：") and skill_details.contains("\n施展范围：1\n"), "武学浮框应单独列出经验和数字施展范围")
+	var caption := battle.get_node("HoverInfo/SkillCaption") as Label
+	var icon := battle.get_node("HoverInfo/Icon") as TextureRect
+	var sword_level: int = game_state.hero_skills[actor.hero_index].levels["独孤九剑"]
+	_expect(caption.visible and caption.text == "独孤九剑\n%d级" % sword_level and caption.position.y >= icon.position.y + icon.size.y, "武学名称和等级应位于图标下方")
 	var skill_button_rect: Rect2 = battle.get_node("Bottom/Skills").get_child(0).get_global_rect()
 	_expect(battle.get_node("HoverInfo").position.y < skill_button_rect.position.y, "武学悬浮详情应显示在对应武学图标上方")
 	_expect(battle.get_node("Top/Hint").text == action_hint, "武学详细数值不应在顶部重复显示")
@@ -269,9 +333,12 @@ func _test_battle_range(game_state: Node) -> void:
 	var hidden_move_tile: TextureButton = battle.get_node("Board/Tiles").get_child(0)
 	var move_style: StyleBoxFlat = move_tile.get_node("RangeOverlay").get_theme_stylebox("panel")
 	_expect(move_style.bg_color.g > move_style.bg_color.r and move_style.bg_color.g > move_style.bg_color.b and move_style.border_width_left == 3, "可移动区域应使用醒目的绿色填充和边框")
-	_expect(hidden_move_tile.modulate.a < 0.1, "移动时应隐藏不可移动的其他棋盘区域")
+	_expect(hidden_move_tile.modulate.a < 0.1, "不可移动的格子应隐藏移动高亮")
 	battle._on_tile_hovered(3 * 16 + 4)
 	_expect(battle.get_node("Top/Hint").text.contains("点击确认"), "悬停可移动地块时应显示操作提示")
+	battle._on_tile_hovered(3 * 16 + 3)
+	_expect(move_tile.get_node("RangeOverlay").get_theme_stylebox("panel") == battle.move_range_style, "快速扫过新格应恢复旧格的普通移动高亮")
+	battle._on_tile_hovered(3 * 16 + 4)
 	_expect(battle.get_node("Board/Tiles").get_child(1 * 16 + 4).modulate.r > 0.75 and battle.get_node("Board/Tiles").get_child(1 * 16 + 4).modulate.g > 0.75, "移动悬停应保留黄色方框提示")
 	battle._on_tile_pressed(3 * 16 + 4)
 	_expect(actor.coord == Vector2i(4, 3) and actor.moved, "点击蓝色地块后人物应移动到目标位置")
@@ -287,6 +354,7 @@ func _test_battle_range(game_state: Node) -> void:
 	_expect(not battle.get_node("UndoMove").disabled, "移动后选中武学不应锁定撤回操作")
 	battle._on_undo_move_pressed()
 	_expect(actor.coord == Vector2i(2, 3) and not actor.moved, "撤回移动应恢复人物原坐标和可移动状态")
+	_expect(game_state.battle_log.all(func(entry: String) -> bool: return not entry.contains("移动至") and not entry.contains("撤回本次移动")), "战斗日志不应记录人物移动与撤回信息")
 	_expect(move_tile.modulate.a == 1.0, "撤回移动后应重新显示可移动区域")
 	_expect(battle.selected_skill == -1, "撤回移动时应同时取消已选武学，避免误施放")
 	_expect(battle.get_node("UndoMove").disabled, "撤回后按钮应立即禁用，避免重复撤回")
@@ -348,6 +416,14 @@ func _test_battle_range(game_state: Node) -> void:
 	battle._on_tile_hovered(3 * 16 + 4)
 	var cross_affected_style: StyleBoxFlat = potential_tile.get_node("RangeOverlay").get_theme_stylebox("panel")
 	_expect(cross_affected_style.bg_color.g > cross_affected_style.bg_color.r, "十字武学当前会波及的灰色格应切换为绿色")
+	var enemy_coord: Vector2i = game_state.battle_enemies[0].coord
+	game_state.battle_enemies[0].coord = Vector2i(4, 3)
+	battle._on_enemy_hovered(0)
+	battle._on_tile_exited()
+	await process_frame
+	_expect(potential_tile.get_node("RangeOverlay").get_theme_stylebox("panel") == battle.range_valid_style, "敌人脚下的施展格应保留攻击范围预览")
+	game_state.battle_enemies[0].coord = enemy_coord
+	battle._on_unit_exited()
 	battle._on_tile_exited()
 	battle._select_skill(2)
 	battle._select_skill(0)
@@ -364,15 +440,23 @@ func _test_battle_range(game_state: Node) -> void:
 	battle._refresh_skill_buttons()
 	battle._select_skill(3)
 	var blade_tiles: Array[Vector2i] = battle._affected_coords(Vector2i(3, 3))
-	_expect(blade_tiles == [Vector2i(3, 2), Vector2i(4, 2), Vector2i(3, 3), Vector2i(4, 3), Vector2i(3, 4), Vector2i(4, 4)], "刀法应攻击前方3×2共六格")
+	var expected_blade := [Vector2i(3, 2), Vector2i(4, 2), Vector2i(3, 3), Vector2i(4, 3), Vector2i(3, 4), Vector2i(4, 4)]
+	blade_tiles.sort()
+	expected_blade.sort()
+	_expect(blade_tiles == expected_blade, "刀法应攻击前方3×2共六格")
 	battle._select_skill(3)
 	battle._select_skill(2)
-	_expect(battle._affected_coords(Vector2i(4, 3)) == [Vector2i(4, 2), Vector2i(2, 3), Vector2i(3, 3), Vector2i(4, 3), Vector2i(5, 3), Vector2i(6, 3), Vector2i(4, 4), Vector2i(4, 5)], "奇门应在两格内落点攻击十字九格，超出场地部分不计入")
+	var cross_tiles: Array[Vector2i] = battle._affected_coords(Vector2i(4, 3))
+	var expected_cross := [Vector2i(4, 2), Vector2i(2, 3), Vector2i(3, 3), Vector2i(4, 3), Vector2i(5, 3), Vector2i(6, 3), Vector2i(4, 4), Vector2i(4, 5)]
+	cross_tiles.sort()
+	expected_cross.sort()
+	_expect(cross_tiles == expected_cross, "奇门应在两格内落点攻击十字九格，超出场地部分不计入")
 	_expect(is_equal_approx(battle._skill_multiplier(1), 1.0) and is_equal_approx(battle._skill_multiplier(10), 1.9), "武学等级应提升基础伤害倍率")
 	battle._select_skill(2)
 	_expect(battle.selected_skill == -1 and not battle.get_node("Bottom/Skills/Sword/IconFrame").visible, "再次点击已选武学应取消选择框形图标")
 	game_state.battle_enemies[0].coord = Vector2i(2, 5)
 	var ally_block_test_hp: int = game_state.battle_enemies[0].hp
+	battle._apply_status(actor, "focus", 1, 1)
 	battle._select_skill(0)
 	await battle._on_ally_pressed(1)
 	_expect(game_state.battle_enemies[0].hp < ally_block_test_hp, "点击占据释放格的队友时应仍可施放剑法并命中其后直线敌人")
@@ -398,14 +482,17 @@ func _test_party_turns(game_state: Node) -> void:
 	battle._select_skill(0)
 	var empty_target: Vector2i = first_actor.coord + Vector2i.RIGHT
 	var target_index: int = empty_target.y * 16 + empty_target.x
+	var hero_exp_before: int = game_state.heroes[first_actor.hero_index].exp
+	var skills_before: Dictionary = game_state.hero_skills[first_actor.hero_index].duplicate(true)
 	var target_tile: TextureButton = battle.get_node("Board/Tiles").get_child((empty_target.y - 2) * 16 + empty_target.x)
 	battle._on_tile_hovered(target_index)
 	var target_overlay: Panel = target_tile.get_node("RangeOverlay")
 	var target_style: StyleBoxFlat = target_overlay.get_theme_stylebox("panel")
 	_expect(target_style.bg_color.g > target_style.bg_color.r, "悬停的武学释放中心应作为本次命中区域显示绿色")
 	await battle._on_tile_pressed(target_index)
-	_expect(first_actor.mp < original_mp, "武学应允许对空地施放并消耗内力")
+	_expect(first_actor.mp < original_mp, "空放武学应消耗内力")
 	_expect(game_state.battle_enemies[0].hp == original_enemy_hp, "空地施法不应错误命中远处敌人")
+	_expect(game_state.heroes[first_actor.hero_index].exp == hero_exp_before and game_state.hero_skills[first_actor.hero_index] == skills_before, "空地施法不应增加人物、武学或心法经验")
 	_expect(first_actor.next_action == first_action_time + first_actor.action_delay, "侠客行动后应按行动间隔重新排入时序")
 	_expect(battle.selected_actor == 1 and game_state.turn == second_actor.next_action, "下一位应是时序值最小的侠客")
 	battle._on_rest_pressed()
@@ -418,6 +505,9 @@ func _test_party_turns(game_state: Node) -> void:
 
 func _test_auto_battle(game_state: Node) -> void:
 	Fixture.reset(game_state)
+	_expect(game_state._window_mode_for_setting(DisplayServer.WINDOW_MODE_MAXIMIZED, false) == DisplayServer.WINDOW_MODE_MAXIMIZED, "自动战斗等普通设置不应把最大化窗口缩回默认尺寸")
+	_expect(game_state._window_mode_for_setting(DisplayServer.WINDOW_MODE_WINDOWED, false) == DisplayServer.WINDOW_MODE_WINDOWED, "普通窗口模式保存设置时保持原尺寸")
+	_expect(game_state._window_mode_for_setting(DisplayServer.WINDOW_MODE_FULLSCREEN, false) == DisplayServer.WINDOW_MODE_WINDOWED, "关闭全屏时才切回普通窗口模式")
 	game_state.selected_party.clear()
 	game_state.selected_party.append(0)
 	game_state.new_battle()

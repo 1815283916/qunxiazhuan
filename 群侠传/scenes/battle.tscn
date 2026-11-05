@@ -2,29 +2,17 @@
 
 [ext_resource type="Script" uid="uid://ds2q8unf674sx" path="res://scripts/battle.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/battle_log.gd" id="battle_log"]
+[ext_resource type="PackedScene" path="res://scenes/battle_overview.tscn" id="battle_overview"]
 [ext_resource type="Texture2D" uid="uid://b6hibkyxtqm8j" path="res://assets/BattleBg/biwu.jpg" id="2"]
 [ext_resource type="Texture2D" uid="uid://bs6qcm2hvp1fy" path="res://assets/UI/block.png" id="3"]
 [ext_resource type="Texture2D" uid="uid://hr7n368n6kh8" path="res://assets/Heads/zhengtingyu.png" id="4"]
-[ext_resource type="Texture2D" uid="uid://cmfn7fjg7mg8q" path="res://assets/Heads/fangyi.png" id="5"]
 [ext_resource type="Texture2D" uid="uid://c0miavmofyk3r" path="res://assets/UI/skill_bg.png" id="6"]
 [ext_resource type="Texture2D" uid="uid://qqrjdkmf31dx" path="res://assets/Icons/icon_waigong_114.jpg" id="7"]
 [ext_resource type="Texture2D" uid="uid://ccox4dw3wku5y" path="res://assets/Icons/icon_waigong_107.jpg" id="8"]
 [ext_resource type="Texture2D" uid="uid://clw5w258wjx7s" path="res://assets/Icons/icon_neigong_020.jpg" id="9"]
-[ext_resource type="Texture2D" uid="uid://h08aifoddug2" path="res://assets/UI/buttonbg.png" id="11"]
 [ext_resource type="PackedScene" path="res://scenes/battle_unit.tscn" id="12"]
 [ext_resource type="Texture2D" uid="uid://qg2nw6xohov4" path="res://assets/UI/daoju.png" id="13"]
 [ext_resource type="Texture2D" uid="uid://c4mbpmlcf152a" path="res://assets/UI/zhuangtai.png" id="14"]
-
-[sub_resource type="StyleBoxFlat" id="hp_bg"]
-bg_color = Color(0.08, 0.06, 0.05, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.08, 0.04, 0.03, 1)
-
-[sub_resource type="StyleBoxFlat" id="hp_fill"]
-bg_color = Color(0.73, 0.08, 0.06, 1)
 
 [sub_resource type="StyleBoxFlat" id="skill_selected"]
 bg_color = Color(0.12, 0.07, 0.015, 0.22)
@@ -76,6 +64,18 @@ corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="hover_panel"]
 bg_color = Color(0.025, 0.021, 0.017, 0.94)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.72, 0.55, 0.25, 0.96)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="battle_log_panel"]
+bg_color = Color(0.025, 0.021, 0.017, 0.78)
 border_width_left = 3
 border_width_top = 3
 border_width_right = 3
@@ -211,183 +211,20 @@ text = "隐藏战斗详情"
 [node name="Board" type="Control" parent="." unique_id=315734005]
 scale = Vector2(0.8, 0.8)
 anchors_preset = 0
-offset_left = 350.0
-offset_top = 78.0
-offset_right = 1560.0
-offset_bottom = 708.0
+offset_left = 8.0
+offset_top = 166.0
+offset_right = 1989.0
+offset_bottom = 835.0
 
 [node name="Tiles" type="GridContainer" parent="Board" unique_id=1536584054]
 layout_mode = 0
-offset_left = 80.0
-offset_top = 40.0
-offset_right = 920.0
-offset_bottom = 520.0
+offset_right = 1981.0
+offset_bottom = 669.0
 theme_override_constants/h_separation = 3
 theme_override_constants/v_separation = 3
 columns = 16
 
 [node name="Tile0" type="TextureButton" parent="Board/Tiles" unique_id=768217810]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile1" type="TextureButton" parent="Board/Tiles" unique_id=1965500009]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile2" type="TextureButton" parent="Board/Tiles" unique_id=1246764187]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile3" type="TextureButton" parent="Board/Tiles" unique_id=841805904]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile4" type="TextureButton" parent="Board/Tiles" unique_id=1987412338]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile5" type="TextureButton" parent="Board/Tiles" unique_id=410905612]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile6" type="TextureButton" parent="Board/Tiles" unique_id=1772336540]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile7" type="TextureButton" parent="Board/Tiles" unique_id=325275784]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile8" type="TextureButton" parent="Board/Tiles" unique_id=548552996]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile9" type="TextureButton" parent="Board/Tiles" unique_id=1652286482]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile10" type="TextureButton" parent="Board/Tiles" unique_id=886186967]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile11" type="TextureButton" parent="Board/Tiles" unique_id=232928574]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile12" type="TextureButton" parent="Board/Tiles" unique_id=1483289158]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile13" type="TextureButton" parent="Board/Tiles" unique_id=891166809]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile14" type="TextureButton" parent="Board/Tiles" unique_id=1235305995]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile15" type="TextureButton" parent="Board/Tiles" unique_id=1359414043]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile16" type="TextureButton" parent="Board/Tiles" unique_id=1926808420]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile17" type="TextureButton" parent="Board/Tiles" unique_id=1019516137]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile18" type="TextureButton" parent="Board/Tiles" unique_id=152940836]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile19" type="TextureButton" parent="Board/Tiles" unique_id=383239655]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile20" type="TextureButton" parent="Board/Tiles" unique_id=71138313]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile21" type="TextureButton" parent="Board/Tiles" unique_id=2084673981]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile22" type="TextureButton" parent="Board/Tiles" unique_id=1013494174]
-custom_minimum_size = Vector2(120, 100)
-layout_mode = 2
-texture_normal = ExtResource("3")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Tile23" type="TextureButton" parent="Board/Tiles" unique_id=906424473]
 custom_minimum_size = Vector2(120, 100)
 layout_mode = 2
 texture_normal = ExtResource("3")
@@ -432,77 +269,6 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="Player" type="Control" parent="Board" unique_id=1491523211]
-visible = false
-anchors_preset = 0
-offset_left = 120.0
-offset_top = 275.0
-offset_right = 270.0
-offset_bottom = 465.0
-
-[node name="Portrait" type="TextureRect" parent="Board/Player" unique_id=1032416465]
-layout_mode = 0
-offset_right = 150.0
-offset_bottom = 150.0
-texture = ExtResource("4")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Name" type="Label" parent="Board/Player" unique_id=419634332]
-layout_mode = 0
-offset_top = -32.0
-offset_right = 150.0
-theme_override_colors/font_color = Color(0.95, 0.85, 0.2, 1)
-theme_override_font_sizes/font_size = 20
-text = "宇文逸"
-horizontal_alignment = 1
-
-[node name="HP" type="ProgressBar" parent="Board/Player" unique_id=205859986]
-layout_mode = 0
-offset_top = 152.0
-offset_right = 150.0
-offset_bottom = 166.0
-theme_override_styles/background = SubResource("hp_bg")
-theme_override_styles/fill = SubResource("hp_fill")
-value = 100.0
-show_percentage = false
-
-[node name="Enemy" type="Control" parent="Board" unique_id=1139394403]
-visible = false
-anchors_preset = 0
-offset_left = 725.0
-offset_top = 120.0
-offset_right = 875.0
-offset_bottom = 310.0
-
-[node name="Portrait" type="TextureRect" parent="Board/Enemy" unique_id=1188283621]
-layout_mode = 0
-offset_right = 150.0
-offset_bottom = 150.0
-texture = ExtResource("5")
-expand_mode = 1
-stretch_mode = 5
-
-[node name="Name" type="Label" parent="Board/Enemy" unique_id=217524200]
-layout_mode = 0
-offset_top = -32.0
-offset_right = 150.0
-theme_override_colors/font_color = Color(0.95, 0.15, 0.12, 1)
-theme_override_font_sizes/font_size = 20
-text = "华山弟子"
-horizontal_alignment = 1
-
-[node name="HP" type="ProgressBar" parent="Board/Enemy" unique_id=1664534023]
-layout_mode = 0
-offset_top = 152.0
-offset_right = 150.0
-offset_bottom = 166.0
-theme_override_styles/background = SubResource("hp_bg")
-theme_override_styles/fill = SubResource("hp_fill")
-max_value = 120.0
-value = 120.0
-show_percentage = false
-
 [node name="Bottom" type="Control" parent="." unique_id=1309395629]
 anchors_preset = 0
 offset_top = 708.0
@@ -518,12 +284,15 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.015, 0.012, 0.01, 0.76)
 
-[node name="Portrait" type="Control" parent="Bottom" unique_id=1922095594]
+[node name="Portrait" type="Button" parent="Bottom" unique_id=1922095594]
 anchors_preset = 0
 offset_left = 1385.0
 offset_top = 8.0
 offset_right = 1575.0
-offset_bottom = 210.0
+offset_bottom = 191.0
+mouse_default_cursor_shape = 2
+tooltip_text = "查看双方人物概览"
+flat = true
 
 [node name="Image" type="TextureRect" parent="Bottom/Portrait" unique_id=426222470]
 layout_mode = 0
@@ -531,6 +300,7 @@ offset_left = 18.0
 offset_top = 24.0
 offset_right = 162.0
 offset_bottom = 168.0
+mouse_filter = 2
 texture = ExtResource("4")
 expand_mode = 1
 stretch_mode = 5
@@ -746,7 +516,7 @@ offset_left = 1305.0
 offset_top = 44.0
 offset_right = 1435.0
 offset_bottom = 74.0
-tooltip_text = "结束本场战斗并投降"
+tooltip_text = "认输并恢复开战前的药品与成长"
 focus_mode = 0
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(0.95, 0.89, 0.76, 1)
@@ -763,7 +533,7 @@ offset_left = 1440.0
 offset_top = 44.0
 offset_right = 1570.0
 offset_bottom = 74.0
-tooltip_text = "放弃当前战斗并重新开始"
+tooltip_text = "恢复开战前的药品与成长，重新开始本场战斗"
 focus_mode = 0
 mouse_default_cursor_shape = 2
 theme_override_colors/font_color = Color(0.95, 0.89, 0.76, 1)
@@ -817,11 +587,11 @@ offset_right = 120.0
 offset_bottom = 40.0
 theme_override_colors/font_color = Color(0.95, 0.78, 0.35, 1)
 theme_override_font_sizes/font_size = 16
-text = "敌方状态"
+text = "武学详情"
 
 [node name="Title" type="Label" parent="HoverInfo" unique_id=1057383432]
 layout_mode = 0
-offset_left = 124.0
+offset_left = 20.0
 offset_top = 12.0
 offset_right = 385.0
 offset_bottom = 43.0
@@ -848,23 +618,36 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Details" type="Label" parent="HoverInfo" unique_id=1383381147]
+[node name="SkillCaption" type="Label" parent="HoverInfo"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 198.0
+offset_right = 145.0
+offset_bottom = 246.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.97, 0.92, 0.82, 1)
+theme_override_font_sizes/font_size = 19
+horizontal_alignment = 1
+
+[node name="Details" type="RichTextLabel" parent="HoverInfo" unique_id=1383381147]
 layout_mode = 0
 offset_left = 164.0
 offset_top = 62.0
 offset_right = 387.0
 offset_bottom = 215.0
-theme_override_colors/font_color = Color(0.92, 0.88, 0.79, 1)
+theme_override_colors/default_color = Color(0.92, 0.88, 0.79, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
-theme_override_constants/line_spacing = 3
+theme_override_constants/line_separation = 3
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
-theme_override_font_sizes/font_size = 17
-text = "气血 120 / 120
-攻击 32    防御 18
-身法 52    移动 2格
-下次行动 68
-状态正常"
+theme_override_font_sizes/normal_font_size = 17
+mouse_filter = 2
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+autowrap_mode = 3
+
+[node name="UnitOverview" parent="." instance=ExtResource("battle_overview")]
 
 [node name="Items" type="TextureButton" parent="." unique_id=988794516]
 layout_mode = 0
@@ -917,61 +700,6 @@ theme_override_font_sizes/font_size = 18
 text = "大还丹 × 0
 恢复60气血、30内力"
 
-[node name="Result" type="Panel" parent="." unique_id=1220931040]
-visible = false
-layout_mode = 0
-offset_left = 470.0
-offset_top = 220.0
-offset_right = 1130.0
-offset_bottom = 675.0
-theme_override_styles/panel = SubResource("result_panel")
-
-[node name="Title" type="Label" parent="Result" unique_id=959758062]
-layout_mode = 0
-offset_left = 40.0
-offset_top = 45.0
-offset_right = 620.0
-offset_bottom = 120.0
-theme_override_colors/font_color = Color(0.9, 0.72, 0.3, 1)
-theme_override_font_sizes/font_size = 45
-text = "战斗胜利"
-horizontal_alignment = 1
-
-[node name="Rewards" type="Label" parent="Result" unique_id=13672337]
-layout_mode = 0
-offset_left = 85.0
-offset_top = 155.0
-offset_right = 575.0
-offset_bottom = 300.0
-theme_override_colors/font_color = Color(0.92, 0.87, 0.78, 1)
-theme_override_font_sizes/font_size = 24
-text = "获得银两  +200
-人物经验  +120
-掉落：疗伤药 × 1"
-
-[node name="Continue" type="TextureButton" parent="Result" unique_id=58725181]
-layout_mode = 0
-offset_left = 220.0
-offset_top = 345.0
-offset_right = 440.0
-offset_bottom = 410.0
-texture_normal = ExtResource("11")
-ignore_texture_size = true
-stretch_mode = 0
-
-[node name="Label" type="Label" parent="Result/Continue" unique_id=245645040]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.95, 0.89, 0.76, 1)
-theme_override_font_sizes/font_size = 22
-text = "返回江湖"
-horizontal_alignment = 1
-vertical_alignment = 1
-
 [node name="BattleLog" type="Panel" parent="."]
 z_index = 15
 layout_mode = 0
@@ -980,7 +708,7 @@ offset_top = 95.0
 offset_right = 320.0
 offset_bottom = 710.0
 mouse_filter = 0
-theme_override_styles/panel = SubResource("hover_panel")
+theme_override_styles/panel = SubResource("battle_log_panel")
 script = ExtResource("battle_log")
 
 [node name="Title" type="Label" parent="BattleLog"]
@@ -1003,7 +731,7 @@ horizontal_scroll_mode = 0
 [node name="Text" type="Label" parent="BattleLog/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-autowrap_mode = 2
+autowrap_mode = 3
 mouse_filter = 2
 theme_override_colors/font_color = Color(0.94, 0.91, 0.83, 1)
 theme_override_font_sizes/font_size = 19
@@ -1011,4 +739,3 @@ theme_override_font_sizes/font_size = 19
 [connection signal="pressed" from="UndoMove" to="." method="_on_undo_move_pressed"]
 [connection signal="pressed" from="Rest" to="." method="_on_rest_pressed"]
 [connection signal="pressed" from="Items" to="." method="_on_items_pressed"]
-[connection signal="pressed" from="Result/Continue" to="." method="_on_result_continue_pressed"]

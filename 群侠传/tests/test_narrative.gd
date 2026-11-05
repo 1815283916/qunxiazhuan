@@ -72,9 +72,23 @@ func _run() -> void:
 	var map := await scene_is("WorldMap")
 	if map == null: quit(1); return
 	check(map.get_node("Locations").get_child_count() == 8 and not map.has_node("Locations/jingzhou_prison"), "world map groups sixteen places into eight regions")
+	var top_background := map.get_node("TopBar/ReadableBackground") as Panel
+	var top_style := top_background.get_theme_stylebox("panel") as StyleBoxFlat
+	check(not map.has_node("TopBar/SilverIcon") and not map.has_node("TopBar/ReputationIcon"), "world map omits the silver and reputation prefix icons")
+	check(map.get_node("TopBar").texture != null and top_background.z_index < 0, "world map keeps the original framed top-bar texture above its readable background")
+	check(top_style.bg_color.a <= 0.63 and top_style.bg_color.r >= 0.27, "world map uses a lighter translucent background")
+	var world_top_positions := {
+		"Region":map.get_node("TopBar/Region").position,
+		"Date":map.get_node("TopBar/Date").position,
+		"Money":map.get_node("TopBar/Money").position,
+		"Reputation":map.get_node("TopBar/Reputation").position
+	}
+	check(world_top_positions.Region == Vector2(654, 11) and world_top_positions.Money == Vector2(1127, 19), "world map top-bar information uses scene-authored positions")
 	check(map.get_node("Locations/dali").disabled, "locked region button")
 	map._on_location_pressed("shaolin")
-	if await scene_is("RegionMap") == null: quit(1); return
+	var region_map := await scene_is("RegionMap")
+	if region_map == null: quit(1); return
+	check(region_map.get_node("TopBar/Region").position == world_top_positions.Region and region_map.get_node("TopBar/Date").position == world_top_positions.Date and region_map.get_node("TopBar/Money").position == world_top_positions.Money and region_map.get_node("TopBar/Reputation").position == world_top_positions.Reputation, "region map top-bar layout follows the world map")
 	await check_map_panel_returns("RegionMap")
 	current_scene._on_back_pressed()
 	if await scene_is("WorldMap") == null: quit(1); return

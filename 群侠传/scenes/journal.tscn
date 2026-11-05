@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/journal.gd" id="1"]
 [ext_resource type="Texture2D" path="res://assets/UI/dikuang2.png" id="2"]
+[ext_resource type="Texture2D" path="res://assets/UI/btn_cross.png" id="3"]
 
 [node name="Journal" type="Control"]
 layout_mode = 3
@@ -48,7 +49,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.24, 0.14, 0.12, 1)
 theme_override_font_sizes/font_size = 25
 text = "江湖三年十一月七日，宇文逸初入长安。"
-autowrap_mode = 2
+autowrap_mode = 3
 
 [node name="Page" type="Label" parent="."]
 layout_mode = 0
@@ -61,15 +62,15 @@ theme_override_font_sizes/font_size = 29
 text = "当前目标与江湖纪事 · 滚动查看"
 horizontal_alignment = 1
 
-[node name="Close" type="Button" parent="."]
+[node name="Close" type="TextureButton" parent="."]
 layout_mode = 0
-offset_left = 1445.0
-offset_top = 15.0
-offset_right = 1575.0
-offset_bottom = 130.0
-flat = true
-theme_override_colors/font_color = Color(0.76, 0.02, 0.01, 1)
-theme_override_font_sizes/font_size = 86
-text = "×"
+offset_left = 1440.0
+offset_top = 16.0
+offset_right = 1572.0
+offset_bottom = 136.0
+texture_normal = ExtResource("3")
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "关闭日志"
 
 [connection signal="pressed" from="Close" to="." method="_on_close_pressed"]

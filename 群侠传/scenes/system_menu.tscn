@@ -73,14 +73,6 @@ theme_override_colors/font_hover_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_colors/font_pressed_color = Color(0.96, 0.91, 0.78, 1)
 theme_override_font_sizes/font_size = 28
 text = "战斗血条显示"
-[node name="ShowBuffs" type="CheckButton" parent="Options"]
-custom_minimum_size = Vector2(450, 46)
-layout_mode = 2
-theme_override_colors/font_color = Color(0.96, 0.91, 0.78, 1)
-theme_override_colors/font_hover_color = Color(0.96, 0.91, 0.78, 1)
-theme_override_colors/font_pressed_color = Color(0.96, 0.91, 0.78, 1)
-theme_override_font_sizes/font_size = 28
-text = "战斗状态显示"
 [node name="AutoSave" type="CheckButton" parent="Options"]
 custom_minimum_size = Vector2(450, 46)
 layout_mode = 2

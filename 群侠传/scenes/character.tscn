@@ -132,7 +132,6 @@ stretch_mode = 5
 tooltip_text = "技能"
 
 [node name="Talents" type="TextureButton" parent="Paper/Tabs"]
-visible = false
 custom_minimum_size = Vector2(130, 130)
 layout_mode = 2
 texture_normal = ExtResource("7")
@@ -387,7 +386,42 @@ offset_bottom = 620.0
 theme_override_colors/font_color = Color(0.22, 0.17, 0.13, 1)
 theme_override_font_sizes/font_size = 24
 text = "选择侠客后显示人物简介。"
-autowrap_mode = 2
+autowrap_mode = 3
+
+[node name="TalentsPanel" type="Control" parent="Paper"]
+visible = false
+layout_mode = 0
+offset_left = 455.0
+offset_top = 225.0
+offset_right = 1270.0
+offset_bottom = 620.0
+
+[node name="Title" type="Label" parent="Paper/TalentsPanel"]
+layout_mode = 0
+offset_right = 815.0
+offset_bottom = 48.0
+theme_override_colors/font_color = Color(0.2, 0.16, 0.12, 1)
+theme_override_font_sizes/font_size = 25
+text = "人物天赋"
+
+[node name="Name" type="Label" parent="Paper/TalentsPanel"]
+layout_mode = 0
+offset_top = 75.0
+offset_right = 815.0
+offset_bottom = 125.0
+theme_override_colors/font_color = Color(0.55, 0.31, 0.08, 1)
+theme_override_font_sizes/font_size = 30
+text = "力大无穷"
+
+[node name="Description" type="Label" parent="Paper/TalentsPanel"]
+layout_mode = 0
+offset_top = 145.0
+offset_right = 815.0
+offset_bottom = 245.0
+theme_override_colors/font_color = Color(0.22, 0.17, 0.13, 1)
+theme_override_font_sizes/font_size = 24
+text = "战斗中攻击力提高10%。"
+autowrap_mode = 3
 
 [node name="Back" type="TextureButton" parent="Paper"]
 layout_mode = 0
@@ -399,21 +433,6 @@ texture_normal = ExtResource("18")
 ignore_texture_size = true
 stretch_mode = 5
 tooltip_text = "返回人物总览"
-
-[node name="Label" type="Label" parent="Paper/Back"]
-visible = false
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.94, 0.88, 0.76, 1)
-theme_override_font_sizes/font_size = 22
-text = "返 回"
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="Party" type="VBoxContainer" parent="."]
 layout_mode = 0

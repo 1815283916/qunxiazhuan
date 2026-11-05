@@ -70,29 +70,67 @@ def insert(library, name, data):
     library[name] = data
 
 
+STATUS_IDS = set(
+    "wound internal_wound combo evasion poison paralysis chill focus fury haste root stun "
+    "blind attack_up defense_up attack_down defense_down harmony mana_regen heal_regen berserk guard".split()
+)
+
+MARTIAL_GEOMETRY = {
+    "剑系": ("方向", "line", 1, 4),
+    "刀法": ("方向", "fan", 1, 2),
+    "拳掌": ("选格", "single", 3, 0),
+    "奇门": ("选格", "cross", 2, 2),
+}
+MARTIAL_COOLDOWN = 2
+
+
+def skill_effects(value):
+    effects = []
+    for entry in filter(None, value.split(";")):
+        phase, status, stacks, duration = (part.strip() for part in entry.split("|"))
+        if phase not in {"self", "hit", "self_on_hit"} or status not in STATUS_IDS:
+            raise ValueError(f"unknown status or trigger: {entry}")
+        stacks, duration = integer(stacks), integer(duration)
+        if stacks < 1 or duration < 1:
+            raise ValueError(f"status stacks and duration must be positive: {entry}")
+        effects.append([phase, status, stacks, duration])
+    return effects
+
+
 def export():
     skills, equipment = {}, {}
     internals = workbook("心法")
     for row in workbook("武学"):
-        if row["形状代码"] not in ["single", "line", "fan", "cross"]:
-            raise ValueError(f"unknown attack shape: {row['形状代码']}")
-        if row["类型"] != "武学" or row["门派"] != {"single":"拳掌", "line":"剑系", "fan":"刀法", "cross":"奇门"}[row["形状代码"]]:
-            raise ValueError(f"skill kind/school does not match shape: {row['名称']}")
-        if integer(row["释放范围"]) < 1 or integer(row["基础威力"]) < 1:
-            raise ValueError(f"range and damage must be positive: {row['名称']}")
+        school = row["类型"]
+        if school not in MARTIAL_GEOMETRY:
+            raise ValueError(f"unknown martial school: {row['名称']} / {school}")
+        mode, shape, distance, reach = MARTIAL_GEOMETRY[school]
+        configured_geometry = (row["施展方式"], row["形状代码"], integer(row["释放范围"]), integer(row["命中深度"]))
+        if configured_geometry != (mode, shape, distance, reach):
+            raise ValueError(f"attack geometry must match its martial school: {row['名称']}")
+        if integer(row["冷却"]) != MARTIAL_COOLDOWN:
+            raise ValueError(f"cooldown must match the shared martial template: {row['名称']}")
+        damage = integer(row["基础威力"])
+        if damage < 1:
+            raise ValueError(f"martial skill must have positive damage: {row['名称']}")
+        effect_path = row["武学特效资源"]
         insert(skills, row["名称"], {
-            "id": row["武学ID"], "kind": row["类型"], "school": row["门派"],
-            **{key: integer(row[label]) for key, label in zip(
-                ["cost", "damage", "damage_growth", "range"], ["消耗内力", "基础威力", "威力成长", "释放范围"])},
-            "shape": row["形状代码"], "pattern": row["范围说明"],
-            "icon": resource(row["图标资源"]), "effect": resource(row["武学特效资源"], True), "description": row["描述"],
+            "id": row["武学ID"], "kind": "武学", "school": school,
+            "cost": integer(row["消耗内力"]), "damage": damage, "damage_growth": integer(row["威力成长"]),
+            "range": distance, "shape": shape, "pattern": row["范围说明"],
+            "target_mode": "direction" if mode == "方向" else "tile", "reach": reach,
+            "cooldown": MARTIAL_COOLDOWN, "effects": skill_effects(row["状态效果"]),
+            "icon": resource(row["图标资源"]), "effect": resource(effect_path, True) if effect_path else "", "description": row["描述"],
         })
     for row in internals:
         if row["类型"] != "心法":
             raise ValueError(f"invalid internal skill kind: {row['名称']}")
+        if row["战斗被动"] not in {"", "swift", "reflect", "inner"}:
+            raise ValueError(f"unknown internal passive: {row['名称']}")
         insert(skills, row["名称"], {
             "id": row["心法ID"], "kind": row["类型"], "school": row["门派"],
             "attack_bonus": integer(row["每级攻击加成"]), "defense_bonus": integer(row["每级防御加成"]),
+            "passive": row["战斗被动"],
             "icon": resource(row["图标资源"]), "description": row["描述"],
         })
     equipment_labels = ["攻击", "防御", "生命上限", "速度", "暴击率", "暴击伤害", "中毒概率", "身法", "福缘", "定力", "拳掌", "剑法", "刀法", "奇门"]
@@ -131,9 +169,19 @@ def export():
         level = integer(row["初始等级"])
         if not 1 <= level <= growth["hero_level_cap"]:
             raise ValueError(f"invalid hero level: {row['姓名']}")
+        talent_id = row["天赋ID"]
+        talent_name = row["天赋名称"]
+        talent_description = row["天赋说明"]
+        talent_attack = integer(row["战斗攻击加成%"])
+        if not re.fullmatch(r"[a-z][a-z0-9_]*", talent_id) or not talent_name or not talent_description:
+            raise ValueError(f"invalid talent configuration: {row['姓名']}")
+        if not 0 <= talent_attack <= 100:
+            raise ValueError(f"invalid battle attack talent bonus: {row['姓名']}")
         heroes.append({"id": row["人物ID"], "name": row["姓名"], "head": resource(row["头像资源"]),
                        "model": resource(row["战斗模型资源"], directory=True, sequence=False),
-                       "level": level, "exp": 0, "attack": integer(row["基础攻击"]), "speed": integer(row["基础身法"]), "defense": integer(row["基础防御"])})
+                       "level": level, "exp": 0, "attack": integer(row["基础攻击"]), "speed": integer(row["基础身法"]), "defense": integer(row["基础防御"]),
+                       "talent": {"id": talent_id, "name": talent_name, "description": talent_description,
+                                  "battle_attack_percent": talent_attack}})
         stat_keys = ["strength", "agility", "insight", "luck", "constitution", "willpower", "fist", "sword", "blade", "unorthodox"]
         stat_labels = ["臂力", "身法属性", "悟性", "福缘", "根骨", "定力", "拳掌", "剑法", "刀法", "奇门"]
         stats.append({key: integer(row[label]) for key, label in zip(stat_keys, stat_labels)})
@@ -171,7 +219,7 @@ def export():
         if item_id in item_ids or not re.fullmatch(r"[a-z][a-z0-9_]*", item_id):
             raise ValueError(f"invalid or duplicate item ID: {item_id}")
         item_ids.add(item_id)
-        if kind not in ["装备", "秘籍", "药品"]:
+        if kind not in ["装备", "秘籍", "药品", "任务品"]:
             raise ValueError(f"unknown item category: {name}")
         buy, sell, shop = integer(row["买价"]), integer(row["卖价"]), integer(row["商店出售"])
         hp, mp = integer(row["恢复气血"]), integer(row["恢复内力"])

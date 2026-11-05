@@ -1,5 +1,7 @@
 extends Control
 
+const Rules = preload("res://scripts/combat_rules.gd")
+
 @onready var game_state := get_node("/root/GameState")
 var replacement_menu: PopupMenu
 
@@ -19,10 +21,24 @@ func _refresh() -> void:
 	$Paper/SkillIcon.texture = load(skill.icon)
 	$Paper/SkillName.text = skill_name
 	$Paper/SkillType.text = "【%s】%s" % [skill.school, skill.kind]
-	var martial_details := "倍率 %.1f\n范围 %s\n消耗内力 %d" % [1.0 + float(maxi(0, level - 1) * int(skill.get("damage_growth", 1))) * 0.1, skill.get("pattern", "单体"), skill.get("cost", 0)]
-	$Paper/Description.text = "%s\n等级 %d/%d\n%s" % [skill.description, level, game_state.SKILL_LEVEL_CAP, "威力 %d\n%s" % [skill.get("damage", 0), martial_details] if skill.kind == "武学" else "装备心法后生效"]
+	var lines: Array[String] = []
+	var description := _description_without_effects(skill)
+	if not description.is_empty(): lines.append(description)
+	lines.append("等级：%d / %d" % [level, game_state.SKILL_LEVEL_CAP])
+	var experience := int(loadout.get("exp", {}).get(skill_name, 0))
+	lines.append("经验：已满级" if level >= game_state.SKILL_LEVEL_CAP else "经验：%d / %d（升级还需%d）" % [experience, game_state.get_skill_experience_needed(level), maxi(0, game_state.get_skill_experience_needed(level) - experience)])
+	if skill.kind == "武学":
+		lines.append("威力：%d" % skill.get("damage", 0))
+		lines.append("倍率：%.1f" % (1.0 + float(maxi(0, level - 1) * int(skill.get("damage_growth", 1))) * 0.1))
+		lines.append("施展：%s" % Rules.cast_text(skill))
+		lines.append("命中：%s" % Rules.hit_text(skill))
+		lines.append("内力消耗：%d" % skill.get("cost", 0))
+		if skill.has("cooldown"): lines.append("冷却：%d回合" % skill.cooldown)
+	else:
+		lines.append("攻击：+%d" % (level * int(skill.get("attack_bonus", 0))))
+		lines.append("防御：+%d" % (level * int(skill.get("defense_bonus", 0))))
+	$Paper/Description.text = "\n".join(lines)
 	var equipped: bool = loadout.martial.has(skill_name) or loadout.internal == skill_name
-	$Paper/Description.text += "\n状态：%s" % ("已装备" if equipped else "已学会，未装备")
 	$Paper/Equip.visible = true
 	$Paper/Equip.disabled = skill.kind == "心法" and equipped
 	$Paper/Equip/Label.text = "已装备" if skill.kind == "心法" and equipped else "卸 下" if equipped else "装 备"
@@ -46,17 +62,18 @@ func _on_equip_pressed() -> void:
 		for previous in loadout.martial: replacement_menu.add_item("替换%s" % previous)
 		replacement_menu.popup_centered()
 		return
-	var message: String = game_state.unequip_skill(game_state.selected_hero, name) if loadout.martial.has(name) or loadout.internal == name else game_state.equip_skill(game_state.selected_hero, name)
+	if loadout.martial.has(name) or loadout.internal == name:
+		game_state.unequip_skill(game_state.selected_hero, name)
+	else:
+		game_state.equip_skill(game_state.selected_hero, name)
 	_refresh()
 	_append_progress_details()
-	$Paper/Description.text += "\n\n" + message
 
 func _replace_skill(index: int) -> void:
-	var message: String = game_state.equip_skill(game_state.selected_hero, game_state.selected_skill_name, index)
+	game_state.equip_skill(game_state.selected_hero, game_state.selected_skill_name, index)
 	replacement_menu.hide()
 	_refresh()
 	_append_progress_details()
-	$Paper/Description.text += "\n\n" + message
 
 func _on_close_pressed() -> void:
 	game_state.goto(game_state.detail_return_scene)
@@ -64,17 +81,16 @@ func _on_close_pressed() -> void:
 func _append_progress_details() -> void:
 	var skill_name: String = game_state.selected_skill_name
 	var skill: Dictionary = game_state.skill_library[skill_name]
-	var loadout: Dictionary = game_state.hero_skills[game_state.selected_hero]
-	var level := int(loadout.levels.get(skill_name, 1))
-	var experience := int(loadout.get("exp", {}).get(skill_name, 0))
-	var progress := "经验 已满级" if level >= game_state.SKILL_LEVEL_CAP else "经验 %d/%d（升级还需 %d）" % [experience, game_state.get_skill_experience_needed(level), maxi(0, game_state.get_skill_experience_needed(level) - experience)]
-	var details := "\n%s\n%s" % [progress, "心法经验随装备心法累计" if skill.kind == "心法" else "武学经验单独累计"]
-	if skill.kind == "心法":
-		details += "\n攻击 +%d\n防御 +%d" % [level * int(skill.get("attack_bonus", 0)), level * int(skill.get("defense_bonus", 0))]
-		if loadout.internal != skill_name:
-			var old: Dictionary = game_state.get_internal_skill_bonus(game_state.selected_hero)
-			var combat: Dictionary = game_state.get_hero_combat_stats(game_state.selected_hero)
-			var attack_change: int = level * int(skill.get("attack_bonus", 0)) - int(old.attack)
-			var defense_change: int = level * int(skill.get("defense_bonus", 0)) - int(old.defense)
-			details += "\n切换后攻击：%d → %d（%+d）\n切换后防御：%d → %d（%+d）" % [combat.attack, combat.attack + attack_change, attack_change, combat.defense, combat.defense + defense_change, defense_change]
-	$Paper/Description.text += details
+	var details: Array[String] = []
+	for effect in skill.get("effects", []):
+		details.append(Rules.highlight_status(Rules.martial_effect_label(effect)))
+	if not details.is_empty(): $Paper/Description.text += "\n" + "\n".join(details)
+
+func _description_without_effects(skill: Dictionary) -> String:
+	var description := str(skill.get("description", ""))
+	for effect in skill.get("effects", []):
+		var status := Rules.martial_effect_label(effect)
+		for prefix in ["命中后获得", "获得"]:
+			description = description.replace(prefix + status + "。", "")
+			description = description.replace(prefix + status, "")
+	return description.strip_edges()

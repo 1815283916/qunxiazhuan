@@ -85,7 +85,9 @@ func _run() -> void:
 	game.learn_skill(0, "测试武学")
 	var character := _scene("character")
 	await process_frame
-	check(not character.get_node("Paper/Tabs/Talents").visible and not character.has_node("Paper/TalentsPanel"), "unimplemented talents are not advertised")
+	for hero in game.heroes:
+		check(hero.talent.name == "力大无穷" and hero.talent.battle_attack_percent == 10, "every configured hero receives the mighty talent")
+	check(character.get_node("Paper/Tabs/Talents").visible and character.has_node("Paper/TalentsPanel"), "talent tab is available on the character page")
 	check(not character.has_node("Paper/SkillsPanel/Loadout"), "skill page only contains learned skill cards")
 	var names: Array = character._skill_names()
 	var grid: GridContainer = character.get_node("Paper/SkillsPanel/Scroll/Grid")
@@ -99,7 +101,12 @@ func _run() -> void:
 		check(grid.get_child(i).get_node("EquippedBadge").visible == worn, "badge state follows the selected hero")
 	character._select_party_hero(0)
 	character._show_tab("天赋")
-	check(character.current_tab == "属性", "old talent tab preference falls back to attributes")
+	check(character.current_tab == "天赋" and character.get_node("Paper/TalentsPanel").visible, "talent tab opens its own panel")
+	check(character.get_node("Paper/TalentsPanel/Name").text == "力大无穷", "configured talent name is displayed")
+	check(character.get_node("Paper/TalentsPanel/Description").text.contains("攻击力提高10%") and not character.has_node("Paper/TalentsPanel/BattleOnly"), "talent panel displays the configured effect without an extra battle-only note")
+	character._show_tab("列传")
+	var biography_text: String = character.get_node("Paper/BiographyPanel").text
+	check(not biography_text.contains("· 等级") and not biography_text.contains("已学技能：") and not biography_text.contains("装备武学：") and not biography_text.contains("装备心法：") and not biography_text.contains("出战状态："), "biography tab only keeps biography content and character condition")
 	character.queue_free()
 	await process_frame
 	game.selected_skill_name = "测试武学"
@@ -115,7 +122,7 @@ func _run() -> void:
 	game.selected_skill_name = "易筋经"
 	detail = _scene("skill_detail")
 	await process_frame
-	check(detail.get_node("Paper/Description").text.contains("切换后攻击") and game.hero_skills[0].internal == "九阳神功", "internal comparison previews stats without equipping")
+	check(not detail.get_node("Paper/Description").text.contains("切换后") and game.hero_skills[0].internal == "九阳神功", "internal detail omits comparison without equipping")
 	detail._on_equip_pressed()
 	check(game.hero_skills[0].internal == "易筋经", "internal change applies only after choosing equip")
 	detail.queue_free()

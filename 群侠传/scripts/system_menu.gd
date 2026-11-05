@@ -6,7 +6,7 @@ func _ready() -> void:
 	$Buttons/Back/Label.text = "返回主菜单" if game_state.menu_return_scene.ends_with("main_menu.tscn") else "返回游戏"
 	$Buttons/Save.disabled = not game_state.session_started
 	var option_keys := {
-		"ShowHP": "show_hp", "ShowBuffs": "show_buffs", "AutoSave": "auto_save",
+		"ShowHP": "show_hp", "AutoSave": "auto_save",
 		"AutoBattle": "auto_battle", "Music": "music", "Sound": "sound", "Fullscreen": "fullscreen"
 	}
 	for node_name in option_keys:

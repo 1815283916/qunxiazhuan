@@ -2,13 +2,15 @@ extends Control
 
 @onready var game_state := get_node("/root/GameState")
 
+const Rules = preload("res://scripts/combat_rules.gd")
+
 const BOARD_WIDTH := 16
 const BOARD_HEIGHT := 7
 const TILE_ROW_OFFSET := 2
-const BOARD_ORIGIN := Vector2(15, 12)
-const TILE_SIZE := Vector2(90, 62)
-const TILE_STEP := Vector2(93, 65)
+const TILE_SIZE := Vector2(121, 93)
+const TILE_STEP := TILE_SIZE + Vector2(3, 3)
 const UNIT_FOOT_ANCHOR := Vector2(45, 31)
+const UNIT_STANCE_IN_TILE := Vector2(TILE_SIZE.x * 0.5, 74.0)
 const ATTACK_RANGE_COLOR := Color(0.08, 0.68, 0.18, 0.54)
 const ATTACK_RANGE_BORDER := Color(0.24, 1.0, 0.35, 0.96)
 const ATTACK_CONTEXT_COLOR := Color(0.22, 0.24, 0.27, 0.68)
@@ -40,6 +42,8 @@ var battle_speed := 1.0
 var range_hover_revision := 0
 var player_action_resolving := false
 var hover_hide_revision := 0
+var hovered_unit: Control
+var hovered_move_tile: TextureButton
 var skill_effect_frames_cache: Dictionary = {}
 
 func _ready() -> void:
@@ -61,6 +65,7 @@ func _ready() -> void:
 	$Top/BattleSpeed.pressed.connect(_on_battle_speed_pressed)
 	$Top/Surrender.pressed.connect(_on_surrender_pressed)
 	$Top/RestartBattle.pressed.connect(_on_restart_battle_pressed)
+	$Bottom/Portrait.pressed.connect(_open_unit_overview)
 	$HoverInfo.mouse_filter = Control.MOUSE_FILTER_STOP
 	$HoverInfo.mouse_entered.connect(_on_hover_info_entered)
 	$HoverInfo.mouse_exited.connect(_on_hover_info_exited)
@@ -100,8 +105,8 @@ func _ready() -> void:
 	_start_timeline()
 
 func _prepare_board() -> void:
-	$Board/Tiles.columns = BOARD_WIDTH
-	$Board/Tiles.position = BOARD_ORIGIN + Vector2(0, TILE_STEP.y * TILE_ROW_OFFSET)
+	var tiles := $Board/Tiles as GridContainer
+	tiles.columns = BOARD_WIDTH
 	var target_tile_count := BOARD_WIDTH * BOARD_HEIGHT
 	while $Board/Tiles.get_child_count() > target_tile_count:
 		var extra_tile := $Board/Tiles.get_child(0)
@@ -120,6 +125,10 @@ func _prepare_board() -> void:
 		overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		overlay.add_theme_stylebox_override("panel", range_clear_style)
 		tile.add_child(overlay)
+	var hover_cell := Rect2(UNIT_FOOT_ANCHOR - UNIT_STANCE_IN_TILE, TILE_SIZE)
+	for side in [$Board/Allies, $Board/Enemies]:
+		for unit in side.get_children():
+			unit.set_hover_cell(hover_cell)
 
 func _prepare_range_styles() -> void:
 	range_clear_style = _make_range_style(Color.TRANSPARENT, Color.TRANSPARENT, 0)
@@ -156,14 +165,18 @@ func _select_actor(index: int) -> void:
 	_refresh_units()
 	_refresh_skill_buttons()
 
+func _skill_name(index: int) -> String:
+	return current_skills[index]
+
 func _select_skill(index: int) -> void:
 	if auto_action_running and not automation_command: return
 	if not _active_actor_valid(): return
 	if index < 0 or index >= current_skills.size(): return
 	var actor: Dictionary = game_state.battle_allies[selected_actor]
-	var skill: Dictionary = game_state.skill_library[current_skills[index]]
-	if actor.mp < skill.cost:
-		$Top/Hint.text = "内力不足，无法施放该武学"
+	var skill_name := _skill_name(index)
+	var skill: Dictionary = game_state.skill_library[skill_name]
+	if not Rules.can_use(actor, skill_name, skill):
+		$Top/Hint.text = "当前无法施展：请查看冷却、内力或连击限制"
 		return
 	if selected_skill == index:
 		selected_skill = -1
@@ -174,7 +187,7 @@ func _select_skill(index: int) -> void:
 	selected_skill = index
 	$ItemPanel.visible = false
 	if auto_battle_enabled: $Top/Hint.text = "自动战斗：正在行动"
-	$Top/Hint.text = "%s：选择绿色地块释放；悬停时红色显示本次攻击范围" % actor.name
+	_show_cast_hint(skill_name)
 	_highlight_attack_tiles()
 	_update_skill_selection_visuals()
 
@@ -193,7 +206,6 @@ func _on_tile_pressed(index: int) -> void:
 			unit_node.face_toward(coord - actor.coord)
 			actor.coord = coord
 			actor.moved = true
-			game_state.battle_log.append("%s移动至（%d，%d）" % [actor.name, coord.x + 1, coord.y + 1])
 			$Top/Hint.text = "移动完成，可撤回移动，或继续选择武学、物品和调息"
 			_stop_movement_tween()
 			var move_duration := maxf(0.28, float(_distance(move_origin, coord)) * 0.3) / battle_speed
@@ -207,78 +219,99 @@ func _on_tile_pressed(index: int) -> void:
 			$Top/Hint.text = "该地块不可到达，请选择绿色地块"
 		return
 	if not _can_target(coord):
-		$Top/Hint.text = "该地块不在武学攻击范围内"
+		_show_cast_hint(_skill_name(selected_skill))
 		return
-	var affected := _affected_enemies(coord)
-	var skill_name: String = current_skills[selected_skill]
+	var skill_name := _skill_name(selected_skill)
 	var skill: Dictionary = game_state.skill_library[skill_name]
+	if not Rules.can_use(actor, skill_name, skill): return
+	var affected := _targets_in_area(actor, skill, coord, game_state.battle_enemies)
 	player_action_resolving = true
 	_clear_range_display()
-	var actor_node := $Board/Allies.get_child(selected_actor) as Control
-	actor_node.face_toward(coord - actor.coord)
-	actor_node.play_action("attack")
 	var loadout: Dictionary = game_state.hero_skills[actor.hero_index]
-	var skill_level: int = int(loadout.levels.get(skill_name, 1))
-	var technique: int = actor.sword if skill.school == "剑系" else actor.fist if skill.school == "拳掌" else actor.unorthodox if skill.school == "奇门" else actor.blade
-	var damage: int = _skill_damage(actor, skill, skill_level)
-	var critical: bool = randf() * 100.0 < actor.crit
-	if critical: damage = int(damage * actor.crit_damage / 100.0)
-	actor.mp -= skill.cost
-	get_node("/root/AudioManager").play_effect("attack")
-	var hurt_enemy_nodes: Array[Control] = []
-	var hit_results: Array[Dictionary] = []
-	var effect_coords := _affected_coords(coord)
-	if effect_coords.is_empty(): effect_coords.append(coord)
-	_play_skill_effects(skill, effect_coords)
-	if affected.is_empty():
-		game_state.battle_log.append("%s对（%d，%d）施放%s" % [actor.name, coord.x + 1, coord.y + 1, skill_name])
-	for enemy_index in affected:
-		var enemy_node := $Board/Enemies.get_child(enemy_index) as Control
-		enemy_node.play_action("hurt")
-		hurt_enemy_nodes.append(enemy_node)
-		var enemy: Dictionary = game_state.battle_enemies[enemy_index]
-		var actual_damage: int = maxi(1, damage - int(enemy.defense / 4.0))
-		hit_results.append({"index":enemy_index, "damage":actual_damage})
-	await actor_node.wait_for_action("attack")
-	for enemy_node in hurt_enemy_nodes:
-		await enemy_node.wait_for_action("hurt")
-	for hit in hit_results:
-		var enemy_index: int = int(hit.index)
-		var enemy: Dictionary = game_state.battle_enemies[enemy_index]
-		var enemy_node := $Board/Enemies.get_child(enemy_index) as Control
-		var actual_damage: int = int(hit.damage)
-		enemy.hp = maxi(0, enemy.hp - actual_damage)
-		_show_unit_float(enemy_node, "-%d" % actual_damage, Color("#ffe04b") if critical else Color("#f5f3ed"), 30 if critical else 22)
-		_refresh_unit_status(enemy_node, enemy)
-		game_state.battle_log.append("%s%s对%s造成%d点伤害" % ["暴击！" if critical else "", actor.name, enemy.name, actual_damage])
-		if actor.poison > 0 and randf() * 100.0 < _poison_chance(actor, enemy):
-			enemy.poison_turns = 3
-			game_state.battle_log.append("%s中毒，持续3回合" % enemy.name)
-		if enemy.hp <= 0:
-			enemy.alive = false
-			enemy_node.visible = false
-			game_state.battle_log.append("%s退场" % enemy.name)
+	var dealt_damage := await _cast_martial(actor, skill_name, coord, affected)
 	selected_skill = -1
 	_clear_move_undo()
 	var leveling_actor_node := $Board/Allies.get_child(selected_actor) as Control
-	var hero_levels_gained: int = game_state.gain_hero_experience(actor.hero_index, 8)
+	var gains_experience: bool = actor.alive and not affected.is_empty()
+	var hero_levels_gained: int = game_state.gain_hero_experience(actor.hero_index, 8) if gains_experience else 0
 	if hero_levels_gained > 0:
 		_show_unit_float(leveling_actor_node, "人物升级 Lv.%d" % game_state.heroes[actor.hero_index].level, Color("#70e06d"))
 	var skill_experience := _skill_experience_reward(actor)
-	var martial_levels_gained: int = game_state.gain_skill_experience(actor.hero_index, skill_name, skill_experience)
+	var martial_levels_gained: int = game_state.gain_skill_experience(actor.hero_index, skill_name, skill_experience) if gains_experience else 0
 	if martial_levels_gained > 0:
 		_show_unit_float(leveling_actor_node, "武学升级 %s Lv.%d" % [skill_name, loadout.levels[skill_name]], Color("#70e06d"))
 	var internal_name: String = str(loadout.internal)
-	var internal_levels_gained: int = game_state.gain_skill_experience(actor.hero_index, internal_name, maxi(1, int(game_state.growth.battle_internal_exp) * int(actor.insight)))
+	var internal_levels_gained: int = game_state.gain_skill_experience(actor.hero_index, internal_name, maxi(1, int(game_state.growth.battle_internal_exp) * int(actor.insight))) if gains_experience else 0
 	if internal_levels_gained > 0:
 		_show_unit_float(leveling_actor_node, "心法升级 %s Lv.%d" % [internal_name, loadout.levels[internal_name]], Color("#70e06d"))
-	_sync_actor_growth(actor)
+	if actor.alive: _sync_actor_growth(actor)
 	_refresh_units()
 	player_action_resolving = false
+	if not _check_defeated(): _complete_actor_action(dealt_damage)
+
+func _unit_skill_level(actor: Dictionary, skill_name: String) -> int:
+	if actor.has("hero_index"):
+		return int(game_state.hero_skills[actor.hero_index].levels.get(skill_name, 1))
+	return 1
+
+func _unit_control(actor: Dictionary) -> Control:
+	if actor.has("hero_index"):
+		return $Board/Allies.get_child(game_state.battle_allies.find(actor))
+	return $Board/Enemies.get_child(game_state.battle_enemies.find(actor))
+
+func _cast_martial(actor: Dictionary, name: String, coord: Vector2i, targets: Array[Dictionary]) -> bool:
+	var skill: Dictionary = game_state.skill_library[name]
+	var node := _unit_control(actor)
+	node.face_toward(coord - actor.coord)
+	node.play_action("attack")
+	Rules.spend(actor, name, skill)
+	var damage := _skill_damage(actor, skill, _unit_skill_level(actor, name))
+	var focused := Rules.focused(actor)
+	Rules.consume_focus(actor)
+	_play_skill_effects(skill, _hit_coords(actor, skill, coord))
+	_apply_skill_effects(actor, skill, "self")
+	get_node("/root/AudioManager").play_effect("attack")
+	game_state.battle_log.append("%s施展%s%s" % [actor.name, name, "（空放）" if targets.is_empty() else ""])
+	await node.wait_for_action("attack")
+	var dealt_damage := false
+	for target in targets:
+		if not actor.alive: break
+		var target_node := _unit_control(target)
+		var hostile := actor.has("hero_index") != target.has("hero_index")
+		var lost := Rules.strike(actor, target, damage, focused, hostile, game_state.battle_log)
+		if lost <= 0: continue
+		dealt_damage = true
+		target_node.play_action("hurt")
+		_show_unit_float(target_node, "-%d" % lost, Color("#f5f3ed"))
+		if target.alive:
+			_apply_skill_effects(target, skill, "hit")
+			var poison_chance := _poison_chance(actor, target)
+			if poison_chance > 0 and randf() * 100.0 < poison_chance:
+				_apply_status(target, "poison", 1, 3)
+		else:
+			game_state.battle_log.append("%s退场" % target.name)
+		_refresh_unit_status(target_node, target)
+	if dealt_damage: _apply_skill_effects(actor, skill, "self_on_hit")
+	return dealt_damage
+
+func _apply_skill_effects(unit: Dictionary, skill: Dictionary, phase: String) -> void:
+	for effect in skill.get("effects", []):
+		if effect[0] == phase: _apply_status(unit, effect[1], effect[2], effect[3])
+
+func _apply_status(unit: Dictionary, id: String, stacks: int, duration: int) -> void:
+	if Rules.apply(unit, id, stacks, duration, game_state.turn):
+		game_state.battle_log.append("%s获得%s" % [unit.name, Rules.status_label(Rules.LABELS[id], Rules.layers(unit, id), unit.statuses[id].duration)])
+	else:
+		game_state.battle_log.append("%s免疫%s" % [unit.name, Rules.LABELS[id]])
+
+func _check_defeated() -> bool:
+	if _first_alive_ally() < 0:
+		_finish_battle(false)
+		return true
 	if _all_enemies_defeated():
 		_finish_battle(true)
-	else:
-		_complete_actor_action()
+		return true
+	return false
 
 func _on_board_tile_pressed(index: int) -> void:
 	_on_tile_pressed(_board_coord_from_index(index).y * BOARD_WIDTH + _board_coord_from_index(index).x)
@@ -290,6 +323,8 @@ func _on_surrender_pressed() -> void:
 
 func _on_restart_battle_pressed() -> void:
 	if battle_finished or player_action_resolving or not is_player_turn: return
+	battle_finished = true
+	_clear_move_undo()
 	game_state.new_battle()
 	get_tree().reload_current_scene()
 
@@ -297,16 +332,38 @@ func _on_enemy_pressed(enemy_index: int) -> void:
 	if enemy_index >= game_state.battle_enemies.size(): return
 	var enemy: Dictionary = game_state.battle_enemies[enemy_index]
 	if not enemy.alive: return
-	await _on_tile_pressed(enemy.coord.y * BOARD_WIDTH + enemy.coord.x)
+	var unit_node := $Board/Enemies.get_child(enemy_index) as Control
+	var target := _unit_click_coord(unit_node, enemy.coord)
+	await _on_tile_pressed(target.y * BOARD_WIDTH + target.x)
 
 func _on_ally_pressed(ally_index: int) -> void:
+	if ally_index < 0 or ally_index >= game_state.battle_allies.size(): return
+	var ally: Dictionary = game_state.battle_allies[ally_index]
+	if not ally.alive: return
+	var unit_node := $Board/Allies.get_child(ally_index) as Control
+	var target := _unit_click_coord(unit_node, ally.coord)
+	if target != ally.coord:
+		await _on_tile_pressed(target.y * BOARD_WIDTH + target.x)
+		return
 	if selected_skill >= 0:
-		if ally_index < 0 or ally_index >= game_state.battle_allies.size(): return
-		var ally: Dictionary = game_state.battle_allies[ally_index]
-		if ally.alive:
-			await _on_tile_pressed(ally.coord.y * BOARD_WIDTH + ally.coord.x)
+		await _on_tile_pressed(ally.coord.y * BOARD_WIDTH + ally.coord.x)
 		return
 	_select_actor(ally_index)
+
+func _unit_click_coord(unit_node: Control, fallback: Vector2i, pointer := Vector2(INF, INF)) -> Vector2i:
+	if unit_node == null: return fallback
+	if is_inf(pointer.x) or is_inf(pointer.y):
+		if not unit_node.is_hovered(): return fallback
+		pointer = get_global_mouse_position()
+	var coord := _board_coord_at_global_point(pointer)
+	return coord if coord.x >= 0 else fallback
+
+func _board_coord_at_global_point(point: Vector2) -> Vector2i:
+	for i in $Board/Tiles.get_child_count():
+		var tile := $Board/Tiles.get_child(i) as Control
+		if tile.visible and tile.get_global_rect().has_point(point):
+			return _board_coord_from_index(i)
+	return Vector2i(-1, -1)
 
 func _on_tile_hovered(index: int) -> void:
 	range_hover_revision += 1
@@ -316,19 +373,28 @@ func _on_tile_hovered(index: int) -> void:
 	var target := _coord_from_index(index)
 	if selected_skill >= 0:
 		if not _can_target(target):
+			_highlight_attack_tiles()
 			$Top/Hint.text = "该地块超出武学范围"
 			return
 		_preview_attack_tiles(target)
-		var skill: Dictionary = game_state.skill_library[current_skills[selected_skill]]
-		$Top/Hint.text = "%s：基础伤害%d，预计影响%d名敌人；点击施放" % [current_skills[selected_skill], skill.damage, _affected_enemies(target).size()]
+		var skill: Dictionary = game_state.skill_library[_skill_name(selected_skill)]
+		var affected_count := _affected_enemies(target).size()
+		if affected_count == 0:
+			$Top/Hint.text = "%s：范围内没有敌人，可点击空放" % _skill_name(selected_skill)
+			return
+		$Top/Hint.text = "%s：基础伤害%d，预计影响%d名敌人；点击施放" % [_skill_name(selected_skill), skill.damage, affected_count]
 		return
+	if hovered_move_tile != null:
+		_set_range_tile(hovered_move_tile, move_range_style, Color.WHITE)
+		hovered_move_tile = null
 	var actor: Dictionary = game_state.battle_allies[selected_actor]
 	if actor.moved:
 		$Top/Hint.text = "%s本回合已经移动，可选择武学、物品或调息" % actor.name
 	elif _reachable_tiles(actor).has(target):
 		var visual_index := (target.y - TILE_ROW_OFFSET) * BOARD_WIDTH + target.x
 		if visual_index >= 0 and visual_index < $Board/Tiles.get_child_count():
-			_set_range_tile($Board/Tiles.get_child(visual_index) as TextureButton, move_hover_style, Color("#d9e86f"))
+			hovered_move_tile = $Board/Tiles.get_child(visual_index) as TextureButton
+			_set_range_tile(hovered_move_tile, move_hover_style, Color("#d9e86f"))
 		$Top/Hint.text = "移动至（%d，%d），距离%d格；点击确认" % [target.x + 1, target.y + 1, _distance(actor.coord, target)]
 	else:
 		$Top/Hint.text = "（%d，%d）不可到达：超出移动范围或路径受阻" % [target.x + 1, target.y + 1]
@@ -345,6 +411,7 @@ func _on_tile_exited() -> void:
 
 func _refresh_hovered_range(revision: int) -> void:
 	if revision != range_hover_revision or auto_battle_enabled: return
+	if selected_skill >= 0 and hovered_unit != null: return
 	var mouse_position := get_global_mouse_position()
 	for i in $Board/Tiles.get_child_count():
 		var tile := $Board/Tiles.get_child(i) as Control
@@ -366,45 +433,75 @@ func _on_skill_hovered(index: int) -> void:
 	var loadout: Dictionary = game_state.hero_skills[actor.hero_index]
 	var experience: int = int(loadout.exp.get(skill_name, 0))
 	var experience_needed: int = game_state.get_skill_experience_needed(level)
-	var estimated_damage: int = _skill_damage(actor, skill, level)
-	var shape_text: String = str(skill.get("pattern", "单体"))
+	var details: Array[String] = [
+		"类别：%s" % skill.school,
+		"经验：%d / %d" % [experience, experience_needed],
+		"威力：%d" % skill.damage,
+		"消耗内力：%d" % skill.cost,
+		"施展范围：%d" % skill.range,
+		"攻击范围：%s" % Rules.hit_text(skill),
+	]
+	if skill.effects.is_empty():
+		if not skill.description.is_empty(): details.append(skill.description)
+	else:
+		for effect in skill.effects:
+			details.append(Rules.highlight_status(Rules.martial_effect_label(effect)))
 	var skill_button := $Bottom/Skills.get_child(index) as Control
-	_show_hover_info(
-		"武学详情",
-		skill_name,
-		"%s  Lv.%d\n经验 %d / %d\n威力 %d    预计伤害 %d\n内力 %d    射程 %d格\n范围 %s\n%s" % [skill.school, level, experience, experience_needed, skill.damage, estimated_damage, skill.cost, skill.range, shape_text, skill.description],
-		load(skill.icon),
-		Color("#f2c75c")
-	)
+	_show_hover_info("%s\n%d级" % [skill_name, level], "\n".join(details), load(skill.icon))
 	_position_hover_info_over_skill(skill_button)
 
 func _on_ally_hovered(index: int) -> void:
 	if index < 0 or index >= game_state.battle_allies.size(): return
 	var actor: Dictionary = game_state.battle_allies[index]
-	var action_text := "当前行动" if is_player_turn and index == selected_actor else "下次行动 %d" % actor.next_action
-	_show_hover_info(
-		"我方状态",
-		actor.name,
-		"气血 %d / %d\n内力 %d / %d\n攻击 %d    防御 %d\n身法 %d    移动 %d格\n%s" % [actor.hp, actor.max_hp, actor.mp, actor.max_mp, actor.attack, actor.defense, actor.speed, actor.move_range, action_text],
-		load(actor.head),
-		Color("#67b9f2")
-	)
-	if selected_skill >= 0 and index != selected_actor:
-		_on_tile_hovered(actor.coord.y * BOARD_WIDTH + actor.coord.x)
+	_show_unit_hover(actor, is_player_turn and index == selected_actor)
+	if selected_skill >= 0:
+		var target := _unit_click_coord($Board/Allies.get_child(index), actor.coord)
+		_on_tile_hovered(target.y * BOARD_WIDTH + target.x)
 
 func _on_enemy_hovered(index: int) -> void:
 	if index < 0 or index >= game_state.battle_enemies.size(): return
 	var enemy: Dictionary = game_state.battle_enemies[index]
-	var status_text := "中毒（剩余%d次行动）" % enemy.poison_turns if enemy.poison_turns > 0 else "状态正常"
-	_show_hover_info(
-		"敌方状态",
-		enemy.name,
-		"气血 %d / %d\n攻击 %d    防御 %d\n身法 %d    移动 %d格\n下次行动 %d\n%s" % [enemy.hp, enemy.max_hp, enemy.attack, enemy.defense, enemy.speed, enemy.move_range, enemy.next_action, status_text],
-		load(enemy.head),
-		Color("#ee6b5f") if enemy.poison_turns <= 0 else Color("#83d46b")
-	)
-	if selected_skill >= 0 and _can_target(enemy.coord):
-		_preview_attack_tiles(enemy.coord)
+	_show_unit_hover(enemy, false)
+	if selected_skill >= 0:
+		var target := _unit_click_coord($Board/Enemies.get_child(index), enemy.coord)
+		_on_tile_hovered(target.y * BOARD_WIDTH + target.x)
+		if _active_actor_valid() and not auto_battle_enabled and _affected_enemies(target).has(index):
+			var actor: Dictionary = game_state.battle_allies[selected_actor]
+			var skill_name := _skill_name(selected_skill)
+			var skill: Dictionary = game_state.skill_library[skill_name]
+			var level: int = game_state.hero_skills[actor.hero_index].levels.get(skill_name, 1)
+			var impact := Rules.impact(actor, enemy, _skill_damage(actor, skill, level), false, skill.cost)
+			$Top/Hint.text = "命中 %.0f%% · 非暴击气血 −%d" % [Rules.hit_chance(enemy, Rules.focused(actor)), impact.hp]
+			if impact.mp > 0: $Top/Hint.text += " · 抵挡耗内 %d" % impact.mp
+			if impact.reflect > 0: $Top/Hint.text += " · 反伤 %d" % impact.reflect
+
+func _show_unit_hover(unit: Dictionary, acting: bool) -> void:
+	var status := Rules.status_text(unit, "\n")
+	var timing := "当前 %d" % game_state.turn if acting else "下次行动 %d" % unit.next_action
+	var details := "气血 %d / %d    内力 %d / %d\n时序 %s\n%s" % [unit.hp, unit.max_hp, unit.mp, unit.max_mp, timing, Rules.highlight_status(status) if not status.is_empty() else "状态正常"]
+	_show_hover_info(unit.name, details)
+	hovered_unit = _unit_control(unit)
+	_position_unit_hover()
+
+func _process(_delta: float) -> void:
+	if hovered_unit != null: _position_unit_hover()
+
+func _position_unit_hover() -> void:
+	if not hovered_unit.is_visible_in_tree():
+		_hide_hover_info()
+		return
+	var anchor: Vector2 = hovered_unit.get_global_transform() * UNIT_FOOT_ANCHOR
+	var panel := $HoverInfo as Control
+	var viewport_size := get_viewport_rect().size
+	var x := anchor.x + 64.0
+	if x + panel.size.x > viewport_size.x - 8.0:
+		x = anchor.x - panel.size.x - 64.0
+	panel.global_position = Vector2(clampf(x, 8.0, viewport_size.x - panel.size.x - 8.0), clampf(anchor.y - 112.0, 88.0, maxf(88.0, viewport_size.y - panel.size.y - 8.0)))
+
+func _open_unit_overview() -> void:
+	if battle_finished: return
+	_hide_hover_info()
+	$UnitOverview.open(selected_actor, is_player_turn)
 
 func _on_unit_exited() -> void:
 	_hide_hover_info()
@@ -427,14 +524,28 @@ func _hide_hover_info_after_delay(revision: int) -> void:
 	_hide_hover_info()
 	_restore_action_hint()
 
-func _show_hover_info(kind: String, title: String, details: String, icon: Texture2D, accent: Color) -> void:
+func _show_hover_info(title: String, details: String, icon: Texture2D = null) -> void:
+	hovered_unit = null
+	hover_hide_revision += 1
 	$HoverInfo.position = HOVER_INFO_DEFAULT_POSITION
-	$HoverInfo.visible = true
-	$HoverInfo/Kind.text = kind
-	$HoverInfo/Kind.add_theme_color_override("font_color", accent)
+	var unit_hover := icon == null
+	var panel_width := 405.0 if unit_hover else 480.0
+	$HoverInfo.size.x = panel_width
+	$HoverInfo/Rule.offset_right = panel_width - 18.0
+	$HoverInfo.mouse_filter = Control.MOUSE_FILTER_IGNORE if unit_hover else Control.MOUSE_FILTER_STOP
+	$HoverInfo/Kind.visible = not unit_hover
 	$HoverInfo/Title.text = title
+	$HoverInfo/Title.visible = unit_hover
 	$HoverInfo/Icon.texture = icon
-	$HoverInfo/Details.text = details
+	$HoverInfo/Icon.visible = not unit_hover
+	$HoverInfo/SkillCaption.text = title
+	$HoverInfo/SkillCaption.visible = not unit_hover
+	var content := $HoverInfo/Details as RichTextLabel
+	content.offset_left = 20.0 if unit_hover else 164.0
+	content.offset_right = panel_width - 18.0
+	content.text = details
+	$HoverInfo.size.y = maxf(142.0 if unit_hover else 260.0, 78.0 + content.get_content_height())
+	$HoverInfo.show()
 
 func _position_hover_info_over_skill(skill_button: Control) -> void:
 	var button_rect := skill_button.get_global_rect()
@@ -446,6 +557,7 @@ func _position_hover_info_over_skill(skill_button: Control) -> void:
 	hover_hide_revision += 1
 
 func _hide_hover_info() -> void:
+	hovered_unit = null
 	$HoverInfo.visible = false
 
 func _show_operation_hint(message: String) -> void:
@@ -455,11 +567,16 @@ func _restore_action_hint() -> void:
 	if not _active_actor_valid(): return
 	var actor: Dictionary = game_state.battle_allies[selected_actor]
 	if selected_skill >= 0 and selected_skill < current_skills.size():
-		$Top/Hint.text = "%s：选择绿色地块释放；悬停时红色显示本次攻击范围" % current_skills[selected_skill]
+		_show_cast_hint(_skill_name(selected_skill))
 	elif actor.moved:
 		$Top/Hint.text = "%s已完成移动，可撤回移动，或选择武学、物品和调息" % actor.name
 	else:
 		$Top/Hint.text = "%s行动中：点击绿色地块移动，或选择武学" % actor.name
+
+func _show_cast_hint(skill_name: String) -> void:
+	var skill: Dictionary = game_state.skill_library[skill_name]
+	var hint := "%s · 绿色格为命中范围" % Rules.cast_text(skill)
+	$Top/Hint.text = "%s：%s" % [skill_name, hint]
 
 func _on_rest_pressed() -> void:
 	if auto_action_running and not automation_command: return
@@ -467,8 +584,10 @@ func _on_rest_pressed() -> void:
 	var actor: Dictionary = game_state.battle_allies[selected_actor]
 	var old_hp: int = actor.hp
 	var old_mp: int = actor.mp
-	actor.hp = mini(actor.max_hp, actor.hp + 12)
-	actor.mp = mini(actor.max_mp, actor.mp + 15)
+	if actor.get("bonus_attack", false):
+		_complete_actor_action()
+		return
+	Rules.restore(actor, 12, 15)
 	var actor_node := $Board/Allies.get_child(selected_actor) as Control
 	_refresh_unit_status(actor_node, actor)
 	if actor.hp > old_hp: _show_unit_float(actor_node, "气血 +%d" % (actor.hp - old_hp), Color("#70e06d"))
@@ -479,7 +598,7 @@ func _on_rest_pressed() -> void:
 	_complete_actor_action()
 
 func _on_undo_move_pressed() -> void:
-	if not _active_actor_valid() or move_actor_index != selected_actor: return
+	if auto_action_running or not _active_actor_valid() or move_actor_index != selected_actor: return
 	var actor: Dictionary = game_state.battle_allies[selected_actor]
 	if not actor.moved or move_origin.x < 0: return
 	var origin := move_origin
@@ -488,7 +607,6 @@ func _on_undo_move_pressed() -> void:
 	actor.moved = false
 	selected_skill = -1
 	$ItemPanel.visible = false
-	game_state.battle_log.append("%s撤回本次移动" % actor.name)
 	var unit_node := $Board/Allies.get_child(selected_actor) as Control
 	movement_tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	movement_tween.tween_property(unit_node, "position", _coord_to_board(origin), 0.18)
@@ -500,6 +618,7 @@ func _on_undo_move_pressed() -> void:
 	_update_skill_selection_visuals()
 
 func _on_items_pressed() -> void:
+	if not _active_actor_valid() or game_state.battle_allies[selected_actor].get("bonus_attack", false): return
 	$ItemPanel.visible = not $ItemPanel.visible
 	$ItemPanel/Healing.text = _medicine_text("疗伤药")
 	$ItemPanel/Great.text = _medicine_text("大还丹")
@@ -514,10 +633,10 @@ func _use_item(item_name: String) -> void:
 	var actor: Dictionary = game_state.battle_allies[selected_actor]
 	var old_hp: int = actor.hp
 	var old_mp: int = actor.mp
+	if actor.get("bonus_attack", false): return
 	game_state.inventory.erase(item_name)
 	get_node("/root/AudioManager").play_effect("heal")
-	actor.hp = mini(actor.max_hp, actor.hp + int(medicine.heal_hp))
-	actor.mp = mini(actor.max_mp, actor.mp + int(medicine.heal_mp))
+	Rules.restore(actor, int(medicine.heal_hp), int(medicine.heal_mp))
 	var actor_node := $Board/Allies.get_child(selected_actor) as Control
 	_refresh_unit_status(actor_node, actor)
 	if actor.hp > old_hp: _show_unit_float(actor_node, "气血 +%d" % (actor.hp - old_hp), Color("#70e06d"))
@@ -526,10 +645,22 @@ func _use_item(item_name: String) -> void:
 	$ItemPanel.visible = false
 	_complete_actor_action()
 
-func _complete_actor_action() -> void:
+func _complete_actor_action(dealt_damage: bool = false) -> void:
 	if selected_actor < 0 or selected_actor >= game_state.battle_allies.size(): return
 	var actor: Dictionary = game_state.battle_allies[selected_actor]
-	actor.next_action = game_state.turn + actor.action_delay
+	if actor.alive and dealt_damage and not actor.get("bonus_attack", false) \
+		and randf() * 100.0 < Rules.scaled(actor, "combo", 30, 5):
+		actor.bonus_attack = true
+		selected_skill = -1
+		_clear_move_undo()
+		$ItemPanel.hide()
+		auto_action_running = false
+		game_state.battle_log.append("%s触发连击，可追加一次攻击" % actor.name)
+		$Top/Hint.text = "连击：可追加一次攻击，或选择结束连击"
+		_refresh()
+		if auto_battle_enabled: call_deferred("_run_auto_turn", selected_actor)
+		return
+	Rules.finish(actor, game_state.turn)
 	actor.moved = false
 	selected_skill = -1
 	_clear_range_display()
@@ -551,6 +682,7 @@ func _on_auto_battle_toggled(enabled: bool) -> void:
 		else: _highlight_move_tiles()
 	if enabled and _active_actor_valid() and not auto_action_running:
 		call_deferred("_run_auto_turn", selected_actor)
+	_update_undo_button()
 
 func _update_auto_button() -> void:
 	if not is_node_ready(): return
@@ -575,104 +707,104 @@ func _update_speed_button() -> void:
 func _run_auto_turn(actor_index: int) -> void:
 	if not auto_battle_enabled or not _active_actor_valid() or actor_index != selected_actor or auto_action_running: return
 	auto_action_running = true
-	await get_tree().create_timer(0.12 / battle_speed).timeout
+	_update_undo_button()
+	await get_tree().create_timer(0.12 / battle_speed, false).timeout
 	if not auto_battle_enabled or not _active_actor_valid() or actor_index != selected_actor:
 		auto_action_running = false
+		_update_undo_button()
 		return
 	var actor: Dictionary = game_state.battle_allies[actor_index]
-	if actor.hp <= actor.max_hp * 0.4 and game_state.inventory.has("大还丹"):
+	if not actor.get("bonus_attack", false) and actor.hp <= actor.max_hp * 0.4 and game_state.inventory.has("大还丹"):
 		automation_command = true
 		_use_item("大还丹")
 		automation_command = false
 		auto_action_running = false
 		return
-	if actor.hp <= actor.max_hp * 0.55 and game_state.inventory.has("疗伤药"):
+	if not actor.get("bonus_attack", false) and actor.hp <= actor.max_hp * 0.55 and game_state.inventory.has("疗伤药"):
 		automation_command = true
 		_use_item("疗伤药")
 		automation_command = false
 		auto_action_running = false
 		return
-	var skill_index := _best_auto_skill()
-	if skill_index >= 0:
-		# Finish the movement phase first. The weapon is selected only afterwards.
-		selected_skill = -1
-		_update_skill_selection_visuals()
-		if not actor.moved:
-			var approach := _auto_approach_tile(actor)
-			if approach.x >= 0:
-				automation_command = true
-				_on_tile_pressed(approach.y * BOARD_WIDTH + approach.x)
-				automation_command = false
-				if movement_tween and movement_tween.is_valid(): await movement_tween.finished
+	selected_skill = -1
+	_update_skill_selection_visuals()
+	var choice := _choose_auto_action()
+	if choice.is_empty():
+		var approach := _auto_approach_tile(actor)
+		if approach.x >= 0:
+			automation_command = true
+			_on_tile_pressed(approach.y * BOARD_WIDTH + approach.x)
+			automation_command = false
+			if movement_tween and movement_tween.is_valid(): await movement_tween.finished
 			if not auto_battle_enabled or not _active_actor_valid() or actor_index != selected_actor:
 				auto_action_running = false
+				_update_undo_button()
 				return
-		# Attack phase begins only after the movement phase has resolved.
-		selected_skill = -1
-		_update_skill_selection_visuals()
-		automation_command = true
-		_select_skill(skill_index)
-		automation_command = false
-		var target := _best_auto_target()
-		if target.x >= 0:
-			await get_tree().create_timer(0.12 / battle_speed).timeout
-			if auto_battle_enabled and _active_actor_valid() and actor_index == selected_actor:
-				automation_command = true
-				await _on_tile_pressed(target.y * BOARD_WIDTH + target.x)
-				automation_command = false
-			else:
-				auto_action_running = false
-				return
-		else:
-			automation_command = true
-			_on_rest_pressed()
-			automation_command = false
-		auto_action_running = false
-		return
+			choice = _choose_auto_action()
 	automation_command = true
-	_on_rest_pressed()
+	if choice.is_empty():
+		_on_rest_pressed()
+	else:
+		_select_skill(choice.index)
+		var target: Vector2i = choice.target
+		# Release the input bypass before waiting for the attack animation.
+		var tile_index := target.y * BOARD_WIDTH + target.x
+		_on_tile_pressed(tile_index)
 	automation_command = false
-	auto_action_running = false
+	if not player_action_resolving:
+		auto_action_running = false
+		_update_undo_button()
 
-func _best_auto_skill() -> int:
+func _choose_auto_action() -> Dictionary:
 	var actor: Dictionary = game_state.battle_allies[selected_actor]
-	var loadout: Dictionary = game_state.hero_skills[actor.hero_index]
-	var best_index := -1
-	var best_score := -1.0
-	for i in current_skills.size():
-		var skill: Dictionary = game_state.skill_library[current_skills[i]]
-		if actor.mp < skill.cost: continue
-		var score := float(skill.damage) / maxf(1.0, float(skill.cost))
-		if skill.cost == 0: score = float(skill.damage)
-		if int(loadout.levels.get(current_skills[i], 1)) > 1: score += 0.1
-		if score > best_score:
-			best_score = score
-			best_index = i
-	return best_index
+	return _choose_martial(actor, current_skills, game_state.battle_enemies)
 
-func _best_auto_target() -> Vector2i:
-	var best := Vector2i(-1, -1)
-	var best_score := 0
-	for y in range(TILE_ROW_OFFSET, TILE_ROW_OFFSET + BOARD_HEIGHT):
-		for x in BOARD_WIDTH:
-			var coord := Vector2i(x, y)
-			var hit_count := _affected_enemies(coord).size()
-			if hit_count > best_score:
-				best_score = hit_count
-				best = coord
+func _choose_martial(actor: Dictionary, names: Array, opponents: Array) -> Dictionary:
+	var best := {}
+	var best_score := 0.0
+	for i in names.size():
+		var name: String = names[i]
+		var skill: Dictionary = game_state.skill_library[name]
+		if not Rules.can_use(actor, name, skill): continue
+		var target: Vector2i = actor.coord
+		var affected: Array[Dictionary] = []
+		for y in range(TILE_ROW_OFFSET, TILE_ROW_OFFSET + BOARD_HEIGHT):
+			for x in BOARD_WIDTH:
+				var coord := Vector2i(x, y)
+				var hits := _targets_in_area(actor, skill, coord, opponents)
+				if hits.size() > affected.size():
+					affected = hits
+					target = coord
+		if affected.is_empty(): continue
+		var score := float(skill.damage) * affected.size() / maxf(6.0, float(skill.cost))
+		for effect in skill.effects:
+			if effect[0] != "self" or Rules.layers(actor, effect[1]) > 0: continue
+			if effect[1] == "mana_regen" and actor.mp < actor.max_mp * 0.6: score += 6.0
+			if effect[1] == "heal_regen" and actor.hp < actor.max_hp * 0.7: score += 6.0
+			if effect[1] in ["haste", "defense_up", "guard"]: score += 3.8
+		if _unit_skill_level(actor, name) > 1: score += 0.1
+		if score <= best_score: continue
+		best_score = score
+		best = {"index":i, "name":name, "target":target, "affected":affected}
 	return best
 
-func _auto_approach_tile(actor: Dictionary) -> Vector2i:
+func _auto_approach_tile(actor: Dictionary, opponents: Array = []) -> Vector2i:
+	if opponents.is_empty(): opponents = game_state.battle_enemies
 	var best := Vector2i(-1, -1)
-	var best_distance := 999
+	var best_distance := _closest_distance(actor.coord, actor, opponents)
 	for coord in _reachable_tiles(actor):
-		var nearest := 999
-		for enemy in game_state.battle_enemies:
-			if enemy.alive: nearest = mini(nearest, _distance(coord, enemy.coord))
+		var nearest := _closest_distance(coord, actor, opponents)
 		if nearest < best_distance:
 			best_distance = nearest
 			best = coord
 	return best
+
+func _closest_distance(coord: Vector2i, actor: Dictionary, opponents: Array) -> int:
+	var nearest := 999
+	for opponent in opponents:
+		if opponent.alive and not is_same(actor, opponent):
+			nearest = mini(nearest, _distance(coord, opponent.coord))
+	return nearest
 
 func _start_timeline() -> void:
 	game_state.turn = 0
@@ -688,7 +820,21 @@ func _advance_timeline() -> void:
 		if game_state.turn > 4200:
 			_finish_battle(false)
 			return
-		if next_combatant.side == "ally":
+		var allies: bool = next_combatant.side == "ally"
+		var actor: Dictionary = game_state.battle_allies[next_combatant.index] if allies else game_state.battle_enemies[next_combatant.index]
+		Rules.begin(actor, game_state.battle_log)
+		if not actor.alive:
+			_refresh_units()
+			if _check_defeated(): return
+			continue
+		if actor.skipped_turn:
+			Rules.finish(actor, game_state.turn)
+			continue
+		if Rules.layers(actor, "berserk") > 0:
+			await _resolve_berserk(actor)
+			if _check_defeated(): return
+			continue
+		if allies:
 			_clear_move_undo()
 			selected_actor = int(next_combatant.index)
 			var next_actor: Dictionary = game_state.battle_allies[selected_actor]
@@ -719,63 +865,44 @@ func _find_next_combatant() -> Dictionary:
 	return result
 
 func _enemy_take_action(enemy_index: int) -> void:
-	var enemy: Dictionary = game_state.battle_enemies[enemy_index]
-	if not enemy.alive: return
-	if enemy.poison_turns > 0:
-		enemy.hp = maxi(0, enemy.hp - 8)
-		var poisoned_node := $Board/Enemies.get_child(enemy_index) as Control
-		_show_unit_float(poisoned_node, "-8", Color("#f5f3ed"))
-		_refresh_unit_status(poisoned_node, enemy)
-		enemy.poison_turns -= 1
-		game_state.battle_log.append("%s受到8点毒素伤害" % enemy.name)
-		if enemy.hp <= 0:
-			enemy.alive = false
-			game_state.battle_log.append("%s毒发退场" % enemy.name)
-			if _all_enemies_defeated(): _finish_battle(true)
-			return
-	var target_index := _nearest_alive_ally(enemy.coord)
-	if target_index < 0:
-		_finish_battle(false)
-		return
-	var target: Dictionary = game_state.battle_allies[target_index]
-	var enemy_node := $Board/Enemies.get_child(enemy_index) as Control
-	if _distance(enemy.coord, target.coord) > 1:
-		var movement_path: Array[Vector2i] = []
-		for move_step in int(enemy.move_range):
-			if _distance(enemy.coord, target.coord) <= 1: break
-			var step := _enemy_step_toward(enemy.coord, target.coord)
-			if step == enemy.coord: break
-			enemy.coord = step
-			movement_path.append(step)
-		if not movement_path.is_empty():
-			enemy_node.start_walk_animation()
-			var move_tween := create_tween().set_trans(Tween.TRANS_LINEAR)
-			for step in movement_path:
-				move_tween.tween_property(enemy_node, "position", _coord_to_board(step), 0.3 / battle_speed)
-			await move_tween.finished
-			enemy_node.stop_walk_animation()
-		game_state.battle_log.append("时序%d：%s向%s移动" % [game_state.turn, enemy.name, target.name])
-	if _distance(enemy.coord, target.coord) <= 1:
-		var target_node := $Board/Allies.get_child(target_index)
-		enemy_node.face_toward(target.coord - enemy.coord)
-		enemy_node.play_action("attack")
-		await get_tree().create_timer(0.28 / battle_speed).timeout
-		target_node.play_action("hurt")
-		await enemy_node.wait_for_action("attack")
-		await target_node.wait_for_action("hurt")
-		get_node("/root/AudioManager").play_effect("attack")
-		var actual_damage: int = maxi(1, enemy.attack - int(target.defense / 8.0))
-		target.hp = maxi(0, target.hp - actual_damage)
-		_show_unit_float(target_node, "-%d" % actual_damage, Color("#f5f3ed"))
-		_refresh_unit_status(target_node, target)
-		game_state.battle_log.append("时序%d：%s攻击，%s受到%d点伤害" % [game_state.turn, enemy.name, target.name, actual_damage])
-		if target.hp <= 0:
-			target.alive = false
-			game_state.battle_log.append("%s退场" % target.name)
-			if _first_alive_ally() < 0:
-				_finish_battle(false)
-				return
-	enemy.next_action = game_state.turn + enemy.action_delay
+	var actor: Dictionary = game_state.battle_enemies[enemy_index]
+	await _take_martial_turn(actor, actor.martial, game_state.battle_allies)
+
+func _resolve_berserk(actor: Dictionary) -> void:
+	game_state.battle_log.append("%s入魔，本次行动由系统接管" % actor.name)
+	var names: Array = game_state.hero_skills[actor.hero_index].martial if actor.has("hero_index") else actor.martial
+	await _take_martial_turn(actor, names, game_state.battle_allies + game_state.battle_enemies)
+
+func _take_martial_turn(actor: Dictionary, names: Array, opponents: Array) -> void:
+	actor.moved = false
+	var choice := _choose_martial(actor, names, opponents)
+	if choice.is_empty():
+		var step := _auto_approach_tile(actor, opponents)
+		if step.x >= 0:
+			var node := _unit_control(actor)
+			node.face_toward(step - actor.coord)
+			var duration := 0.3 * _distance(actor.coord, step) / battle_speed
+			actor.coord = step
+			node.start_walk_animation()
+			var movement := create_tween()
+			movement.tween_property(node, "position", _coord_to_board(step), duration)
+			await movement.finished
+			node.stop_walk_animation()
+			choice = _choose_martial(actor, names, opponents)
+	if choice.is_empty():
+		Rules.restore(actor, 0, 15)
+		game_state.battle_log.append("%s调息" % actor.name)
+	else:
+		var dealt_damage := await _cast_martial(actor, choice.name, choice.target, choice.affected)
+		if _check_defeated(): return
+		if actor.alive and dealt_damage and randf() * 100.0 < Rules.scaled(actor, "combo", 30, 5):
+			actor.bonus_attack = true
+			var bonus := _choose_martial(actor, names, opponents)
+			if not bonus.is_empty():
+				game_state.battle_log.append("%s触发连击" % actor.name)
+				await _cast_martial(actor, bonus.name, bonus.target, bonus.affected)
+				if _check_defeated(): return
+	Rules.finish(actor, game_state.turn)
 	_refresh_units()
 
 func _finish_battle(victory: bool) -> void:
@@ -823,6 +950,9 @@ func _refresh_units() -> void:
 
 func _refresh() -> void:
 	var active_index := _first_alive_ally()
+	var bonus: bool = game_state.battle_allies[selected_actor].get("bonus_attack", false)
+	$Rest/Label.text = "结束连击" if bonus else "调息"
+	$Items.disabled = bonus
 	if active_index < 0: return
 	var actor: Dictionary = game_state.battle_allies[selected_actor]
 	game_state.player_hp = actor.hp
@@ -866,8 +996,11 @@ func _refresh_skill_buttons() -> void:
 		var skill_name: String = current_skills[i]
 		var skill: Dictionary = game_state.skill_library[skill_name]
 		button.texture_normal = load(skill.icon)
-		button.tooltip_text = "%s Lv.%d · 内力%d" % [skill_name, loadout.levels.get(skill_name, 1), skill.cost]
-		button.get_node("Name").text = skill_name
+		var remaining := Rules.cooldown(actor, skill_name)
+		var cooldown_text := " · 冷却%d" % remaining if remaining > 0 else ""
+		button.tooltip_text = "%s Lv.%d · 内力%d%s" % [skill_name, loadout.levels.get(skill_name, 1), skill.cost, cooldown_text]
+		button.get_node("Name").text = skill_name + cooldown_text
+		button.disabled = not Rules.can_use(actor, skill_name, skill)
 	_update_skill_selection_visuals()
 	_update_undo_button()
 
@@ -878,7 +1011,7 @@ func _update_skill_selection_visuals() -> void:
 		button.get_node("Selection").visible = false
 		var frame := button.get_node_or_null("IconFrame") as Control
 		if frame != null: frame.visible = is_selected
-		button.modulate = Color.WHITE
+		button.modulate = Color(0.6, 0.6, 0.6) if button.disabled else Color.WHITE
 
 func _prepare_skill_button_frame(button: Control) -> void:
 	var selection := button.get_node_or_null("Selection") as Panel
@@ -903,7 +1036,7 @@ func _prepare_skill_button_frame(button: Control) -> void:
 	button.move_child(frame, 0)
 
 func _update_undo_button() -> void:
-	var enabled: bool = _active_actor_valid() and move_actor_index == selected_actor and bool(game_state.battle_allies[selected_actor].moved)
+	var enabled: bool = not auto_action_running and _active_actor_valid() and move_actor_index == selected_actor and bool(game_state.battle_allies[selected_actor].moved)
 	$UndoMove.disabled = not enabled
 	$UndoMove.modulate = Color.WHITE if enabled else Color(1, 1, 1, 0.45)
 
@@ -920,6 +1053,7 @@ func _clear_move_undo() -> void:
 		_update_undo_button()
 
 func _highlight_move_tiles() -> void:
+	hovered_move_tile = null
 	if auto_battle_enabled or not _active_actor_valid():
 		_clear_range_display()
 		$Top/Hint.text = "自动战斗：正在行动"
@@ -934,14 +1068,14 @@ func _highlight_move_tiles() -> void:
 
 func _reachable_tiles(actor: Dictionary) -> Array[Vector2i]:
 	var reachable: Array[Vector2i] = []
-	if actor.moved: return reachable
+	if actor.moved or actor.get("bonus_attack", false): return reachable
 	var distances := {actor.coord: 0}
 	var frontier: Array[Vector2i] = [actor.coord]
 	var directions: Array[Vector2i] = [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]
 	while not frontier.is_empty():
 		var current: Vector2i = frontier.pop_front()
 		var distance: int = distances[current]
-		if distance >= actor.move_range: continue
+		if distance >= Rules.movement(actor): continue
 		for direction in directions:
 			var next := current + direction
 			if not _is_inside_board(next) or distances.has(next): continue
@@ -952,6 +1086,7 @@ func _reachable_tiles(actor: Dictionary) -> Array[Vector2i]:
 	return reachable
 
 func _highlight_attack_tiles() -> void:
+	hovered_move_tile = null
 	if auto_battle_enabled or not _active_actor_valid():
 		_clear_range_display()
 		$Top/Hint.text = "自动战斗：正在行动"
@@ -961,7 +1096,7 @@ func _highlight_attack_tiles() -> void:
 	for i in $Board/Tiles.get_child_count():
 		var coord := _board_coord_from_index(i)
 		var tile := $Board/Tiles.get_child(i) as TextureButton
-		if coord == actor.coord:
+		if coord == actor.coord and not _can_target(coord):
 			_set_range_tile(tile, range_clear_style, Color(1, 1, 1, 0))
 		elif _can_target(coord):
 			_set_range_tile(tile, range_preview_style, Color.WHITE)
@@ -982,6 +1117,7 @@ func _preview_attack_tiles(target: Vector2i) -> void:
 			_set_range_tile(tile, range_valid_style, Color.WHITE)
 
 func _clear_range_display() -> void:
+	hovered_move_tile = null
 	if not is_node_ready(): return
 	for tile in $Board/Tiles.get_children():
 		_set_range_tile(tile as TextureButton, range_clear_style, Color(1, 1, 1, 0))
@@ -996,76 +1132,92 @@ func _all_potential_attack_coords() -> Array[Vector2i]:
 				if coord != game_state.battle_allies[selected_actor].coord and not potential.has(coord): potential.append(coord)
 	return potential
 
-func _can_target(coord: Vector2i) -> bool:
+func _can_target(coord: Vector2i, skill_index: int = -1) -> bool:
+	var index := selected_skill if skill_index < 0 else skill_index
+	if index < 0 or index >= current_skills.size(): return false
+	return _can_cast(game_state.battle_allies[selected_actor], game_state.skill_library[_skill_name(index)], coord)
+
+func _can_cast(actor: Dictionary, skill: Dictionary, coord: Vector2i) -> bool:
 	if not _is_inside_board(coord): return false
-	var actor: Dictionary = game_state.battle_allies[selected_actor]
 	var delta: Vector2i = coord - actor.coord
+	var mode := Rules.cast_mode(skill)
 	if delta == Vector2i.ZERO: return false
-	var skill: Dictionary = game_state.skill_library[current_skills[selected_skill]]
-	if skill.school == "剑系" or skill.shape == "fan":
-		return _distance(actor.coord, coord) == 1
-	if skill.shape == "line":
-		return (delta.x == 0 or delta.y == 0) and _distance(actor.coord, coord) <= skill.range
-	return _distance(actor.coord, coord) <= skill.range
+	var distance := _distance(actor.coord, coord)
+	var limit: int = skill.range
+	if Rules.layers(actor, "blind") > 0 and skill.school in ["拳掌", "奇门"]:
+		limit = mini(1, limit)
+	if mode == "direction" and delta.x != 0 and delta.y != 0: return false
+	return distance <= limit
 
-func _affected_enemies(target: Vector2i) -> Array[int]:
+func _affected_enemies(target: Vector2i, skill_index: int = -1) -> Array[int]:
 	var affected: Array[int] = []
-	if not _can_target(target): return affected
-	var affected_coords := _affected_coords(target)
-	for i in game_state.battle_enemies.size():
-		var enemy: Dictionary = game_state.battle_enemies[i]
-		if enemy.alive and affected_coords.has(enemy.coord): affected.append(i)
+	var index := selected_skill if skill_index < 0 else skill_index
+	if index < 0 or index >= current_skills.size(): return affected
+	var actor: Dictionary = game_state.battle_allies[selected_actor]
+	var skill: Dictionary = game_state.skill_library[_skill_name(index)]
+	for enemy in _targets_in_area(actor, skill, target, game_state.battle_enemies):
+		affected.append(game_state.battle_enemies.find(enemy))
 	return affected
 
-func _affected_coords(target: Vector2i) -> Array[Vector2i]:
-	var affected: Array[Vector2i] = []
-	if not _can_target(target): return affected
-	var actor: Dictionary = game_state.battle_allies[selected_actor]
-	var skill: Dictionary = game_state.skill_library[current_skills[selected_skill]]
-	var direction := Vector2i(signi(target.x - actor.coord.x), signi(target.y - actor.coord.y))
-	for y in range(TILE_ROW_OFFSET, TILE_ROW_OFFSET + BOARD_HEIGHT):
-		for x in BOARD_WIDTH:
-			var coord := Vector2i(x, y)
-			var include := false
-			if skill.shape == "line":
-				var offset: Vector2i = coord - actor.coord
-				include = (direction.x != 0 and offset.y == 0 and signi(offset.x) == direction.x) or (direction.y != 0 and offset.x == 0 and signi(offset.y) == direction.y)
-				include = include and _distance(actor.coord, coord) <= skill.range
-			elif skill.shape == "fan":
-				var offset: Vector2i = coord - actor.coord
-				var depth: int = offset.x * direction.x + offset.y * direction.y
-				var width: int = offset.x * direction.y - offset.y * direction.x
-				include = depth >= 1 and depth <= 2 and absi(width) <= 1
-			elif skill.shape == "cross":
-				include = coord == target or ((coord.x == target.x or coord.y == target.y) and _distance(coord, target) <= 2)
-			else:
-				include = coord == target
-			if include: affected.append(coord)
+func _affected_coords(target: Vector2i, skill_index: int = -1) -> Array[Vector2i]:
+	var index := selected_skill if skill_index < 0 else skill_index
+	if index < 0 or index >= current_skills.size(): return []
+	return _hit_coords(game_state.battle_allies[selected_actor], game_state.skill_library[_skill_name(index)], target)
+
+func _targets_in_area(actor: Dictionary, skill: Dictionary, target: Vector2i, opponents: Array) -> Array[Dictionary]:
+	var affected: Array[Dictionary] = []
+	var coords := _hit_coords(actor, skill, target)
+	for opponent in opponents:
+		if opponent.alive and not is_same(actor, opponent) and coords.has(opponent.coord): affected.append(opponent)
 	return affected
+
+func _hit_coords(actor: Dictionary, skill: Dictionary, target: Vector2i) -> Array[Vector2i]:
+	var affected: Array[Vector2i] = []
+	if not _can_cast(actor, skill, target): return affected
+	var origin: Vector2i = actor.coord
+	var direction := Vector2i(signi(target.x - origin.x), signi(target.y - origin.y))
+	var reach: int = skill.get("reach", 0)
+	match skill.shape:
+		"line":
+			for depth in range(1, reach + 1): affected.append(origin + direction * depth)
+		"fan":
+			var side := Vector2i(-direction.y, direction.x)
+			for depth in range(1, reach + 1):
+				for width in range(-1, 2): affected.append(origin + direction * depth + side * width)
+		"cross":
+			affected.append(target)
+			for axis in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+				for distance in range(1, reach + 1): affected.append(target + axis * distance)
+		_:
+			affected.append(target)
+	var blind := Rules.layers(actor, "blind") > 0
+	return affected.filter(func(coord: Vector2i) -> bool:
+		return _is_inside_board(coord) and (not blind or _visible_under_blind(origin, target, coord, direction, skill.school)))
+
+func _visible_under_blind(origin: Vector2i, target: Vector2i, coord: Vector2i, direction: Vector2i, school: String) -> bool:
+	var offset := coord - origin
+	match school:
+		"剑系": return absi(direction.x) + absi(direction.y) == 1 and (offset == direction or offset == direction * 2)
+		"拳掌": return _distance(origin, coord) == 1
+		"刀法": return offset.x * direction.x + offset.y * direction.y == 1 and absi(offset.x * direction.y - offset.y * direction.x) <= 1
+		"奇门": return _distance(target, coord) <= 1
+	return true
 
 func _skill_multiplier(level: int, growth: int = 1) -> float:
 	return 1.0 + float(maxi(0, level - 1) * maxi(0, growth)) * 0.1
 
 func _skill_damage(actor: Dictionary, skill: Dictionary, level: int) -> int:
-	var technique: int = actor.sword if skill.school == "剑系" else actor.fist if skill.school == "拳掌" else actor.unorthodox if skill.school == "奇门" else actor.blade
-	return int(round(float(skill.damage) * _skill_multiplier(level, int(skill.get("damage_growth", 1))))) + int(actor.attack / 8.0) + int(technique / 20.0)
+	var techniques := {"剑系":"sword", "拳掌":"fist", "奇门":"unorthodox", "刀法":"blade"}
+	var technique: int = actor.get(techniques[skill.school], 0)
+	var raw := roundf(float(skill.damage) * _skill_multiplier(level, int(skill.get("damage_growth", 1))))
+	raw += int(Rules.attack(actor) / 8.0) + int(technique / 20.0)
+	return maxi(1, roundi(raw * float(actor.get("skill_power_percent", 100)) / 100.0))
 
 func _skill_experience_reward(actor: Dictionary) -> int:
 	return maxi(1, int(game_state.growth.battle_skill_exp) * int(actor.get("insight", 0)))
 
 func _active_actor_valid() -> bool:
 	return not battle_finished and is_player_turn and not player_action_resolving and selected_actor >= 0 and selected_actor < game_state.battle_allies.size() and game_state.battle_allies[selected_actor].alive
-
-func _enemy_at_any() -> int:
-	for i in game_state.battle_enemies.size():
-		if game_state.battle_enemies[i].alive: return i
-	return -1
-
-func _enemy_at(coord: Vector2i) -> int:
-	for i in game_state.battle_enemies.size():
-		var enemy: Dictionary = game_state.battle_enemies[i]
-		if enemy.alive and enemy.coord == coord: return i
-	return -1
 
 func _unit_at(coord: Vector2i) -> Variant:
 	for ally in game_state.battle_allies:
@@ -1078,25 +1230,6 @@ func _first_alive_ally() -> int:
 	for i in game_state.battle_allies.size():
 		if game_state.battle_allies[i].alive: return i
 	return -1
-
-func _nearest_alive_ally(from: Vector2i) -> int:
-	var nearest := -1
-	var nearest_distance := 999
-	for i in game_state.battle_allies.size():
-		var ally: Dictionary = game_state.battle_allies[i]
-		if not ally.alive: continue
-		var distance := _distance(from, ally.coord)
-		if distance < nearest_distance:
-			nearest = i
-			nearest_distance = distance
-	return nearest
-
-func _enemy_step_toward(from: Vector2i, target: Vector2i) -> Vector2i:
-	var candidates := [from + Vector2i(signi(target.x - from.x), 0), from + Vector2i(0, signi(target.y - from.y))]
-	for candidate in candidates:
-		if not _is_inside_board(candidate): continue
-		if _unit_at(candidate) == null: return candidate
-	return from
 
 func _is_inside_board(coord: Vector2i) -> bool:
 	return coord.x >= 0 and coord.x < BOARD_WIDTH and coord.y >= TILE_ROW_OFFSET and coord.y < TILE_ROW_OFFSET + BOARD_HEIGHT
@@ -1113,14 +1246,11 @@ func _board_coord_from_index(index: int) -> Vector2i:
 	return _coord_from_index(index) + Vector2i(0, TILE_ROW_OFFSET)
 
 func _coord_to_board(coord: Vector2i) -> Vector2:
-	var tile_center := BOARD_ORIGIN + Vector2(coord) * TILE_STEP + TILE_SIZE * 0.5
-	return tile_center - UNIT_FOOT_ANCHOR
+	var tile := Vector2(coord - Vector2i(0, TILE_ROW_OFFSET))
+	return tile * TILE_STEP + UNIT_STANCE_IN_TILE - UNIT_FOOT_ANCHOR
 
 func _distance(a: Vector2i, b: Vector2i) -> int:
 	return absi(a.x - b.x) + absi(a.y - b.y)
-
-func _on_result_continue_pressed() -> void:
-	game_state.goto("res://scenes/world_map.tscn")
 
 func _show_unit_float(unit: Control, message: String, color: Color, font_size: int = 22) -> void:
 	if unit != null and unit.has_method("show_floating_text"):
@@ -1179,8 +1309,6 @@ func _load_skill_effect_frames(resource_path: String) -> SpriteFrames:
 
 func _refresh_unit_status(unit: Control, stats: Dictionary) -> void:
 	if unit == null: return
-	unit.get_node("Status").text = "中毒 %d" % int(stats.get("poison_turns", 0))
-	unit.get_node("Status").visible = bool(game_state.settings.show_buffs) and int(stats.get("poison_turns", 0)) > 0
 	var hp_bar := unit.get_node("HP") as ProgressBar
 	hp_bar.visible = bool(game_state.settings.show_hp)
 	hp_bar.max_value = float(stats.max_hp)
@@ -1195,10 +1323,12 @@ func _poison_chance(actor: Dictionary, target: Dictionary) -> float:
 
 func _sync_actor_growth(actor: Dictionary) -> void:
 	var combat: Dictionary = game_state.get_hero_combat_stats(actor.hero_index)
-	actor.hp = mini(combat.max_hp, int(actor.hp) + maxi(0, int(combat.max_hp) - int(actor.max_hp)))
-	actor.mp = mini(combat.max_mp, int(actor.mp) + maxi(0, int(combat.max_mp) - int(actor.max_mp)))
+	var hp_growth := maxi(0, int(combat.max_hp) - int(actor.max_hp))
+	var mp_growth := maxi(0, int(combat.max_mp) - int(actor.max_mp))
 	for key in ["max_hp", "max_mp", "attack", "defense", "speed", "crit", "crit_damage", "poison", "fist", "sword", "blade", "unorthodox", "insight", "luck", "willpower"]:
 		actor[key] = combat[key]
+	actor.attack = game_state.get_hero_battle_attack(actor.hero_index, int(combat.attack))
+	Rules.restore(actor, hp_growth, mp_growth)
 	actor.action_delay = clampi(120 - int(combat.speed), 35, 90)
 	actor.move_range = clampi(2 + int(combat.speed / 90.0), 2, 3)
 

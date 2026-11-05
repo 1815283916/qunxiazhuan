@@ -59,9 +59,9 @@ horizontal_alignment = 1
 [node name="MP" type="ProgressBar" parent="."]
 layout_mode = 0
 offset_left = -5.0
-offset_top = -108.0
+offset_top = -132.0
 offset_right = 95.0
-offset_bottom = -102.0
+offset_bottom = -126.0
 mouse_filter = 2
 theme_override_styles/background = SubResource("ManaBackground")
 theme_override_styles/fill = SubResource("ManaFill")
@@ -72,9 +72,9 @@ show_percentage = false
 [node name="HP" type="ProgressBar" parent="."]
 layout_mode = 0
 offset_left = -5.0
-offset_top = -119.0
+offset_top = -143.0
 offset_right = 95.0
-offset_bottom = -111.0
+offset_bottom = -135.0
 mouse_filter = 2
 theme_override_styles/background = SubResource("HealthBackground")
 theme_override_styles/fill = SubResource("HealthFill")
@@ -82,16 +82,3 @@ max_value = 100.0
 value = 100.0
 show_percentage = false
 
-[node name="Status" type="Label" parent="."]
-visible = false
-layout_mode = 0
-offset_left = -5.0
-offset_top = -149.0
-offset_right = 95.0
-offset_bottom = -121.0
-mouse_filter = 2
-theme_override_colors/font_color = Color(0.5, 1, 0.3, 1)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_constants/outline_size = 3
-theme_override_font_sizes/font_size = 18
-horizontal_alignment = 1

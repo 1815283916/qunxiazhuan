@@ -115,7 +115,7 @@ theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 28
 text = "是，弟子一定行侠仗义，不堕我武当威名。"
-autowrap_mode = 2
+autowrap_mode = 3
 
 [node name="Continue" type="TextureButton" parent="DialogueBox"]
 layout_mode = 0

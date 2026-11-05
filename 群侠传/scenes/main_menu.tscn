@@ -1,28 +1,18 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene format=3 uid="uid://oyiuljevyuqr"]
 
-[ext_resource type="Script" path="res://scripts/main_menu.gd" id="1"]
-[ext_resource type="Texture2D" path="res://assets/UI/loading.png" id="2"]
-[ext_resource type="Texture2D" path="res://assets/Heads/zhengtingyu.png" id="3"]
-[ext_resource type="Texture2D" path="res://assets/UI/moji3.png" id="4"]
+[ext_resource type="Script" uid="uid://64cuy4nc8aso" path="res://scripts/main_menu.gd" id="1"]
+[ext_resource type="Texture2D" uid="uid://ca4fh5jyw1sig" path="res://assets/UI/loading.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://hr7n368n6kh8" path="res://assets/Heads/zhengtingyu.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://7hadw6ocq4yr" path="res://assets/Heads/chengying.png" id="3_rtw2f"]
+[ext_resource type="Texture2D" uid="uid://bd5fu0n6ext2" path="res://assets/UI/moji3.png" id="4"]
+[ext_resource type="Texture2D" uid="uid://br4fpdgcpwgt3" path="res://assets/Heads/moye.png" id="4_oa1go"]
 
 [sub_resource type="StyleBoxFlat" id="title_shadow"]
 bg_color = Color(0, 0, 0, 0)
 shadow_color = Color(1, 1, 1, 0.9)
 shadow_size = 8
 
-[sub_resource type="StyleBoxFlat" id="notice_box"]
-bg_color = Color(0.04, 0.035, 0.03, 0.92)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.54, 0.41, 0.27, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
-
-[node name="MainMenu" type="Control"]
+[node name="MainMenu" type="Control" unique_id=1277098232]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -31,7 +21,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
 
-[node name="InkBackground" type="TextureRect" parent="."]
+[node name="InkBackground" type="TextureRect" parent="." unique_id=193128724]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -42,145 +32,144 @@ texture = ExtResource("2")
 expand_mode = 1
 stretch_mode = 6
 
-[node name="Hero" type="TextureRect" parent="."]
+[node name="Hero3" type="TextureRect" parent="." unique_id=371572820]
 layout_mode = 0
-offset_left = 1130.0
-offset_top = 28.0
-offset_right = 1595.0
-offset_bottom = 900.0
+offset_left = 1133.0
+offset_top = 104.0
+offset_right = 1600.0
+offset_bottom = 608.0
+texture = ExtResource("3_rtw2f")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Hero2" type="TextureRect" parent="." unique_id=1360944910]
+layout_mode = 0
+offset_left = 1207.0
+offset_top = 407.0
+offset_right = 1685.0
+offset_bottom = 912.0
+texture = ExtResource("4_oa1go")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Hero" type="TextureRect" parent="." unique_id=1983831659]
+layout_mode = 0
+offset_left = 738.0
+offset_top = 353.0
+offset_right = 1454.0
+offset_bottom = 901.0
 texture = ExtResource("3")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="Title" type="Label" parent="."]
+[node name="Title" type="Label" parent="." unique_id=187358612]
 layout_mode = 0
-offset_left = 80.0
-offset_top = 45.0
-offset_right = 1030.0
-offset_bottom = 235.0
+offset_left = 251.0
+offset_top = 66.0
+offset_right = 694.0
+offset_bottom = 209.0
 theme_override_colors/font_color = Color(0.055, 0.05, 0.045, 1)
 theme_override_font_sizes/font_size = 104
 theme_override_styles/normal = SubResource("title_shadow")
 text = "群 侠 传"
 horizontal_alignment = 1
 
-[node name="Subtitle" type="Label" parent="."]
+[node name="Subtitle" type="Label" parent="." unique_id=1919596096]
 layout_mode = 0
-offset_left = 250.0
+offset_left = 124.0
 offset_top = 220.0
-offset_right = 930.0
+offset_right = 804.0
 offset_bottom = 270.0
 theme_override_colors/font_color = Color(0.2, 0.16, 0.12, 1)
 theme_override_font_sizes/font_size = 24
 text = "一 剑 一 酒 · 快 意 江 湖"
 horizontal_alignment = 1
 
-[node name="Buttons" type="VBoxContainer" parent="."]
+[node name="Buttons" type="VBoxContainer" parent="." unique_id=406676473]
 layout_mode = 0
-offset_left = 320.0
-offset_top = 315.0
-offset_right = 930.0
-offset_bottom = 780.0
+offset_left = 167.0
+offset_top = 313.0
+offset_right = 816.0
+offset_bottom = 746.0
 theme_override_constants/separation = 20
 
-[node name="Start" type="TextureButton" parent="Buttons"]
+[node name="Start" type="TextureButton" parent="Buttons" unique_id=561790739]
 custom_minimum_size = Vector2(610, 92)
 layout_mode = 2
 texture_normal = ExtResource("4")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="Label" type="Label" parent="Buttons/Start"]
+[node name="Label" type="Label" parent="Buttons/Start" unique_id=1425016717]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.94, 0.91, 0.84, 1)
 theme_override_font_sizes/font_size = 42
 text = "启 程"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Continue" type="TextureButton" parent="Buttons"]
+[node name="Continue" type="TextureButton" parent="Buttons" unique_id=1051341990]
 custom_minimum_size = Vector2(610, 92)
 layout_mode = 2
 texture_normal = ExtResource("4")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="Label" type="Label" parent="Buttons/Continue"]
+[node name="Label" type="Label" parent="Buttons/Continue" unique_id=1284817796]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.94, 0.91, 0.84, 1)
 theme_override_font_sizes/font_size = 42
 text = "追 忆"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Settings" type="TextureButton" parent="Buttons"]
+[node name="Settings" type="TextureButton" parent="Buttons" unique_id=1800166768]
 custom_minimum_size = Vector2(610, 92)
 layout_mode = 2
 texture_normal = ExtResource("4")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="Label" type="Label" parent="Buttons/Settings"]
+[node name="Label" type="Label" parent="Buttons/Settings" unique_id=439217928]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.94, 0.91, 0.84, 1)
 theme_override_font_sizes/font_size = 42
 text = "抚 琴"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Quit" type="TextureButton" parent="Buttons"]
+[node name="Quit" type="TextureButton" parent="Buttons" unique_id=1288777947]
 custom_minimum_size = Vector2(610, 92)
 layout_mode = 2
 texture_normal = ExtResource("4")
 ignore_texture_size = true
 stretch_mode = 0
 
-[node name="Label" type="Label" parent="Buttons/Quit"]
+[node name="Label" type="Label" parent="Buttons/Quit" unique_id=391356200]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(0.94, 0.91, 0.84, 1)
 theme_override_font_sizes/font_size = 42
 text = "归 隐"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="Notice" type="PanelContainer" parent="."]
-visible = false
-layout_mode = 0
-offset_left = 500.0
-offset_top = 760.0
-offset_right = 1100.0
-offset_bottom = 835.0
-theme_override_styles/panel = SubResource("notice_box")
-
-[node name="Text" type="Label" parent="Notice"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.78, 0.54, 1)
-theme_override_font_sizes/font_size = 20
-text = "设置面板将在后续场景中继续完善"
 horizontal_alignment = 1
 vertical_alignment = 1
 
